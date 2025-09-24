@@ -1,0 +1,52 @@
+# Example pubspec.yaml for your package
+name: typed_form_fields
+description: >-
+  Type-safe, universal form field wrapper with BLoC integration.
+  Provides generic FieldWrapper<T> for any data type with built-in
+  validation, debouncing, and performance optimizations.
+
+version: 1.0.0
+
+homepage: https://github.com/yourusername/typed_form_fields
+repository: https://github.com/yourusername/typed_form_fields
+issue_tracker: https://github.com/yourusername/typed_form_fields/issues
+documentation: https://pub.dev/documentation/typed_form_fields/latest/
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_bloc: ^9.1.1
+
+  freezed_annotation: ^3.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  mocktail: ^1.0.0
+  build_runner: ^2.4.12
+  freezed: ^3.2.3
+  json_serializable: ^6.8.0
+
+# Specify which files to include in the package
+# (exclude example/, test/, etc. from published package)
+publish_to: "https://pub.dartlang.org"
+
+topics:
+  - forms
+  - validation
+  - bloc
+  - type-safety
+
+# screenshots:
+#   - description: "Basic form with typed fields"
+#     path: screenshots/basic_form.png
+#   - description: "Complex form with validation"
+#     path: screenshots/complex_form.png
+
+funding:
+  - https://github.com/sponsors/yourusername
