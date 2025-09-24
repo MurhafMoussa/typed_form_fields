@@ -15,7 +15,7 @@ export 'src/services/form_state_computer.dart';
 export 'src/services/form_validation_service.dart';
 export 'src/validators/composite_validator.dart';
 // Validators exports
-export 'src/validators/validator.dart';
+export 'src/validators/validators.dart';
 
 // Widgets exports (when implemented)
 // export 'src/widgets/typed_text_field.dart';

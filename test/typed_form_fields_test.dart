@@ -10,8 +10,11 @@ import 'src/services/form_state_computer_test.dart'
     as form_state_computer_tests;
 import 'src/services/form_validation_service_test.dart'
     as form_validation_service_tests;
+import 'src/validators/common_validators_test.dart' as common_validators_tests;
 import 'src/validators/composite_validator_test.dart'
     as composite_validator_tests;
+import 'src/validators/validator_localizations_test.dart'
+    as validator_localizations_tests;
 import 'src/validators/validator_test.dart' as validator_tests;
 
 void main() {
@@ -34,8 +37,8 @@ void main() {
     group('Validators Tests', () {
       validator_tests.main();
       composite_validator_tests.main();
+      common_validators_tests.main();
+      validator_localizations_tests.main();
     });
-
-
   });
 }
