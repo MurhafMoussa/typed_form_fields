@@ -146,6 +146,41 @@ class SpanishValidatorLocalizations extends ValidatorLocalizations {
   String get fieldsMismatchError => 'Los campos no coinciden.';
 
   @override
+  String fieldsDifferentError(String fieldName) =>
+      'Este campo debe ser diferente de $fieldName.';
+
+  @override
+  String requiredWhenFieldValueError(String fieldName, String value) =>
+      'Este campo es obligatorio cuando $fieldName es $value.';
+
+  @override
+  String requiredWhenFieldNotEmptyError(String fieldName) =>
+      'Este campo es obligatorio cuando se proporciona $fieldName.';
+
+  @override
+  String get dateBeforeError =>
+      'La fecha de inicio debe ser anterior a la fecha de fin.';
+
+  @override
+  String get dateAfterError =>
+      'La fecha de fin debe ser posterior a la fecha de inicio.';
+
+  @override
+  String greaterThanFieldError(String fieldName) =>
+      'El valor debe ser mayor que $fieldName.';
+
+  @override
+  String lessThanFieldError(String fieldName) =>
+      'El valor debe ser menor que $fieldName.';
+
+  @override
+  String get sumConditionError => 'No se cumple la condición de suma.';
+
+  @override
+  String get atLeastOneRequiredError =>
+      'Al menos un campo de este grupo es obligatorio.';
+
+  @override
   String get asyncValidationError => 'La validación falló.';
 }
 
@@ -157,10 +192,10 @@ class FrenchValidatorLocalizations extends ValidatorLocalizations {
   Locale get locale => const Locale('fr');
 
   @override
-  String get requiredFieldError => 'Ce champ est obligatoire.';
+  String get requiredFieldError => 'Ce champ est requis.';
 
   @override
-  String get invalidEmailError => 'Veuillez saisir une adresse e-mail valide.';
+  String get invalidEmailError => 'Veuillez saisir une adresse email valide.';
 
   @override
   String minLengthError(int minLength) =>
@@ -218,6 +253,41 @@ class FrenchValidatorLocalizations extends ValidatorLocalizations {
 
   @override
   String get fieldsMismatchError => 'Les champs ne correspondent pas.';
+
+  @override
+  String fieldsDifferentError(String fieldName) =>
+      'Ce champ doit être différent de $fieldName.';
+
+  @override
+  String requiredWhenFieldValueError(String fieldName, String value) =>
+      'Ce champ est obligatoire quand $fieldName est $value.';
+
+  @override
+  String requiredWhenFieldNotEmptyError(String fieldName) =>
+      'Ce champ est obligatoire quand $fieldName est fourni.';
+
+  @override
+  String get dateBeforeError =>
+      'La date de début doit être antérieure à la date de fin.';
+
+  @override
+  String get dateAfterError =>
+      'La date de fin doit être postérieure à la date de début.';
+
+  @override
+  String greaterThanFieldError(String fieldName) =>
+      'La valeur doit être supérieure à $fieldName.';
+
+  @override
+  String lessThanFieldError(String fieldName) =>
+      'La valeur doit être inférieure à $fieldName.';
+
+  @override
+  String get sumConditionError => 'La condition de somme n\'est pas remplie.';
+
+  @override
+  String get atLeastOneRequiredError =>
+      'Au moins un champ de ce groupe est obligatoire.';
 
   @override
   String get asyncValidationError => 'La validation a échoué.';

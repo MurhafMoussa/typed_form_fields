@@ -264,12 +264,12 @@ void main() {
       });
 
       test('should provide French required field error message', () {
-        expect(localizations.requiredFieldError, 'Ce champ est obligatoire.');
+        expect(localizations.requiredFieldError, 'Ce champ est requis.');
       });
 
       test('should provide French email error message', () {
         expect(localizations.invalidEmailError,
-            'Veuillez saisir une adresse e-mail valide.');
+            'Veuillez saisir une adresse email valide.');
       });
     });
 

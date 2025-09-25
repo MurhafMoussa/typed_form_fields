@@ -74,6 +74,21 @@ abstract class ValidatorLocalizations {
 
   // Cross-field validation messages
   String get fieldsMismatchError => 'Fields do not match.';
+  String fieldsDifferentError(String fieldName) =>
+      'This field must be different from $fieldName.';
+  String requiredWhenFieldValueError(String fieldName, String value) =>
+      'This field is required when $fieldName is $value.';
+  String requiredWhenFieldNotEmptyError(String fieldName) =>
+      'This field is required when $fieldName is provided.';
+  String get dateBeforeError => 'Start date must be before end date.';
+  String get dateAfterError => 'End date must be after start date.';
+  String greaterThanFieldError(String fieldName) =>
+      'Value must be greater than $fieldName.';
+  String lessThanFieldError(String fieldName) =>
+      'Value must be less than $fieldName.';
+  String get sumConditionError => 'Sum condition not met.';
+  String get atLeastOneRequiredError =>
+      'At least one field in this group is required.';
 
   // Async validation messages
   String get asyncValidationError => 'Validation failed.';
@@ -150,6 +165,39 @@ class DefaultValidatorLocalizations extends ValidatorLocalizations {
 
   @override
   String get fieldsMismatchError => 'Fields do not match.';
+
+  @override
+  String fieldsDifferentError(String fieldName) =>
+      'This field must be different from $fieldName.';
+
+  @override
+  String requiredWhenFieldValueError(String fieldName, String value) =>
+      'This field is required when $fieldName is $value.';
+
+  @override
+  String requiredWhenFieldNotEmptyError(String fieldName) =>
+      'This field is required when $fieldName is provided.';
+
+  @override
+  String get dateBeforeError => 'Start date must be before end date.';
+
+  @override
+  String get dateAfterError => 'End date must be after start date.';
+
+  @override
+  String greaterThanFieldError(String fieldName) =>
+      'Value must be greater than $fieldName.';
+
+  @override
+  String lessThanFieldError(String fieldName) =>
+      'Value must be less than $fieldName.';
+
+  @override
+  String get sumConditionError => 'Sum condition not met.';
+
+  @override
+  String get atLeastOneRequiredError =>
+      'At least one field in this group is required.';
 
   @override
   String get asyncValidationError => 'Validation failed.';

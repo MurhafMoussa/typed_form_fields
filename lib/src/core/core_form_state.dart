@@ -1,5 +1,3 @@
-
-
 part of 'core_form_cubit.dart';
 
 @freezed
@@ -13,11 +11,11 @@ abstract class CoreFormState with _$CoreFormState {
   }) = _CoreFormState;
   const CoreFormState._();
   factory CoreFormState.initial() => const CoreFormState(
-    values: {},
-    errors: {},
-    isValid: false,
-    fieldTypes: {},
-  );
+        values: {},
+        errors: {},
+        isValid: false,
+        fieldTypes: {},
+      );
 
   /// Type-safe getter for field values
   @useResult
@@ -38,6 +36,8 @@ abstract class CoreFormState with _$CoreFormState {
     if (value == null) return null;
     if (value is T) return value as T;
 
+    // Fallback for type mismatch
+    return null;
   }
 
   /// Get error for a specific field
