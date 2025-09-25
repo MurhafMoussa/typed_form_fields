@@ -6,6 +6,7 @@ library;
 
 // Core exports
 export 'src/core/core_form_cubit.dart';
+export 'src/core/form_errors.dart';
 // Models exports
 export 'src/models/typed_form_field.dart';
 export 'src/services/form_debounced_validation_service.dart';

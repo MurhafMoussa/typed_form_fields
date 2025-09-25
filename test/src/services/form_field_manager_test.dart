@@ -228,6 +228,61 @@ void main() {
       });
     });
   });
+
+  group('Dynamic Field Management', () {
+    late FormFieldManager fieldManager;
+
+    setUp(() {
+      fieldManager = FormFieldManager(fields: [
+        const TypedFormField<String>(name: 'email', validators: []),
+      ]);
+    });
+
+    group('addField', () {
+      test('should add a new field successfully', () {
+        // Arrange
+        const newField = TypedFormField<String>(name: 'phone', validators: []);
+
+        // Act
+        fieldManager.addField(newField);
+
+        // Assert
+        expect(fieldManager.fieldExists('phone'), isTrue);
+        expect(fieldManager.fields.length, 2);
+      });
+
+      test('should throw ArgumentError when adding existing field', () {
+        // Arrange - This test covers line 124
+        const existingField =
+            TypedFormField<String>(name: 'email', validators: []);
+
+        // Act & Assert
+        expect(
+          () => fieldManager.addField(existingField),
+          throwsA(isA<ArgumentError>()),
+        );
+      });
+    });
+
+    group('removeField', () {
+      test('should remove an existing field successfully', () {
+        // Act
+        fieldManager.removeField('email');
+
+        // Assert
+        expect(fieldManager.fieldExists('email'), isFalse);
+        expect(fieldManager.fields.length, 0);
+      });
+
+      test('should throw ArgumentError when removing non-existent field', () {
+        // Act & Assert - This test covers line 135
+        expect(
+          () => fieldManager.removeField('nonexistent'),
+          throwsA(isA<ArgumentError>()),
+        );
+      });
+    });
+  });
 }
 
 class MockValidator<T> implements Validator<T> {

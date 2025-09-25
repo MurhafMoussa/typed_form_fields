@@ -22,13 +22,23 @@ abstract class CoreFormState with _$CoreFormState {
   T? getValue<T>(String fieldName) {
     // Check if field exists
     if (!values.containsKey(fieldName)) {
-      throw ArgumentError('Field "$fieldName" does not exist in the form');
+      throw FormFieldError.fieldNotFound(
+        fieldName: fieldName,
+        availableFields: values.keys.toList(),
+        fieldTypes: fieldTypes,
+        currentValues: values,
+      );
     }
 
     // Check type compatibility
     final expectedType = fieldTypes[fieldName];
     if (expectedType != null && expectedType != T) {
-      throw TypeError();
+      throw FormFieldError.typeMismatch(
+        fieldName: fieldName,
+        expectedType: expectedType,
+        actualType: T,
+        operation: 'getValue',
+      );
     }
 
     // Return value with proper type

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:typed_form_fields/src/core/core_form_cubit.dart';
+import 'package:typed_form_fields/src/core/form_errors.dart';
 
 void main() {
   group('CoreFormState', () {
@@ -71,22 +72,22 @@ void main() {
         expect(stateWithNull.getValue<String>('email'), isNull);
       });
 
-      test('should throw ArgumentError for non-existing field', () {
+      test('should throw FormFieldError for non-existing field', () {
         expect(
           () => state.getValue<String>('nonExistent'),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
-      test('should throw TypeError for wrong type', () {
+      test('should throw FormFieldError for wrong type', () {
         expect(
           () => state.getValue<int>('email'), // email is String, not int
-          throwsA(isA<TypeError>()),
+          throwsA(isA<FormFieldError>()),
         );
 
         expect(
           () => state.getValue<String>('age'), // age is int, not String
-          throwsA(isA<TypeError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 

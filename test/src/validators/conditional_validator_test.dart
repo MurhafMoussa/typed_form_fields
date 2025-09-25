@@ -390,6 +390,33 @@ void main() {
         // Assert
         expect(result, null);
       });
+
+      test('should not apply validator when Set is empty', () {
+        // Arrange - This test covers the Iterable check on line 157
+        final validator = ConditionalValidators.whenNotEmpty<Set<String>>(
+          TestValidator<Set<String>>('Should not be called'),
+        );
+
+        // Act
+        final result = validator.validate(<String>{}, mockContext);
+
+        // Assert
+        expect(result, null);
+      });
+
+      test('should apply validator when Set is not empty', () {
+        // Arrange - This test covers the Iterable check on line 157
+        const expectedError = 'Validation error';
+        final validator = ConditionalValidators.whenNotEmpty<Set<String>>(
+          TestValidator<Set<String>>(expectedError),
+        );
+
+        // Act
+        final result = validator.validate({'item'}, mockContext);
+
+        // Assert
+        expect(result, expectedError);
+      });
     });
 
     group('whenEmpty', () {
@@ -429,6 +456,33 @@ void main() {
 
         // Act
         final result = validator.validate('test', mockContext);
+
+        // Assert
+        expect(result, null);
+      });
+
+      test('should apply validator when Set is empty', () {
+        // Arrange - This test covers the Iterable check on line 157
+        const expectedError = 'Validation error';
+        final validator = ConditionalValidators.whenEmpty<Set<String>>(
+          TestValidator<Set<String>>(expectedError),
+        );
+
+        // Act
+        final result = validator.validate(<String>{}, mockContext);
+
+        // Assert
+        expect(result, expectedError);
+      });
+
+      test('should not apply validator when Set is not empty', () {
+        // Arrange - This test covers the Iterable check on line 157
+        final validator = ConditionalValidators.whenEmpty<Set<String>>(
+          TestValidator<Set<String>>('Should not be called'),
+        );
+
+        // Act
+        final result = validator.validate({'item'}, mockContext);
 
         // Assert
         expect(result, null);

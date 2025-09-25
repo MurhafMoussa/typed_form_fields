@@ -4,18 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
-/// A universal wrapper widget that provides form validation integration
+/// A high-performance universal wrapper widget that provides form validation integration
 /// for any type of form field widget. This widget extracts the common
 /// pattern used across all form fields for state management, validation,
-/// and error handling.
+/// and error handling with optimized rebuilds and listener support.
 ///
 /// **Key Features:**
 /// - **Universal**: Works with any widget type (TextField, Checkbox, Radio, etc.)
+/// - **Performance Optimized**: Uses BlocConsumer with buildWhen/listenWhen for minimal rebuilds
 /// - **BlocProvider Access**: Can reach CoreFormCubit from anywhere in subtree
 /// - **Type Safety**: Generic support for different field value types
 /// - **Debouncing**: Optional delayed updates for performance
 /// - **Value Transformation**: Optional value processing before form updates
 /// - **Error Handling**: Consistent error extraction and display
+/// - **Listener Support**: React to field state changes without rebuilding
 ///
 /// **Usage Example:**
 /// ```dart
@@ -24,6 +26,10 @@ import 'package:typed_form_fields/typed_form_fields.dart';
 ///   initialValue: 'user@example.com',
 ///   debounceTime: Duration(milliseconds: 300),
 ///   transformValue: (value) => value.toLowerCase().trim(),
+///   onFieldStateChanged: (value, error, hasError) {
+///     // React to field changes without rebuilding
+///     print('Field changed: $value, hasError: $hasError');
+///   },
 ///   builder: (context, value, error, hasError, updateValue) {
 ///     return TextFormField(
 ///       initialValue: value,
@@ -45,6 +51,7 @@ class FieldWrapper<T> extends StatefulWidget {
     this.debounceTime,
     this.transformValue,
     this.onValueChanged,
+    this.onFieldStateChanged,
   });
 
   /// Unique identifier for the field within the form.
@@ -80,6 +87,12 @@ class FieldWrapper<T> extends StatefulWidget {
 
   /// Callback fired when the field value changes (before debouncing).
   final void Function(T? value)? onValueChanged;
+
+  /// Callback fired when the field state changes (value, error, or hasError).
+  /// This listener is called without triggering a rebuild, making it perfect
+  /// for side effects like logging, analytics, or triggering other actions.
+  final void Function(T? value, String? error, bool hasError)?
+      onFieldStateChanged;
 
   @override
   State<FieldWrapper<T>> createState() => _FieldWrapperState<T>();
@@ -141,7 +154,41 @@ class _FieldWrapperState<T> extends State<FieldWrapper<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CoreFormCubit, CoreFormState>(
+    return BlocConsumer<CoreFormCubit, CoreFormState>(
+      // Only rebuild when this specific field's data changes
+      buildWhen: (previous, current) {
+        final previousError = previous.errors[widget.fieldName];
+        final currentError = current.errors[widget.fieldName];
+        final previousValue = previous.values[widget.fieldName];
+        final currentValue = current.values[widget.fieldName];
+
+        // Rebuild if value or error state changed for this field
+        return previousValue != currentValue || previousError != currentError;
+      },
+
+      // Listen to field state changes without rebuilding
+      listenWhen: (previous, current) {
+        final previousError = previous.errors[widget.fieldName];
+        final currentError = current.errors[widget.fieldName];
+        final previousValue = previous.values[widget.fieldName];
+        final currentValue = current.values[widget.fieldName];
+
+        // Listen when this field's state changes
+        return previousValue != currentValue || previousError != currentError;
+      },
+
+      listener: (context, state) {
+        // Call the field state change listener if provided
+        if (widget.onFieldStateChanged != null) {
+          final error = state.errors[widget.fieldName];
+          final hasError = error != null && error.isNotEmpty;
+          final formValue = state.values[widget.fieldName] as T?;
+          final effectiveValue = formValue ?? _currentValue;
+
+          widget.onFieldStateChanged!(effectiveValue, error, hasError);
+        }
+      },
+
       builder: (context, state) {
         final error = state.errors[widget.fieldName];
         final hasError = error != null && error.isNotEmpty;

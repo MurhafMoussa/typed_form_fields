@@ -28,6 +28,14 @@ class FormFieldManager {
   /// Get the touched fields map
   Map<String, bool> get touchedFields => _touchedFields;
 
+  /// Get the list of field names
+  List<String> get fieldNames => _fields.map((field) => field.name).toList();
+
+  /// Get the map of field types
+  Map<String, Type> get fieldTypes => {
+        for (final field in _fields) field.name: field.valueType,
+      };
+
   /// Check if a field exists
   bool fieldExists(String fieldName) {
     return _validators.containsKey(fieldName);
@@ -108,5 +116,27 @@ class FormFieldManager {
       fieldTypes[field.name] = field.valueType;
     }
     return fieldTypes;
+  }
+
+  /// Add a field dynamically
+  void addField(TypedFormField field) {
+    if (fieldExists(field.name)) {
+      throw ArgumentError('Field "${field.name}" already exists');
+    }
+
+    _fields.add(field);
+    _validators[field.name] = field.createValidator();
+    _touchedFields[field.name] = false;
+  }
+
+  /// Remove a field dynamically
+  void removeField(String fieldName) {
+    if (!fieldExists(fieldName)) {
+      throw ArgumentError('Field "$fieldName" does not exist');
+    }
+
+    _fields.removeWhere((field) => field.name == fieldName);
+    _validators.remove(fieldName);
+    _touchedFields.remove(fieldName);
   }
 }

@@ -6,6 +6,8 @@ import 'package:typed_form_fields/src/services/form_field_manager.dart';
 import 'package:typed_form_fields/src/services/form_state_computer.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
+import 'form_errors.dart';
+
 part 'core_form_cubit.freezed.dart';
 part 'core_form_state.dart';
 
@@ -44,14 +46,24 @@ class CoreFormCubit extends Cubit<CoreFormState> {
   }) {
     // Field existence check
     if (!_fieldManager.fieldExists(fieldName)) {
-      throw ArgumentError('Field "$fieldName" does not exist');
+      throw FormFieldError.fieldNotFound(
+        fieldName: fieldName,
+        availableFields: _fieldManager.validators.keys.toList(),
+        fieldTypes: _fieldManager.getFieldTypes(),
+        currentValues: state.values,
+      );
     }
 
     // Type check
     if (value != null) {
       final expectedType = _fieldManager.getFieldType(fieldName);
       if (expectedType != null && expectedType != T) {
-        throw TypeError();
+        throw FormFieldError.typeMismatch(
+          fieldName: fieldName,
+          expectedType: expectedType,
+          actualType: T,
+          operation: 'updateField',
+        );
       }
     }
 
@@ -80,14 +92,24 @@ class CoreFormCubit extends Cubit<CoreFormState> {
   }) {
     // Field existence check
     if (!_fieldManager.fieldExists(fieldName)) {
-      throw ArgumentError('Field "$fieldName" does not exist');
+      throw FormFieldError.fieldNotFound(
+        fieldName: fieldName,
+        availableFields: _fieldManager.fieldNames,
+        fieldTypes: _fieldManager.fieldTypes,
+        currentValues: state.values,
+      );
     }
 
     // Type check
     if (value != null) {
       final expectedType = _fieldManager.getFieldType(fieldName);
       if (expectedType != null && expectedType != T) {
-        throw TypeError();
+        throw FormFieldError.typeMismatch(
+          fieldName: fieldName,
+          expectedType: expectedType,
+          actualType: T,
+          operation: 'updateFieldWithDebounce',
+        );
       }
     }
 
@@ -121,14 +143,24 @@ class CoreFormCubit extends Cubit<CoreFormState> {
 
       // Field existence check
       if (!_fieldManager.fieldExists(fieldName)) {
-        throw ArgumentError('Field "$fieldName" does not exist');
+        throw FormFieldError.fieldNotFound(
+          fieldName: fieldName,
+          availableFields: _fieldManager.fieldNames,
+          fieldTypes: _fieldManager.fieldTypes,
+          currentValues: state.values,
+        );
       }
 
       // Type check
       if (value != null) {
         final expectedType = _fieldManager.getFieldType(fieldName);
         if (expectedType != null && expectedType != T) {
-          throw TypeError();
+          throw FormFieldError.typeMismatch(
+            fieldName: fieldName,
+            expectedType: expectedType,
+            actualType: T,
+            operation: 'updateFields',
+          );
         }
       }
     }
@@ -156,6 +188,16 @@ class CoreFormCubit extends Cubit<CoreFormState> {
     required List<Validator<T>> validators,
     required BuildContext context,
   }) {
+    // Check if field exists first
+    if (!_fieldManager.fieldExists(name)) {
+      throw FormFieldError.fieldNotFound(
+        fieldName: name,
+        availableFields: _fieldManager.fieldNames,
+        fieldTypes: _fieldManager.fieldTypes,
+        currentValues: state.values,
+      );
+    }
+
     // Update field validators using the field manager
     _fieldManager.updateFieldValidators<T>(name: name, validators: validators);
 
@@ -221,7 +263,12 @@ class CoreFormCubit extends Cubit<CoreFormState> {
     required BuildContext context,
   }) {
     if (!_fieldManager.fieldExists(fieldName)) {
-      throw ArgumentError('Field "$fieldName" does not exist');
+      throw FormFieldError.fieldNotFound(
+        fieldName: fieldName,
+        availableFields: _fieldManager.fieldNames,
+        fieldTypes: _fieldManager.fieldTypes,
+        currentValues: state.values,
+      );
     }
 
     final value = state.values[fieldName];
@@ -310,7 +357,12 @@ class CoreFormCubit extends Cubit<CoreFormState> {
   }) {
     // Ensure the field exists
     if (!_fieldManager.fieldExists(fieldName)) {
-      throw ArgumentError('Field "$fieldName" does not exist in the form');
+      throw FormFieldError.fieldNotFound(
+        fieldName: fieldName,
+        availableFields: _fieldManager.fieldNames,
+        fieldTypes: _fieldManager.fieldTypes,
+        currentValues: state.values,
+      );
     }
 
     final newErrors = Map<String, String>.from(state.errors);
@@ -357,7 +409,12 @@ class CoreFormCubit extends Cubit<CoreFormState> {
 
       // Ensure the field exists
       if (!_fieldManager.fieldExists(fieldName)) {
-        throw ArgumentError('Field "$fieldName" does not exist in the form');
+        throw FormFieldError.fieldNotFound(
+          fieldName: fieldName,
+          availableFields: _fieldManager.fieldNames,
+          fieldTypes: _fieldManager.fieldTypes,
+          currentValues: state.values,
+        );
       }
 
       // Mark field as touched since we're manually validating it
@@ -380,6 +437,196 @@ class CoreFormCubit extends Cubit<CoreFormState> {
       context: context,
     );
     _emitIfChanged(state.copyWith(errors: newErrors, isValid: overallValid));
+  }
+
+  /// Add a single field to the form dynamically
+  void addField<T>({
+    required TypedFormField<T> field,
+    required BuildContext context,
+  }) {
+    // Check if field already exists
+    if (_fieldManager.fieldExists(field.name)) {
+      throw FormFieldError.fieldAlreadyExists(fieldName: field.name);
+    }
+
+    // Add field to field manager
+    _fieldManager.addField(field);
+
+    // Update form state with new field
+    final newValues = Map<String, Object?>.from(state.values);
+    newValues[field.name] = field.initialValue;
+
+    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
+    newFieldTypes[field.name] = T;
+
+    // Validate all fields to update form validity
+    final newErrors = _stateComputer.validationService.validateFields(
+      values: newValues,
+      validators: _fieldManager.validators,
+      context: context,
+    );
+
+    final newIsValid = _stateComputer.validationService.computeOverallValidity(
+      values: newValues,
+      validators: _fieldManager.validators,
+      touchedFields: _fieldManager.touchedFields,
+      context: context,
+    );
+
+    _emitIfChanged(state.copyWith(
+      values: newValues,
+      fieldTypes: newFieldTypes,
+      errors: newErrors,
+      isValid: newIsValid,
+    ));
+  }
+
+  /// Add multiple fields to the form dynamically
+  void addFields({
+    required List<TypedFormField> fields,
+    required BuildContext context,
+  }) {
+    // Check for existing fields
+    for (final field in fields) {
+      if (_fieldManager.fieldExists(field.name)) {
+        throw FormFieldError.fieldAlreadyExists(fieldName: field.name);
+      }
+    }
+
+    // Add all fields to field manager
+    for (final field in fields) {
+      _fieldManager.addField(field);
+    }
+
+    // Update form state with new fields
+    final newValues = Map<String, Object?>.from(state.values);
+    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
+
+    for (final field in fields) {
+      newValues[field.name] = field.initialValue;
+      // Extract type from TypedFormField<T> - simplified approach
+      newFieldTypes[field.name] = field.valueType;
+    }
+
+    // Validate all fields to update form validity
+    final newErrors = _stateComputer.validationService.validateFields(
+      values: newValues,
+      validators: _fieldManager.validators,
+      context: context,
+    );
+
+    final newIsValid = _stateComputer.validationService.computeOverallValidity(
+      values: newValues,
+      validators: _fieldManager.validators,
+      touchedFields: _fieldManager.touchedFields,
+      context: context,
+    );
+
+    _emitIfChanged(state.copyWith(
+      values: newValues,
+      fieldTypes: newFieldTypes,
+      errors: newErrors,
+      isValid: newIsValid,
+    ));
+  }
+
+  /// Remove a field from the form dynamically
+  void removeField(String fieldName, {required BuildContext context}) {
+    // Check if field exists
+    if (!_fieldManager.fieldExists(fieldName)) {
+      throw FormFieldError.fieldNotFound(
+        fieldName: fieldName,
+        availableFields: _fieldManager.validators.keys.toList(),
+        fieldTypes: _fieldManager.getFieldTypes(),
+        currentValues: state.values,
+      );
+    }
+
+    // Remove field from field manager
+    _fieldManager.removeField(fieldName);
+
+    // Update form state by removing field
+    final newValues = Map<String, Object?>.from(state.values);
+    newValues.remove(fieldName);
+
+    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
+    newFieldTypes.remove(fieldName);
+
+    final newErrors = Map<String, String>.from(state.errors);
+    newErrors.remove(fieldName);
+
+    // Validate remaining fields to update form validity
+    final validatedErrors = _stateComputer.validationService.validateFields(
+      values: newValues,
+      validators: _fieldManager.validators,
+      context: context,
+    );
+
+    final newIsValid = _stateComputer.validationService.computeOverallValidity(
+      values: newValues,
+      validators: _fieldManager.validators,
+      touchedFields: _fieldManager.touchedFields,
+      context: context,
+    );
+
+    _emitIfChanged(state.copyWith(
+      values: newValues,
+      fieldTypes: newFieldTypes,
+      errors: validatedErrors,
+      isValid: newIsValid,
+    ));
+  }
+
+  /// Remove multiple fields from the form dynamically
+  void removeFields(List<String> fieldNames, {required BuildContext context}) {
+    // Check if all fields exist
+    for (final fieldName in fieldNames) {
+      if (!_fieldManager.fieldExists(fieldName)) {
+        throw FormFieldError.fieldNotFound(
+          fieldName: fieldName,
+          availableFields: _fieldManager.validators.keys.toList(),
+          fieldTypes: _fieldManager.getFieldTypes(),
+          currentValues: state.values,
+        );
+      }
+    }
+
+    // Remove all fields from field manager
+    for (final fieldName in fieldNames) {
+      _fieldManager.removeField(fieldName);
+    }
+
+    // Update form state by removing fields
+    final newValues = Map<String, Object?>.from(state.values);
+    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
+    final newErrors = Map<String, String>.from(state.errors);
+
+    for (final fieldName in fieldNames) {
+      newValues.remove(fieldName);
+      newFieldTypes.remove(fieldName);
+      newErrors.remove(fieldName);
+    }
+
+    // Validate remaining fields to update form validity
+    final validatedErrors = _stateComputer.validationService.validateFields(
+      values: newValues,
+      validators: _fieldManager.validators,
+      context: context,
+    );
+
+    final newIsValid = _stateComputer.validationService.computeOverallValidity(
+      values: newValues,
+      validators: _fieldManager.validators,
+      touchedFields: _fieldManager.touchedFields,
+      context: context,
+    );
+
+    _emitIfChanged(state.copyWith(
+      values: newValues,
+      fieldTypes: newFieldTypes,
+      errors: validatedErrors,
+      isValid: newIsValid,
+    ));
   }
 
   /// Disposes of all resources

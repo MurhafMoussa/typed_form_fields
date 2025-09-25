@@ -4,15 +4,19 @@ import 'package:typed_form_fields/typed_form_fields.dart';
 
 /// Complete registration form example using FieldWrapper<T>
 /// This demonstrates the clean, universal integration approach
-class RegistrationForm extends StatelessWidget {
-  const RegistrationForm({super.key});
+class RegistrationFormScreen extends StatelessWidget {
+  const RegistrationFormScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Create Account')),
+      appBar: AppBar(
+        title: const Text('Registration Form'),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: BlocProvider(
           create: (context) => CoreFormCubit(
             fields: [
@@ -84,21 +88,27 @@ class RegistrationForm extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
+                const Text(
                   'Create Account',
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Using FieldWrapper<T> for Universal Integration',
                   style: TextStyle(fontSize: 16, color: Colors.blue.shade600),
                 ),
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
 
                 // First Name with FieldWrapper
                 FieldWrapper<String>(
                   fieldName: 'firstName',
                   transformValue: (value) => value.trim(),
+                  onFieldStateChanged: (value, error, hasError) {
+                    // Example of listener without rebuild
+                    if (hasError) {
+                      print('First name error: $error');
+                    }
+                  },
                   builder: (context, value, error, hasError, updateValue) {
                     return TextFormField(
                       initialValue: value,
@@ -106,16 +116,16 @@ class RegistrationForm extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'First Name',
                         hintText: 'Enter your first name',
-                        prefixIcon: Icon(Icons.person),
+                        prefixIcon: const Icon(Icons.person),
                         errorText: hasError ? error : null,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.next,
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Last Name with FieldWrapper
                 FieldWrapper<String>(
@@ -128,21 +138,21 @@ class RegistrationForm extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Last Name',
                         hintText: 'Enter your last name',
-                        prefixIcon: Icon(Icons.person_outline),
+                        prefixIcon: const Icon(Icons.person_outline),
                         errorText: hasError ? error : null,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.next,
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Email with FieldWrapper and debouncing
                 FieldWrapper<String>(
                   fieldName: 'email',
-                  debounceTime: Duration(milliseconds: 300),
+                  debounceTime: const Duration(milliseconds: 300),
                   transformValue: (value) => value.toLowerCase().trim(),
                   builder: (context, value, error, hasError, updateValue) {
                     return TextFormField(
@@ -151,9 +161,9 @@ class RegistrationForm extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Email',
                         hintText: 'Enter your email address',
-                        prefixIcon: Icon(Icons.email),
+                        prefixIcon: const Icon(Icons.email),
                         errorText: hasError ? error : null,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                         helperText: 'Validation debounced by 300ms',
                       ),
                       keyboardType: TextInputType.emailAddress,
@@ -161,7 +171,7 @@ class RegistrationForm extends StatelessWidget {
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Phone with FieldWrapper
                 FieldWrapper<String>(
@@ -173,16 +183,16 @@ class RegistrationForm extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Phone Number',
                         hintText: 'Enter your phone number',
-                        prefixIcon: Icon(Icons.phone),
+                        prefixIcon: const Icon(Icons.phone),
                         errorText: hasError ? error : null,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.phone,
                       textInputAction: TextInputAction.next,
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Password with FieldWrapper
                 FieldWrapper<String>(
@@ -194,16 +204,16 @@ class RegistrationForm extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Password',
                         hintText: 'Create a strong password',
-                        prefixIcon: Icon(Icons.lock),
+                        prefixIcon: const Icon(Icons.lock),
                         errorText: hasError ? error : null,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                       obscureText: true,
                       textInputAction: TextInputAction.next,
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Confirm Password with FieldWrapper
                 FieldWrapper<String>(
@@ -215,16 +225,16 @@ class RegistrationForm extends StatelessWidget {
                       decoration: InputDecoration(
                         labelText: 'Confirm Password',
                         hintText: 'Re-enter your password',
-                        prefixIcon: Icon(Icons.lock_outline),
+                        prefixIcon: const Icon(Icons.lock_outline),
                         errorText: hasError ? error : null,
-                        border: OutlineInputBorder(),
+                        border: const OutlineInputBorder(),
                       ),
                       obscureText: true,
                       textInputAction: TextInputAction.done,
                     );
                   },
                 ),
-                SizedBox(height: 16),
+                const SizedBox(height: 16),
 
                 // Terms Agreement with FieldWrapper
                 FieldWrapper<bool>(
@@ -234,7 +244,8 @@ class RegistrationForm extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CheckboxListTile(
-                          title: Text('I agree to the Terms and Conditions'),
+                          title:
+                              const Text('I agree to the Terms and Conditions'),
                           value: value ?? false,
                           onChanged: updateValue,
                           controlAffinity: ListTileControlAffinity.leading,
@@ -242,10 +253,10 @@ class RegistrationForm extends StatelessWidget {
                         ),
                         if (hasError)
                           Padding(
-                            padding: EdgeInsets.only(left: 16, top: 4),
+                            padding: const EdgeInsets.only(left: 16, top: 4),
                             child: Text(
                               error!,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.red,
                                 fontSize: 12,
                               ),
@@ -256,7 +267,7 @@ class RegistrationForm extends StatelessWidget {
                   },
                 ),
 
-                SizedBox(height: 32),
+                const SizedBox(height: 32),
 
                 // Submit button with form status
                 BlocBuilder<CoreFormCubit, CoreFormState>(
@@ -268,19 +279,19 @@ class RegistrationForm extends StatelessWidget {
                               ? () => _submitForm(context, state)
                               : null,
                           style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Create Account',
                             style: TextStyle(fontSize: 16),
                           ),
                         ),
 
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
                         // Form status indicator
                         Container(
-                          padding: EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
                             color: state.isValid
                                 ? Colors.green.shade50
@@ -300,7 +311,7 @@ class RegistrationForm extends StatelessWidget {
                                 color:
                                     state.isValid ? Colors.green : Colors.red,
                               ),
-                              SizedBox(width: 8),
+                              const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   state.isValid
@@ -318,25 +329,17 @@ class RegistrationForm extends StatelessWidget {
                           ),
                         ),
 
-                        SizedBox(height: 16),
-
-                        // Login Link
-                        TextButton(
-                          onPressed: () {
-                            // Navigate to login
-                          },
-                          child: Text('Already have an account? Sign in'),
-                        ),
+                        const SizedBox(height: 16),
 
                         // Debug info (expandable)
                         if (state.values.isNotEmpty) ...[
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           ExpansionTile(
-                            title: Text('Debug: Form State'),
+                            title: const Text('Debug: Form State'),
                             children: [
                               Container(
                                 width: double.infinity,
-                                padding: EdgeInsets.all(16),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(8),
@@ -344,7 +347,7 @@ class RegistrationForm extends StatelessWidget {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text('Values:',
+                                    const Text('Values:',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     Text(
@@ -355,12 +358,12 @@ class RegistrationForm extends StatelessWidget {
                                         'Email: ${state.getValue<String>('email')}'),
                                     Text(
                                         'Phone: ${state.getValue<String>('phone')}'),
-                                    Text('Password: [hidden]'),
-                                    Text('Confirm Password: [hidden]'),
+                                    const Text('Password: [hidden]'),
+                                    const Text('Confirm Password: [hidden]'),
                                     Text(
                                         'Agree to Terms: ${state.getValue<bool>('agreeToTerms')}'),
-                                    SizedBox(height: 8),
-                                    Text('Errors:',
+                                    const SizedBox(height: 8),
+                                    const Text('Errors:',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     Text('${state.errors}'),
@@ -396,23 +399,23 @@ class RegistrationForm extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Account Created!'),
+        title: const Text('Account Created!'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Welcome ${userData['firstName']} ${userData['lastName']}!'),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text('Email: ${userData['email']}'),
             Text('Phone: ${userData['phone']}'),
-            SizedBox(height: 8),
-            Text('Your account has been successfully created.'),
+            const SizedBox(height: 8),
+            const Text('Your account has been successfully created.'),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -420,7 +423,7 @@ class RegistrationForm extends StatelessWidget {
 
     // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+      const SnackBar(
         content: Text('Account created successfully!'),
         backgroundColor: Colors.green,
       ),
@@ -430,55 +433,3 @@ class RegistrationForm extends StatelessWidget {
     print('Registration data: $userData');
   }
 }
-
-/// Comparison: Manual Integration vs FieldWrapper
-/// 
-/// This example shows the power of FieldWrapper<T>:
-/// 
-/// **Before (Manual Integration):**
-/// ```dart
-/// TextFormField(
-///   controller: _controller,
-///   onChanged: (value) => context.read<CoreFormCubit>().updateField<String>(
-///     fieldName: 'email',
-///     value: value,
-///     context: context,
-///   ),
-///   validator: (value) => _emailValidator.validate(value, context),
-///   // ... lots of boilerplate
-/// )
-/// ```
-/// 
-/// **After (FieldWrapper):**
-/// ```dart
-/// FieldWrapper<String>(
-///   fieldName: 'email',
-///   debounceTime: Duration(milliseconds: 300),
-///   transformValue: (value) => value.toLowerCase().trim(),
-///   builder: (context, value, error, hasError, updateValue) {
-///     return TextFormField(
-///       initialValue: value,
-///       onChanged: updateValue,
-///       decoration: InputDecoration(
-///         errorText: hasError ? error : null,
-///       ),
-///     );
-///   },
-/// )
-/// ```
-/// 
-/// **Key Benefits:**
-/// - No TextEditingController management
-/// - Automatic validation integration
-/// - Built-in debouncing support
-/// - Value transformation
-/// - Type-safe form state access
-/// - Works with ANY Flutter widget
-/// - Reactive state management
-/// - Cross-field validation support
-
-/// Usage:
-/// 
-/// ```dart
-/// MaterialApp(home: RegistrationForm())
-/// ```

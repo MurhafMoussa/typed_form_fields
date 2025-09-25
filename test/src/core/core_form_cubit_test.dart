@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:typed_form_fields/src/core/core_form_cubit.dart';
+import 'package:typed_form_fields/src/core/form_errors.dart';
 import 'package:typed_form_fields/src/models/typed_form_field.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
@@ -82,18 +83,18 @@ void main() {
         expect(formCubit.state.values['email'], isNull);
       });
 
-      test('should throw TypeError for wrong type', () {
+      test('should throw FormFieldError for wrong type', () {
         expect(
           () => formCubit.updateField(
             fieldName: 'email',
             value: 123,
             context: mockContext,
           ),
-          throwsA(isA<TypeError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
-      test('should throw ArgumentError for non-existent field', () {
+      test('should throw FormFieldError for non-existent field', () {
         // The refactored implementation now correctly validates field existence
         expect(
           () => formCubit.updateField(
@@ -101,7 +102,7 @@ void main() {
             value: 'value',
             context: mockContext,
           ),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
@@ -156,7 +157,7 @@ void main() {
         expect(formCubit.getValue<int>('age'), isA<int>());
       });
 
-      test('should throw TypeError for wrong type in getValue', () {
+      test('should throw FormFieldError for wrong type in getValue', () {
         formCubit.updateField(
           fieldName: 'email',
           value: 'test@example.com',
@@ -165,12 +166,12 @@ void main() {
 
         expect(
           () => formCubit.getValue<int>('email'),
-          throwsA(isA<TypeError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
       test(
-        'should throw TypeError for incompatible value type in getValue',
+        'should throw FormFieldError for incompatible value type in getValue',
         () {
           // This test covers line 39 in CoreFormState where TypeError is thrown
           // when the value is not of the expected type
@@ -186,18 +187,19 @@ void main() {
             context: mockContext,
           );
 
-          // Try to get it as int - this should throw TypeError at line 39
+          // Try to get it as int - this should throw FormFieldError at line 39
           expect(
             () => formCubit.getValue<int>('email'),
-            throwsA(isA<TypeError>()),
+            throwsA(isA<FormFieldError>()),
           );
         },
       );
 
-      test('should throw ArgumentError for non-existent field in getValue', () {
+      test('should throw FormFieldError for non-existent field in getValue',
+          () {
         expect(
           () => formCubit.getValue<String>('nonExistent'),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
     });
@@ -220,7 +222,7 @@ void main() {
         expect(formCubit.getValue<String>('email'), 'test@example.com');
       });
 
-      test('should throw ArgumentError for non-existent field with debounce',
+      test('should throw FormFieldError for non-existent field with debounce',
           () {
         expect(
           () => formCubit.updateFieldWithDebounce<String>(
@@ -228,18 +230,18 @@ void main() {
             value: 'value',
             context: mockContext,
           ),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
-      test('should throw TypeError for wrong type with debounce', () {
+      test('should throw FormFieldError for wrong type with debounce', () {
         expect(
           () => formCubit.updateFieldWithDebounce<int>(
             fieldName: 'email',
             value: 123,
             context: mockContext,
           ),
-          throwsA(isA<TypeError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
     });
@@ -258,24 +260,24 @@ void main() {
         expect(formCubit.getValue<String>('email'), 'test@example.com');
       });
 
-      test('should throw ArgumentError for non-existent field in updateFields',
+      test('should throw FormFieldError for non-existent field in updateFields',
           () {
         expect(
           () => formCubit.updateFields<String>(
             fieldValues: {'nonExistent': 'value'},
             context: mockContext,
           ),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
-      test('should throw TypeError for wrong type in updateFields', () {
+      test('should throw FormFieldError for wrong type in updateFields', () {
         expect(
           () => formCubit.updateFields<int>(
             fieldValues: {'email': 123},
             context: mockContext,
           ),
-          throwsA(isA<TypeError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
     });
@@ -302,6 +304,21 @@ void main() {
         );
 
         expect(formCubit.state.errors['email'], 'New error');
+      });
+
+      test(
+          'should throw FormFieldError for non-existent field in updateFieldValidators',
+          () {
+        final newValidator = MockValidator<String>();
+
+        expect(
+          () => formCubit.updateFieldValidators<String>(
+            name: 'nonExistent',
+            validators: [newValidator],
+            context: mockContext,
+          ),
+          throwsA(isA<FormFieldError>()),
+        );
       });
     });
 
@@ -390,14 +407,14 @@ void main() {
       });
 
       test(
-          'should throw ArgumentError for non-existent field in validateFieldImmediately',
+          'should throw FormFieldError for non-existent field in validateFieldImmediately',
           () {
         expect(
           () => formCubit.validateFieldImmediately(
             fieldName: 'nonExistent',
             context: mockContext,
           ),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
@@ -489,7 +506,7 @@ void main() {
         expect(formCubit.state.errors['email'], isNull);
       });
 
-      test('should throw ArgumentError for non-existent field in updateError',
+      test('should throw FormFieldError for non-existent field in updateError',
           () {
         expect(
           () => formCubit.updateError(
@@ -497,7 +514,7 @@ void main() {
             errorMessage: 'error',
             context: mockContext,
           ),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
 
@@ -526,14 +543,14 @@ void main() {
         expect(formCubit.state.errors['age'], isNull);
       });
 
-      test('should throw ArgumentError for non-existent field in updateErrors',
+      test('should throw FormFieldError for non-existent field in updateErrors',
           () {
         expect(
           () => formCubit.updateErrors(
             errors: {'nonExistent': 'error'},
             context: mockContext,
           ),
-          throwsA(isA<ArgumentError>()),
+          throwsA(isA<FormFieldError>()),
         );
       });
     });
