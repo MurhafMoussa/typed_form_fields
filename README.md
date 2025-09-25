@@ -1,39 +1,390 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Typed Form Fields
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
+A powerful Flutter package for **type-safe form validation** with **universal widget integration**. The core `FieldWrapper<T>` widget makes any Flutter widget work seamlessly with reactive form validation.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
+## 🚀 **Key Features**
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+### ✅ **FieldWrapper<T> - Universal Form Integration**
 
-## Features
-
-TODO: List what your package can do. Maybe include images, gifs, or videos.
-
-## Getting started
-
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
-
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+The `FieldWrapper<T>` is the **core widget** that transforms any Flutter widget into a reactive, validated form field:
 
 ```dart
-const like = 'sample';
+FieldWrapper<String>(
+  fieldName: 'email',
+  debounceTime: Duration(milliseconds: 300),
+  transformValue: (value) => value.toLowerCase().trim(),
+  builder: (context, value, error, hasError, updateValue) {
+    // Use ANY Flutter widget here!
+    return TextFormField(
+      initialValue: value,
+      onChanged: updateValue,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        errorText: hasError ? error : null,
+      ),
+    );
+  },
+)
 ```
 
-## Additional information
+**Works with ANY widget**: TextField, Checkbox, Slider, Dropdown, Radio, Switch, or your custom widgets!
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+### ✅ **Complete Validation System**
+
+- **11 Languages**: Built-in localization support
+- **Cross-field validation**: Password confirmation, field matching
+- **Conditional validation**: Rules that change based on other fields
+- **Composite validation**: Combine multiple validators
+- **BLoC integration**: Reactive state management
+- **Performance**: Debouncing, caching, efficient updates
+
+## 🎨 **Pre-built Widgets**
+
+The library includes **7 production-ready widgets** that work seamlessly with the form system:
+
+### 📝 **Text Input Widgets**
+
+#### `TypedTextField`
+
+Universal text input with all TextFormField parameters:
+
+```dart
+TypedTextField(
+  name: 'email',
+  label: 'Email Address',
+  keyboardType: TextInputType.emailAddress,
+  hintText: 'Enter your email',
+  obscureText: false, // For passwords
+  maxLines: 1, // Or null for multiline
+  debounceTime: Duration(milliseconds: 300),
+  transformValue: (value) => value.toLowerCase().trim(),
+)
+```
+
+### ✅ **Selection Widgets**
+
+#### `TypedCheckbox`
+
+Checkbox with title and subtitle support:
+
+```dart
+TypedCheckbox(
+  name: 'terms',
+  title: Text('I agree to the terms'),
+  subtitle: Text('Please read our terms and conditions'),
+  tristate: false, // true/false/null support
+)
+```
+
+#### `TypedSwitch`
+
+Switch with title and subtitle support:
+
+```dart
+TypedSwitch(
+  name: 'notifications',
+  title: Text('Enable notifications'),
+  subtitle: Text('Receive push notifications'),
+  activeColor: Colors.green,
+)
+```
+
+#### `TypedDropdown<T>`
+
+Generic dropdown with custom item builders:
+
+```dart
+TypedDropdown<String>(
+  name: 'country',
+  label: 'Select Country',
+  items: ['USA', 'Canada', 'UK'],
+  itemBuilder: (item) => Text('🌍 $item'),
+  isExpanded: true,
+)
+```
+
+### 🎚️ **Range Widgets**
+
+#### `TypedSlider`
+
+Slider with value display and range validation:
+
+```dart
+TypedSlider(
+  name: 'volume',
+  label: 'Volume Level',
+  min: 0.0,
+  max: 100.0,
+  divisions: 10,
+  showValue: true,
+  activeColor: Colors.blue,
+)
+```
+
+### 📅 **Date & Time Widgets**
+
+#### `TypedDatePicker`
+
+Date picker with formatting options:
+
+```dart
+TypedDatePicker(
+  name: 'birthdate',
+  label: 'Date of Birth',
+  firstDate: DateTime(1900),
+  lastDate: DateTime.now(),
+  dateFormat: 'dd/MM/yyyy',
+  prefixIcon: Icon(Icons.calendar_today),
+)
+```
+
+#### `TypedTimePicker`
+
+Time picker with 12/24 hour support:
+
+```dart
+TypedTimePicker(
+  name: 'meeting_time',
+  label: 'Meeting Time',
+  use24HourFormat: true,
+  prefixIcon: Icon(Icons.access_time),
+)
+```
+
+### 🔧 **All Widgets Support**
+
+- **Form Integration** - Automatic state management via `FieldWrapper<T>`
+- **Validation** - Built-in error display and validation
+- **Customization** - All original widget parameters supported
+- **Controllers** - Optional `TextEditingController` support with proper disposal
+- **Debouncing** - Configurable update delays
+- **Value Transformation** - Transform values before storing
+- **Localization** - Error messages in 11 languages
+
+## Installation
+
+```bash
+flutter pub add typed_form_fields
+```
+
+## Quick Start
+
+### 🎯 **FieldWrapper Integration (Recommended)**
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:typed_form_fields/typed_form_fields.dart';
+
+class MyForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CoreFormCubit(
+        fields: [
+          TypedFormField<String>(
+            name: 'email',
+            validators: [
+              CommonValidators.required<String>(),
+              CommonValidators.email(),
+            ],
+            initialValue: '',
+          ),
+          TypedFormField<bool>(
+            name: 'subscribe',
+            validators: [],
+            initialValue: false,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Using pre-built widget
+          TypedTextField(
+            name: 'email',
+            label: 'Email Address',
+            keyboardType: TextInputType.emailAddress,
+            debounceTime: Duration(milliseconds: 300),
+          ),
+
+          SizedBox(height: 16),
+
+          // Using pre-built checkbox
+          TypedCheckbox(
+            name: 'subscribe',
+            title: Text('Subscribe to newsletter'),
+          ),
+
+          SizedBox(height: 24),
+
+          // Submit button with reactive validation
+          BlocBuilder<CoreFormCubit, CoreFormState>(
+            builder: (context, state) {
+              return ElevatedButton(
+                onPressed: state.isValid ? () {
+                  // Type-safe access to form values
+                  final email = state.getValue<String>('email');
+                  final subscribe = state.getValue<bool>('subscribe');
+                  print('Email: $email, Subscribe: $subscribe');
+                } : null,
+                child: Text('Submit'),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## 🎨 **Custom Validators**
+
+Create powerful custom validators with full type safety:
+
+```dart
+// Simple custom validator
+final customValidator = CommonValidators.custom<String>(
+  (value) => value?.contains('@company.com') == true
+      ? null
+      : 'Must be a company email',
+);
+
+// Advanced custom validator with context
+class CompanyEmailValidator extends Validator<String> {
+  @override
+  String? validate(String? value, BuildContext context) {
+    if (value == null || value.isEmpty) return null;
+
+    final allowedDomains = ['company.com', 'subsidiary.com'];
+    final domain = value.split('@').last;
+
+    return allowedDomains.contains(domain)
+        ? null
+        : 'Email must be from: ${allowedDomains.join(', ')}';
+  }
+}
+```
+
+## 📋 **Common Validators**
+
+| Validator             | Description              | Example                                                                                      |
+| --------------------- | ------------------------ | -------------------------------------------------------------------------------------------- |
+| `required<T>()`       | Field cannot be empty    | `CommonValidators.required<String>()`                                                        |
+| `email()`             | Valid email format       | `CommonValidators.email()`                                                                   |
+| `minLength(int)`      | Minimum character length | `CommonValidators.minLength(8)`                                                              |
+| `maxLength(int)`      | Maximum character length | `CommonValidators.maxLength(50)`                                                             |
+| `pattern(RegExp)`     | Matches regex pattern    | `CommonValidators.pattern(RegExp(r'^\d+$'))`                                                 |
+| `min(num)`            | Minimum numeric value    | `CommonValidators.min(18)`                                                                   |
+| `max(num)`            | Maximum numeric value    | `CommonValidators.max(100)`                                                                  |
+| `phoneNumber()`       | Valid phone number       | `CommonValidators.phoneNumber()`                                                             |
+| `creditCard()`        | Valid credit card        | `CommonValidators.creditCard()`                                                              |
+| `url()`               | Valid URL format         | `CommonValidators.url()`                                                                     |
+| `custom<T>(function)` | **Your custom logic**    | `CommonValidators.custom<String>((v) => v?.contains('x') == true ? null : 'Must contain x')` |
+
+## 🔗 **Cross-Field Validation**
+
+```dart
+// Password confirmation
+CrossFieldValidators.matches('password', 'confirmPassword')
+
+// Custom cross-field validator
+class TotalBudgetValidator extends CrossFieldValidator {
+  @override
+  String get targetField => 'totalBudget';
+
+  @override
+  String? validateWithDependencies(
+    dynamic value,
+    Map<String, dynamic> allValues,
+    BuildContext context,
+  ) {
+    final marketing = allValues['marketingBudget'] as double? ?? 0;
+    final development = allValues['developmentBudget'] as double? ?? 0;
+    final total = value as double? ?? 0;
+
+    if (total < marketing + development) {
+      return 'Total budget must be at least ${marketing + development}';
+    }
+
+    return null;
+  }
+}
+```
+
+## 🌍 **Localization**
+
+Built-in support for 11 languages:
+
+```dart
+// Automatic localization
+CommonValidators.required<String>().validate(null, context)
+// Returns "Este campo es obligatorio." in Spanish
+```
+
+## 🏗 **Architecture**
+
+### Current Features (Production Ready)
+
+- ✅ **FieldWrapper<T>** - Universal widget integration
+- ✅ **Pre-built widgets** - 7 production-ready widgets (TextField, Checkbox, Switch, Dropdown, Slider, DatePicker, TimePicker)
+- ✅ **Type-safe validation** - Compile-time type checking
+- ✅ **Custom validators** - Easy to create and reuse
+- ✅ **BLoC integration** - Reactive state management
+- ✅ **Cross-field validation** - Field interdependencies
+- ✅ **Conditional validation** - Dynamic validation rules
+- ✅ **Localization** - 11 languages supported
+- ✅ **Performance** - Debouncing, caching, efficient updates
+
+## 🎯 **Why FieldWrapper?**
+
+**Before FieldWrapper:**
+
+```dart
+// Lots of boilerplate, manual state management
+TextFormField(
+  controller: _controller,
+  onChanged: (value) => _cubit.updateField('email', value, context),
+  validator: (value) => _validator.validate(value, context),
+  decoration: InputDecoration(
+    errorText: _cubit.state.getError('email'),
+  ),
+)
+```
+
+**With FieldWrapper:**
+
+```dart
+// Clean, declarative, works with ANY widget
+FieldWrapper<String>(
+  fieldName: 'email',
+  debounceTime: Duration(milliseconds: 300),
+  transformValue: (value) => value.toLowerCase().trim(),
+  builder: (context, value, error, hasError, updateValue) {
+    return TextFormField(
+      initialValue: value,
+      onChanged: updateValue,
+      decoration: InputDecoration(
+        errorText: hasError ? error : null,
+      ),
+    );
+  },
+)
+```
+
+**Benefits:**
+
+- 🎯 **Universal** - Works with any Flutter widget
+- 🔒 **Type-safe** - Compile-time type checking
+- ⚡ **Performance** - Built-in debouncing and optimization
+- 🧩 **Composable** - Easy to combine and reuse
+- 🎨 **Flexible** - Full control over UI while handling validation
+- 🔄 **Reactive** - Automatic UI updates on state changes
+
+## 📄 **License**
+
+MIT License - see LICENSE file for details.
+
+---
+
+**Ready to build better forms?** Start with `FieldWrapper<T>` and create your custom validators! 🚀
