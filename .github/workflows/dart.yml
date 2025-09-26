@@ -1,0 +1,49 @@
+# .github/workflows/ci.yml
+
+# Name for this workflow
+name: Flutter CI
+
+# This workflow runs on pull requests targeting your production and development branches
+on:
+  pull_request:
+    branches: [ production, development ]
+  # Also run on direct pushes to the development branch (optional but good practice)
+  push:
+    branches: [ development ]
+
+jobs:
+  # The job ID, which can be anything
+  analyze_and_test:
+    # The name that will appear on GitHub
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Get the code from the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Set up the complete Flutter SDK
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 3. Get package dependencies
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 4. Check for formatting issues
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      # 5. Run the code analyzer
+      # This step's status will be reported to GitHub
+      - name: Run analyzer
+        run: flutter analyze
+
+      # 6. Run your tests
+      # This step's status will also be reported to GitHub
+      - name: Run tests
+        run: flutter test
+
