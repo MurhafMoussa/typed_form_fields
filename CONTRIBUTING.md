@@ -90,6 +90,29 @@ We follow a Simplified GitFlow model to keep the repository clean and ensure the
 - Provide a clear description of the changes in your PR.
 - Once your PR is submitted, a project productiontainer will review it. We may ask for changes or improvements before merging.
 
+## Issue and Pull Request Templates
+
+To help guide you through the contribution process, we provide templates for:
+
+- [Pull Requests](.github/PULL_REQUEST_TEMPLATE.md): Includes a checklist and prompts to ensure your PR meets our standards.
+- [Bug Reports](.github/ISSUE_TEMPLATE/bug_report.md): Helps you provide all necessary information for reporting bugs.
+- [Feature Requests](.github/ISSUE_TEMPLATE/feature_request.md): Guides you to submit detailed and actionable feature proposals.
+
+Please use these templates when opening issues or pull requests to help us review and address your contributions efficiently.
+
+## Commit Message Guidelines
+
+We use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
+Please follow this style for all commits. Example:
+
+```
+feat: add support for conditional validators
+fix: correct typo in error message
+chore: update dependencies
+```
+
+If your commit message does not follow the Conventional Commits format, it will be rejected by the commit-msg hook.
+
 ---
 
 Thank you again for your interest in making typed_form_fields better!
