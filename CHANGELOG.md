@@ -1,6 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- Updated CONTRIBUTING.md and PR template to instruct contributors to use Conventional Commits manually
+- Added issue and PR templates for better contribution guidance
+
 ## 1.0.1 - Fix pub.dev compliance
+
 ## 1.0.0 - Initial Release
 
 - 🎉 First public release of `typed_form_fields`!
