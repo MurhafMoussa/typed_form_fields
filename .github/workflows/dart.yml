@@ -68,4 +68,4 @@ jobs:
       # Step 1: Authenticate with pub.dev using OIDC
 
       - name: Publish to pub.dev
-        run: dart pub publish
+        run: dart pub publish --force
