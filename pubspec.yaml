@@ -5,6 +5,7 @@ description: >-
   Provides generic FieldWrapper<T> for any data type with built-in
   validation, debouncing, and performance optimizations.
 
+
 version: 1.0.0
 
 homepage: https://github.com/MurhafMoussa/typed_form_fields
@@ -38,7 +39,7 @@ dev_dependencies:
 
 # Specify which files to include in the package
 # (exclude example/, test/, etc. from published package)
-publish_to: "https://pub.dartlang.org"
+publish_to: 'https://pub.dev'
 
 topics:
   - forms
