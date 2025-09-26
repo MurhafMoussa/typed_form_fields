@@ -39,7 +39,7 @@ Ready to contribute code? Here’s how to set up your environment and get starte
 1. Fork the repository on GitHub.
 2. Clone your fork to your local machine:
    ```sh
-   git clone https://github.com/YOUR_USERNAME/typed_form_fields.git
+   git clone https://github.com/MurhafMoussa/typed_form_fields.git
    ```
 3. Navigate to the project directory:
    ```sh
@@ -47,17 +47,17 @@ Ready to contribute code? Here’s how to set up your environment and get starte
    ```
 4. Add the upstream repository to keep your fork in sync:
    ```sh
-   git remote add upstream https://github.com/murhafsousli/typed_form_fields.git
+   git remote add upstream https://github.com/MurhafMoussa/typed_form_fields.git
    ```
-5. Create a new feature branch from the develop branch (see Branching Strategy below):
+5. Create a new feature branch from the development branch (see Branching Strategy below):
    ```sh
-   git checkout develop
-   git pull upstream develop
+   git checkout development
+   git pull upstream development
    git checkout -b feature/your-awesome-feature
    ```
 6. Make your changes, write tests, and ensure all existing tests pass.
 7. Commit your changes and push them to your fork.
-8. Open a Pull Request to merge your feature branch into the develop branch of the main repository.
+8. Open a Pull Request to merge your feature branch into the development branch of the main repository.
 
 ## Branching Strategy
 
@@ -66,17 +66,17 @@ We follow a Simplified GitFlow model to keep the repository clean and ensure the
 ### Core Branches
 
 - **main:** This branch represents the latest stable, published version on pub.dev. All commits on main are tagged with a version number (e.g., v1.2.3). Never commit directly to this branch.
-- **develop:** This is the primary development branch. It contains the code for the next upcoming release. All new features are merged into this branch.
+- **development:** This is the primary development branch. It contains the code for the next upcoming release. All new features are merged into this branch.
 
 ### Temporary Branches
 
 - **feature/<feature-name>:** For developing new features.
-  - Branched from: develop
-  - Merged into: develop
+  - Branched from: development
+  - Merged into: development
   - Example: feature/add-autocomplete-field
 - **hotfix/<fix-name>:** For fixing critical bugs in a published version.
   - Branched from: main
-  - Merged into: both main and develop
+  - Merged into: both main and development
   - Example: hotfix/fix-date-picker-crash
 
 ## Pull Request Process
@@ -85,7 +85,7 @@ We follow a Simplified GitFlow model to keep the repository clean and ensure the
 - Make sure all tests pass and, if you've added new functionality, include new tests.
 - Update the README.md or other documentation if your changes affect them.
 - Update the CHANGELOG.md file with a concise description of your change under the "Unreleased" section.
-- Your PR should be targeted to merge into the develop branch (unless it's a hotfix).
+- Your PR should be targeted to merge into the development branch (unless it's a hotfix).
 - Link your PR to any relevant issues.
 - Provide a clear description of the changes in your PR.
 - Once your PR is submitted, a project maintainer will review it. We may ask for changes or improvements before merging.
