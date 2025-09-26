@@ -62,7 +62,7 @@ jobs:
          
         with:
           channel: 'stable'
-          publishing: true
+
       - name: Install dependencies
         run: flutter pub get
       # Step 1: Authenticate with pub.dev using OIDC
