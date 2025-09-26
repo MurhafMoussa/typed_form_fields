@@ -341,6 +341,144 @@ CommonValidators.required<String>().validate(null, context)
 // Returns "Este campo es obligatorio." in Spanish
 ```
 
+## 🔄 **Dynamic Form Updates**
+
+The `CoreFormCubit` provides comprehensive APIs for **real-time form updates**:
+
+### ✅ **Update Error Messages**
+
+```dart
+// Set custom error for a specific field (e.g., from API response)
+context.read<CoreFormCubit>().updateError(
+  fieldName: 'email',
+  errorMessage: 'Email already exists',
+  context: context,
+);
+
+// Clear error for a specific field
+context.read<CoreFormCubit>().updateError(
+  fieldName: 'email',
+  errorMessage: null, // null clears the error
+  context: context,
+);
+
+// Update multiple errors at once
+context.read<CoreFormCubit>().updateErrors(
+  errors: {
+    'email': 'Email already exists',
+    'username': 'Username is taken',
+    'phone': null, // Clear phone error
+  },
+  context: context,
+);
+```
+
+### ✅ **Update Validation Rules**
+
+```dart
+// Update validators for a field dynamically
+context.read<CoreFormCubit>().updateFieldValidators<String>(
+  name: 'password',
+  validators: [
+    CommonValidators.required<String>(),
+    CommonValidators.minLength(12), // Increased security requirement
+    CommonValidators.pattern(RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])')),
+  ],
+  context: context,
+);
+```
+
+### ✅ **Update Field Values**
+
+```dart
+// Update single field value
+context.read<CoreFormCubit>().updateField<String>(
+  fieldName: 'country',
+  value: 'USA',
+  context: context,
+);
+
+// Update multiple fields at once
+context.read<CoreFormCubit>().updateFields<String>(
+  fieldValues: {
+    'firstName': 'John',
+    'lastName': 'Doe',
+    'email': 'john.doe@example.com',
+  },
+  context: context,
+);
+```
+
+### ✅ **Update Validation Type**
+
+```dart
+// Change validation behavior for the entire form
+context.read<CoreFormCubit>().setValidationType(ValidationType.onSubmit);
+
+// Available validation types:
+// - ValidationType.allFields: Validate all fields on every change
+// - ValidationType.fieldsBeingEdited: Only validate fields being edited
+// - ValidationType.onSubmit: Only validate on form submission
+```
+
+### ✅ **Dynamic Field Management**
+
+```dart
+// Add new fields dynamically
+context.read<CoreFormCubit>().addField<String>(
+  field: TypedFormField<String>(
+    name: 'newField',
+    validators: [CommonValidators.required<String>()],
+    initialValue: '',
+  ),
+  context: context,
+);
+
+// Add multiple fields at once
+context.read<CoreFormCubit>().addFields(
+  fields: [
+    TypedFormField<String>(name: 'field1', validators: [], initialValue: ''),
+    TypedFormField<bool>(name: 'field2', validators: [], initialValue: false),
+  ],
+  context: context,
+);
+
+// Remove fields dynamically
+context.read<CoreFormCubit>().removeField('fieldName', context: context);
+context.read<CoreFormCubit>().removeFields(['field1', 'field2'], context: context);
+```
+
+### ✅ **Form Control Methods**
+
+```dart
+// Validate entire form (useful for submit buttons)
+context.read<CoreFormCubit>().validateForm(
+  context,
+  onValidationPass: () => print('Form is valid!'),
+  onValidationFail: () => print('Form has errors'),
+);
+
+// Validate specific field immediately (no debouncing)
+context.read<CoreFormCubit>().validateFieldImmediately(
+  fieldName: 'email',
+  context: context,
+);
+
+// Mark all fields as touched and validate them
+context.read<CoreFormCubit>().touchAllFields(context);
+
+// Reset form to initial state
+context.read<CoreFormCubit>().resetForm();
+```
+
+**Use Cases:**
+
+- 🌐 **API Integration** - Handle server-side validation errors
+- 🔐 **Conditional Validation** - Change rules based on user selections
+- 📱 **Progressive Forms** - Add/remove fields as user progresses
+- 🎯 **Dynamic Requirements** - Adjust validation based on business logic
+- 🔄 **Multi-step Forms** - Update validation per step
+
 ## 🏗 **Architecture**
 
 ### Current Features (Production Ready)

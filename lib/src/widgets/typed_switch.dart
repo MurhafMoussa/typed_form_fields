@@ -90,7 +90,7 @@ class TypedSwitch extends StatelessWidget {
               autofocus: autofocus,
               controlAffinity: controlAffinity,
               value: value ?? false,
-              onChanged: (newValue) => updateValue(newValue),
+              onChanged: updateValue,
               activeThumbColor: activeColor,
               activeTrackColor: activeTrackColor,
               inactiveThumbColor: inactiveThumbColor,

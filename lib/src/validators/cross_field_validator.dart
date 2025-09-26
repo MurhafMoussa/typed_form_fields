@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../core/core_form_cubit.dart';
 import 'validator.dart';
 import 'validator_localizations.dart';
 
@@ -11,46 +13,16 @@ import 'validator_localizations.dart';
 /// - Conditional required fields
 /// - Business rule validation across multiple fields
 @immutable
-abstract class CrossFieldValidator<T> extends Validator<T> {
+class CrossFieldValidator<T> extends Validator<T> {
   const CrossFieldValidator({
     required this.dependentFields,
+    required this.validator,
   });
 
   /// List of field names that this validator depends on.
-  ///
-  /// When any of these fields change, this validator should be re-run.
   final List<String> dependentFields;
 
-  /// Validates the current field value against the values of dependent fields.
-  ///
-  /// [value] is the current field value.
-  /// [fieldValues] contains the current values of all fields in the form.
-  /// [context] provides access to localization and theme data.
-  ///
-  /// Returns an error message if validation fails, or null if it passes.
-  String? validateWithDependencies(
-    T? value,
-    Map<String, dynamic> fieldValues,
-    BuildContext context,
-  );
-
-  @override
-  String? validate(T? value, BuildContext context) {
-    // This method should not be called directly for cross-field validators.
-    // Use validateWithDependencies instead.
-    throw UnsupportedError(
-      'CrossFieldValidator requires field values. Use validateWithDependencies instead.',
-    );
-  }
-}
-
-/// A cross-field validator that uses a function for validation logic.
-class FunctionCrossFieldValidator<T> extends CrossFieldValidator<T> {
-  const FunctionCrossFieldValidator({
-    required this.validator,
-    required super.dependentFields,
-  });
-
+  /// The validation function that takes the current value, all field values, and context.
   final String? Function(
     T? value,
     Map<String, dynamic> fieldValues,
@@ -58,12 +30,23 @@ class FunctionCrossFieldValidator<T> extends CrossFieldValidator<T> {
   ) validator;
 
   @override
-  String? validateWithDependencies(
-    T? value,
-    Map<String, dynamic> fieldValues,
-    BuildContext context,
-  ) {
+  String? validate(T? value, BuildContext context) {
+    // We need to get the field values from somewhere.
+    // For now, we'll use a provider pattern or context extension.
+    final fieldValues = _getFieldValuesFromContext(context);
     return validator(value, fieldValues, context);
+  }
+
+  /// Gets field values from the widget context.
+  /// This extracts field values from the CoreFormCubit in the widget tree.
+  Map<String, dynamic> _getFieldValuesFromContext(BuildContext context) {
+    try {
+      // Always use the cubit returned by context.read<CoreFormCubit>()
+      return context.read<CoreFormCubit>().state.values;
+    } catch (e) {
+      // If no CoreFormCubit is found in the widget tree, return empty map
+      return <String, dynamic>{};
+    }
   }
 }
 
@@ -81,7 +64,7 @@ class CrossFieldValidators {
     String matchFieldName, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<T>(
+    return CrossFieldValidator<T>(
       dependentFields: [matchFieldName],
       validator: (value, fieldValues, context) {
         final matchValue = fieldValues[matchFieldName];
@@ -104,7 +87,7 @@ class CrossFieldValidators {
     String differentFromFieldName, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<T>(
+    return CrossFieldValidator<T>(
       dependentFields: [differentFromFieldName],
       validator: (value, fieldValues, context) {
         final otherValue = fieldValues[differentFromFieldName];
@@ -130,7 +113,7 @@ class CrossFieldValidators {
     dynamic requiredWhenValue, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<T>(
+    return CrossFieldValidator<T>(
       dependentFields: [dependentFieldName],
       validator: (value, fieldValues, context) {
         final dependentValue = fieldValues[dependentFieldName];
@@ -158,7 +141,7 @@ class CrossFieldValidators {
     String dependentFieldName, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<T>(
+    return CrossFieldValidator<T>(
       dependentFields: [dependentFieldName],
       validator: (value, fieldValues, context) {
         final dependentValue = fieldValues[dependentFieldName];
@@ -193,7 +176,7 @@ class CrossFieldValidators {
     String endDateFieldName, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<DateTime>(
+    return CrossFieldValidator<DateTime>(
       dependentFields: [endDateFieldName],
       validator: (value, fieldValues, context) {
         if (value == null) return null;
@@ -221,7 +204,7 @@ class CrossFieldValidators {
     String startDateFieldName, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<DateTime>(
+    return CrossFieldValidator<DateTime>(
       dependentFields: [startDateFieldName],
       validator: (value, fieldValues, context) {
         if (value == null) return null;
@@ -246,7 +229,7 @@ class CrossFieldValidators {
     String minFieldName, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<num>(
+    return CrossFieldValidator<num>(
       dependentFields: [minFieldName],
       validator: (value, fieldValues, context) {
         if (value == null) return null;
@@ -273,7 +256,7 @@ class CrossFieldValidators {
     String maxFieldName, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<num>(
+    return CrossFieldValidator<num>(
       dependentFields: [maxFieldName],
       validator: (value, fieldValues, context) {
         if (value == null) return null;
@@ -302,7 +285,7 @@ class CrossFieldValidators {
     bool Function(num sum) condition, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<num>(
+    return CrossFieldValidator<num>(
       dependentFields: fieldNames,
       validator: (value, fieldValues, context) {
         if (value == null) return null;
@@ -333,7 +316,7 @@ class CrossFieldValidators {
     List<String> fieldNames, {
     String? errorText,
   }) {
-    return FunctionCrossFieldValidator<T>(
+    return CrossFieldValidator<T>(
       dependentFields: fieldNames,
       validator: (value, fieldValues, context) {
         // Check if current field has value

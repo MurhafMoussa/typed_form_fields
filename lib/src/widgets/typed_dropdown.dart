@@ -160,7 +160,7 @@ class TypedDropdown<T> extends StatelessWidget {
       onValueChanged: onChanged,
       builder: (context, value, error, hasError, updateValue) {
         return DropdownButtonFormField<T>(
-          initialValue: value,
+          initialValue: items.contains(value) ? value : null,
           items: items.map((T item) {
             return DropdownMenuItem<T>(
               value: item,

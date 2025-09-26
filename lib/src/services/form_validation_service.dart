@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:typed_form_fields/src/validators/cross_field_validator.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 /// Service responsible for handling form validation logic
@@ -103,5 +104,70 @@ class FormValidationService {
       }
     }
     return true;
+  }
+
+  /// Validates fields that depend on the changed field
+  ///
+  /// This method finds all validators that have the changed field as a dependency
+  /// and re-validates those fields. This is more efficient than validating all fields.
+  Map<String, String> validateDependentFields({
+    required String changedFieldName,
+    required Map<String, Object?> values,
+    required Map<String, Validator> validators,
+    required BuildContext context,
+  }) {
+    final errors = <String, String>{};
+
+    // Find all fields that depend on the changed field
+    for (final entry in validators.entries) {
+      final fieldName = entry.key;
+      final validator = entry.value;
+
+      // Check if this validator is a CrossFieldValidator that depends on the changed field
+      if (validator is CrossFieldValidator &&
+          validator.dependentFields.contains(changedFieldName)) {
+        final value = values[fieldName];
+        final error = validator.validate(value, context);
+        if (error != null) {
+          errors[fieldName] = error;
+        }
+      }
+    }
+
+    return errors;
+  }
+
+  /// Validates a field and its dependents
+  ///
+  /// This validates the specified field and any fields that depend on it.
+  Map<String, String> validateFieldAndDependents({
+    required String fieldName,
+    required Map<String, Object?> values,
+    required Map<String, Validator> validators,
+    required BuildContext context,
+  }) {
+    final errors = <String, String>{};
+
+    // First validate the field itself
+    final fieldError = validateFieldByName(
+      fieldName: fieldName,
+      values: values,
+      validators: validators,
+      context: context,
+    );
+    if (fieldError != null) {
+      errors[fieldName] = fieldError;
+    }
+
+    // Then validate dependent fields
+    final dependentErrors = validateDependentFields(
+      changedFieldName: fieldName,
+      values: values,
+      validators: validators,
+      context: context,
+    );
+    errors.addAll(dependentErrors);
+
+    return errors;
   }
 }
