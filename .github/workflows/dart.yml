@@ -24,8 +24,10 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Set up the complete Flutter SDK
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
 
       # 3. Get package dependencies
       - name: Install dependencies
@@ -38,12 +40,12 @@ jobs:
       # 5. Run the code analyzer
       # This step's status will be reported to GitHub
       - name: Run analyzer
-        run: flutter analyze
+        run: dart analyze
 
       # 6. Run your tests
       # This step's status will also be reported to GitHub
       - name: Run tests
-        run: flutter test
+        run: dart test
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/production'
@@ -53,8 +55,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-      - name: Setup Dart
-        uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
       - name: Install dependencies
         run: dart pub get
       - name: Publish to pub.dev
