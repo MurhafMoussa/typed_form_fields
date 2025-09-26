@@ -31,7 +31,7 @@ jobs:
 
       # 3. Get package dependencies
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
 
       # 4. Check for formatting issues
       - name: Check formatting
@@ -40,12 +40,12 @@ jobs:
       # 5. Run the code analyzer
       # This step's status will be reported to GitHub
       - name: Run analyzer
-        run: dart analyze
+        run: flutter analyze
 
       # 6. Run your tests
       # This step's status will also be reported to GitHub
       - name: Run tests
-        run: dart test
+        run: flutter test
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/production'
@@ -60,6 +60,6 @@ jobs:
         with:
           channel: 'stable'
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
       - name: Publish to pub.dev
         run: dart pub publish
