@@ -1,5 +1,6 @@
 # Changelog
 
+## 1.0.1 - Fix pub.dev compliance
 ## 1.0.0 - Initial Release
 
 - 🎉 First public release of `typed_form_fields`!
