@@ -37,9 +37,7 @@ dev_dependencies:
   freezed: ^3.2.3
   json_serializable: ^6.8.0
 
-# Specify which files to include in the package
-# (exclude example/, test/, etc. from published package)
-publish_to: 'https://pub.dev'
+
 
 topics:
   - forms
