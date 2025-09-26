@@ -606,6 +606,10 @@ SOFTWARE.
 
 > **Note:** This package may depend on other open-source packages, each with their own licenses. See their respective repositories for details.
 
+## 🤝 Contributing
+
+We welcome contributions of all kinds! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on bug reports, feature requests, code contributions, and our branching strategy.
+
 ---
 
 **Ready to build better forms?** Start with `FieldWrapper<T>` and create your custom validators! 🚀
