@@ -1,66 +1,71 @@
-# .github/workflows/dart.yml
+# .github/workflows/ci.yml
 
-name: Dart CI/CD
+# Name for this workflow
+name: Dart CI
 
+# This workflow runs on pull requests targeting your production and development branches
 on:
   pull_request:
     branches: [production, development]
+  # Also run on direct pushes to the development branch (optional but good practice)
   push:
     branches: [development, production]
 
 jobs:
-  # This job runs on all PRs and pushes to development/production
+  # The job ID, which can be anything
   analyze_and_test:
+    # The name that will appear on GitHub
     name: Analyze & Test
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Get the code from the repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Dart SDK
-        uses: dart-lang/setup-dart@v1
+      # 2. Set up the complete Flutter SDK
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
 
+      # 3. Get package dependencies
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
 
+      # 4. Check for formatting issues
       - name: Check formatting
         run: dart format --output=none --set-exit-if-changed .
 
+      # 5. Run the code analyzer
+      # This step's status will be reported to GitHub
       - name: Run analyzer
-        run: dart analyze
+        run: flutter analyze
 
+      # 6. Run your tests
+      # This step's status will also be reported to GitHub
       - name: Run tests
-        run: dart test
+        run: flutter test
 
-  # This job ONLY runs when there is a push to the 'production' branch
   deploy:
-    # Condition to run only on a push to the production branch
     if: github.event_name == 'push' && github.ref == 'refs/heads/production'
-    # Ensures that tests must pass before this job starts
     needs: analyze_and_test
-
-    name: Deploy to pub.dev
     permissions:
-      id-token: write # Required for secure pub.dev authentication
+      id-token: write # Required for secure pub.dev authentication   
     runs-on: ubuntu-latest
-
+    name: Deploy
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Setup Dart SDK
-        uses: dart-lang/setup-dart@v1
-
-      - name: Install dependencies
-        run: dart pub get
-
-      # Step 1: Authenticate with pub.dev
-      - name: Setup publishing credentials
-        uses: dart-lang/setup-dart@v1
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+         
         with:
+          channel: 'stable'
           publishing: true
+      - name: Install dependencies
+        run: flutter pub get
+      # Step 1: Authenticate with pub.dev using OIDC
 
-      # Step 2: Publish the package, skipping confirmation prompts
       - name: Publish to pub.dev
-        run: dart pub publish --force
+        run: dart pub publish
