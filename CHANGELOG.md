@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 1.0.2 - Update contribution guide
 
 - Updated CONTRIBUTING.md and PR template to instruct contributors to use Conventional Commits manually
 - Added issue and PR templates for better contribution guidance
