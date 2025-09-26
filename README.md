@@ -606,7 +606,7 @@ SOFTWARE.
 
 > **Note:** This package may depend on other open-source packages, each with their own licenses. See their respective repositories for details.
 
-## 🤝 Contributing
+## 🤝 Contributing 
 
 We welcome contributions of all kinds! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on bug reports, feature requests, code contributions, and our branching strategy.
 
