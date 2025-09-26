@@ -57,7 +57,7 @@ Ready to contribute code? Here’s how to set up your environment and get starte
    ```
 6. Make your changes, write tests, and ensure all existing tests pass.
 7. Commit your changes and push them to your fork.
-8. Open a Pull Request to merge your feature branch into the development branch of the main repository.
+8. Open a Pull Request to merge your feature branch into the development branch of the production repository.
 
 ## Branching Strategy
 
@@ -65,7 +65,7 @@ We follow a Simplified GitFlow model to keep the repository clean and ensure the
 
 ### Core Branches
 
-- **main:** This branch represents the latest stable, published version on pub.dev. All commits on main are tagged with a version number (e.g., v1.2.3). Never commit directly to this branch.
+- **production:** This branch represents the latest stable, published version on pub.dev. All commits on production are tagged with a version number (e.g., v1.2.3). Never commit directly to this branch.
 - **development:** This is the primary development branch. It contains the code for the next upcoming release. All new features are merged into this branch.
 
 ### Temporary Branches
@@ -75,8 +75,8 @@ We follow a Simplified GitFlow model to keep the repository clean and ensure the
   - Merged into: development
   - Example: feature/add-autocomplete-field
 - **hotfix/<fix-name>:** For fixing critical bugs in a published version.
-  - Branched from: main
-  - Merged into: both main and development
+  - Branched from: production
+  - Merged into: both production and development
   - Example: hotfix/fix-date-picker-crash
 
 ## Pull Request Process
@@ -88,7 +88,7 @@ We follow a Simplified GitFlow model to keep the repository clean and ensure the
 - Your PR should be targeted to merge into the development branch (unless it's a hotfix).
 - Link your PR to any relevant issues.
 - Provide a clear description of the changes in your PR.
-- Once your PR is submitted, a project maintainer will review it. We may ask for changes or improvements before merging.
+- Once your PR is submitted, a project productiontainer will review it. We may ask for changes or improvements before merging.
 
 ---
 
