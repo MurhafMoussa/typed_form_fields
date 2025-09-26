@@ -1,19 +1,19 @@
 import 'package:flutter/foundation.dart';
 
 /// Custom error class for form field errors with helpful suggestions and debug information.
-/// 
+///
 /// This error provides detailed information to help developers understand and fix
 /// form-related issues quickly, especially useful for junior developers.
 class FormFieldError extends Error {
   /// The name of the field that caused the error
   final String fieldName;
-  
+
   /// A clear description of what went wrong
   final String message;
-  
+
   /// A helpful suggestion on how to fix the issue
   final String suggestion;
-  
+
   /// Additional debug information (only included in debug mode)
   final String? debugInfo;
 
@@ -34,7 +34,7 @@ class FormFieldError extends Error {
     final suggestion = availableFields.isEmpty
         ? 'Add the field to your CoreFormCubit constructor first.'
         : 'Available fields: ${availableFields.join(', ')}. Check the field name spelling.';
-    
+
     String? debugInfo;
     if (kDebugMode) {
       debugInfo = 'Available fields: $availableFields\n'
@@ -71,7 +71,8 @@ class FormFieldError extends Error {
 
     return FormFieldError(
       fieldName: fieldName,
-      message: 'Type mismatch for field "$fieldName": expected $expectedType but got $actualType.',
+      message:
+          'Type mismatch for field "$fieldName": expected $expectedType but got $actualType.',
       suggestion: suggestion,
       debugInfo: debugInfo,
     );
@@ -84,7 +85,8 @@ class FormFieldError extends Error {
     return FormFieldError(
       fieldName: fieldName,
       message: 'Field "$fieldName" already exists in the form.',
-      suggestion: 'Use updateFieldValidators() to modify existing field validators, or removeField() first.',
+      suggestion:
+          'Use updateFieldValidators() to modify existing field validators, or removeField() first.',
     );
   }
 
@@ -107,11 +109,11 @@ class FormFieldError extends Error {
     buffer.writeln('FormFieldError in field "$fieldName":');
     buffer.writeln('  $message');
     buffer.writeln('  Suggestion: $suggestion');
-    
+
     if (debugInfo != null && kDebugMode) {
       buffer.writeln('  Debug Info: $debugInfo');
     }
-    
+
     return buffer.toString();
   }
 }

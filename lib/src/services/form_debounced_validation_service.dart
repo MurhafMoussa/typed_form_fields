@@ -12,11 +12,11 @@ class FormDebouncedValidationService {
   FormDebouncedValidationService({
     FormValidationService? validationService,
     Duration debounceDelay = const Duration(milliseconds: 300),
-  }) : _validationService = validationService ?? FormValidationService(),
-       _debounceDelay = debounceDelay;
+  })  : _validationService = validationService ?? FormValidationService(),
+        _debounceDelay = debounceDelay;
 
   /// Validates a field with debouncing
-  /// 
+  ///
   /// This method will cancel any pending validation for the field and
   /// schedule a new validation after the debounce delay.
   void validateFieldWithDebounce({
@@ -28,7 +28,7 @@ class FormDebouncedValidationService {
   }) {
     // Cancel previous timer for this field
     _debounceTimers[fieldName]?.cancel();
-    
+
     // Set new timer
     _debounceTimers[fieldName] = Timer(_debounceDelay, () {
       _performValidation(
@@ -42,7 +42,7 @@ class FormDebouncedValidationService {
   }
 
   /// Validates a field immediately (no debouncing)
-  /// 
+  ///
   /// This is useful for blur events, form submission, etc.
   void validateFieldImmediately({
     required String fieldName,
@@ -53,7 +53,7 @@ class FormDebouncedValidationService {
   }) {
     // Cancel any pending debounced validation
     _debounceTimers[fieldName]?.cancel();
-    
+
     _performValidation(
       fieldName: fieldName,
       value: value,
@@ -72,7 +72,7 @@ class FormDebouncedValidationService {
   }) {
     // Cancel all pending timers
     _cancelAllTimers();
-    
+
     // Set new timer for all fields validation
     _debounceTimers['_all_fields'] = Timer(_debounceDelay, () {
       final errors = _validationService.validateFields(
@@ -93,7 +93,7 @@ class FormDebouncedValidationService {
   }) {
     // Cancel all pending timers
     _cancelAllTimers();
-    
+
     final errors = _validationService.validateFields(
       values: values,
       validators: validators,

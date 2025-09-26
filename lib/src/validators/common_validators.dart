@@ -64,6 +64,21 @@ class CommonValidators {
     );
   }
 
+  /// Creates a validator that checks for a custom validator.
+  ///
+  /// [validator] is the custom validator function.
+  /// [context] is used for localization. If null, uses default English messages.
+  /// [errorText] overrides the localized message if provided.
+  static Validator<String> custom(
+    String Function(String? value, BuildContext context) validator, {
+    BuildContext? context,
+    String? errorText,
+  }) {
+    return _CustomValidator(
+      validator: validator,
+    );
+  }
+
   /// Creates a validator that checks maximum string length.
   ///
   /// [maxLength] is the maximum allowed length.
@@ -315,6 +330,17 @@ class _RequiredValidator<T> extends Validator<T> {
     if (value is Iterable && value.isEmpty) return errorText;
     if (value is Map && value.isEmpty) return errorText;
     return null;
+  }
+}
+
+class _CustomValidator<T> extends Validator<T> {
+  const _CustomValidator({required this.validator});
+
+  final String Function(T? value, BuildContext context) validator;
+
+  @override
+  String? validate(T? value, BuildContext context) {
+    return validator(value, context);
   }
 }
 

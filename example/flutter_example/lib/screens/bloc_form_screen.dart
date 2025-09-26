@@ -19,32 +19,32 @@ class BlocFormScreen extends StatelessWidget {
 /// Form Cubit extending CoreFormCubit
 class LoginFormCubit extends CoreFormCubit {
   LoginFormCubit()
-    : super(
-        fields: [
-          TypedFormField<String>(
-            name: 'email',
-            validators: [
-              CommonValidators.required<String>(),
-              CommonValidators.email(),
-            ],
-            initialValue: '',
-          ),
-          TypedFormField<String>(
-            name: 'password',
-            validators: [
-              CommonValidators.required<String>(),
-              CommonValidators.minLength(8),
-            ],
-            initialValue: '',
-          ),
-          const TypedFormField<bool>(
-            name: 'rememberMe',
-            validators: [],
-            initialValue: false,
-          ),
-        ],
-        validationType: ValidationType.fieldsBeingEdited,
-      );
+      : super(
+          fields: [
+            TypedFormField<String>(
+              name: 'email',
+              validators: [
+                CommonValidators.required<String>(),
+                CommonValidators.email(),
+              ],
+              initialValue: '',
+            ),
+            TypedFormField<String>(
+              name: 'password',
+              validators: [
+                CommonValidators.required<String>(),
+                CommonValidators.minLength(8),
+              ],
+              initialValue: '',
+            ),
+            const TypedFormField<bool>(
+              name: 'rememberMe',
+              validators: [],
+              initialValue: false,
+            ),
+          ],
+          validationType: ValidationType.fieldsBeingEdited,
+        );
 
   /// Submit the form
   Future<void> submitLogin(BuildContext context) async {
@@ -196,8 +196,8 @@ class LoginFormView extends StatelessWidget {
                       ElevatedButton(
                         onPressed: state.isValid
                             ? () => context.read<LoginFormCubit>().submitLogin(
-                                context,
-                              )
+                                  context,
+                                )
                             : null,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -227,9 +227,8 @@ class LoginFormView extends StatelessWidget {
                           children: [
                             Icon(
                               state.isValid ? Icons.check_circle : Icons.info,
-                              color: state.isValid
-                                  ? Colors.green
-                                  : Colors.orange,
+                              color:
+                                  state.isValid ? Colors.green : Colors.orange,
                             ),
                             const SizedBox(width: 8),
                             Expanded(

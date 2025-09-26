@@ -60,7 +60,6 @@ class DependencyDemoScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 14, color: Colors.grey),
                 ),
                 const SizedBox(height: 32),
-
                 const Text(
                   'Password:',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -85,7 +84,6 @@ class DependencyDemoScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 16),
-
                 const Text(
                   'Confirm Password (depends on password):',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -109,7 +107,6 @@ class DependencyDemoScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 16),
-
                 const Text(
                   'Unrelated Field (no dependencies):',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -132,7 +129,6 @@ class DependencyDemoScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 32),
-
                 BlocBuilder<CoreFormCubit, CoreFormState>(
                   builder: (context, state) {
                     return Card(
@@ -172,9 +168,8 @@ class DependencyDemoScreen extends StatelessWidget {
                               'Current Form State: ${state.isValid ? "Valid" : "Invalid"}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: state.isValid
-                                    ? Colors.green
-                                    : Colors.red,
+                                color:
+                                    state.isValid ? Colors.green : Colors.red,
                               ),
                             ),
                             if (state.errors.isNotEmpty) ...[

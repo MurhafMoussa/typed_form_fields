@@ -278,9 +278,8 @@ class FieldWrapperScreen extends StatelessWidget {
                                   ? Icons.toggle_on
                                   : Icons.toggle_off,
                               size: 32,
-                              color: (value ?? false)
-                                  ? Colors.blue
-                                  : Colors.grey,
+                              color:
+                                  (value ?? false) ? Colors.blue : Colors.grey,
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -330,9 +329,8 @@ class FieldWrapperScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: state.isValid
-                                    ? Colors.green
-                                    : Colors.red,
+                                color:
+                                    state.isValid ? Colors.green : Colors.red,
                               ),
                             ),
                             const SizedBox(height: 8),

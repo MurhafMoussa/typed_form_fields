@@ -2,60 +2,109 @@
 
 A **production-ready** Flutter package for **type-safe form validation** with **universal widget integration**. The high-performance `FieldWrapper<T>` widget makes any Flutter widget work seamlessly with reactive form validation.
 
-## 🏆 **Production Ready**
+## Installation
 
-- ✅ **18 files at 100% test coverage**
-- ✅ **457 comprehensive tests**
-- ✅ **Performance optimized** with BlocConsumer
-- ✅ **TDD approach** with extensive edge case testing
-- ✅ **Production-grade error handling**
+```bash
+flutter pub add typed_form_fields
+```
+
+## Quick Start
+
+### 🎯 **FieldWrapper Integration (Recommended)**
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:typed_form_fields/typed_form_fields.dart';
+
+class MyForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CoreFormCubit(
+        fields: [
+          TypedFormField<String>(
+            name: 'email',
+            validators: [
+              CommonValidators.required<String>(),
+              CommonValidators.email(),
+            ],
+            initialValue: '',
+          ),
+          TypedFormField<bool>(
+            name: 'subscribe',
+            validators: [],
+            initialValue: false,
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Using pre-built widget
+          TypedTextField(
+            name: 'email',
+            label: 'Email Address',
+            keyboardType: TextInputType.emailAddress,
+            debounceTime: Duration(milliseconds: 300),
+          ),
+
+          SizedBox(height: 16),
+
+          // Using pre-built checkbox
+          TypedCheckbox(
+            name: 'subscribe',
+            title: Text('Subscribe to newsletter'),
+          ),
+
+          SizedBox(height: 24),
+
+          // Submit button with reactive validation
+          BlocBuilder<CoreFormCubit, CoreFormState>(
+            builder: (context, state) {
+              return ElevatedButton(
+                onPressed: state.isValid ? () {
+                  // Type-safe access to form values
+                  final email = state.getValue<String>('email');
+                  final subscribe = state.getValue<bool>('subscribe');
+                  print('Email: $email, Subscribe: $subscribe');
+                } : null,
+                child: Text('Submit'),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+## 📥 **Accessing Field Values from Form State**
+
+You can get the value of any field in your form using the `getValue<T>(fieldName)` method on the form state. This is type-safe and works for any field type.
+
+```dart
+// Inside a BlocBuilder or after form submission:
+final email = state.getValue<String>('email');
+final subscribe = state.getValue<bool>('subscribe');
+final age = state.getValue<int>('age');
+
+if (state.isValid) {
+  print('Email: $email, Subscribed: $subscribe, Age: $age');
+}
+```
+
+- Returns `null` if the field is not set or the type does not match.
+- Use this for form submission, validation, or any business logic that needs the current form values.
 
 ## 🚀 **Key Features**
 
-### ✅ **FieldWrapper<T> - High-Performance Universal Form Integration**
-
-The `FieldWrapper<T>` is the **core widget** that transforms any Flutter widget into a reactive, validated form field with **optimized performance**:
-
-```dart
-FieldWrapper<String>(
-  fieldName: 'email',
-  debounceTime: Duration(milliseconds: 300),
-  transformValue: (value) => value.toLowerCase().trim(),
-  onFieldStateChanged: (value, error, hasError) {
-    // React to changes without rebuilding
-    print('Field changed: $value, hasError: $hasError');
-  },
-  builder: (context, value, error, hasError, updateValue) {
-    // Use ANY Flutter widget here!
-    return TextFormField(
-      initialValue: value,
-      onChanged: updateValue,
-      decoration: InputDecoration(
-        labelText: 'Email',
-        errorText: hasError ? error : null,
-      ),
-    );
-  },
-)
-```
-
-**Performance Features**:
-
-- 🚀 **BlocConsumer** with `buildWhen`/`listenWhen` for minimal rebuilds
-- 🎯 **Field-specific updates** - only rebuilds when relevant data changes
-- 📡 **Listener support** - react to changes without triggering rebuilds
-- ⚡ **Debouncing** - optimized for rapid input scenarios
-
-**Works with ANY widget**: TextField, Checkbox, Slider, Dropdown, Radio, Switch, or your custom widgets!
-
-### ✅ **Complete Validation System**
-
-- **11 Languages**: Built-in localization support
-- **Cross-field validation**: Password confirmation, field matching
-- **Conditional validation**: Rules that change based on other fields
-- **Composite validation**: Combine multiple validators
-- **BLoC integration**: Reactive state management
-- **Performance**: Debouncing, caching, efficient updates
+- **Type-safe, universal form field wrapper**
+- **BLoC integration** for reactive state management
+- **Debouncing, performance optimizations**
+- **Cross-field, conditional, and composite validation**
+- **Pre-built widgets** for all common form controls
+- **Localization** in 11 languages
 
 ## 🎨 **Pre-built Widgets**
 
@@ -180,82 +229,41 @@ TypedTimePicker(
 - **Value Transformation** - Transform values before storing
 - **Localization** - Error messages in 11 languages
 
-## Installation
+## ✅ **FieldWrapper<T> - High-Performance Universal Form Integration**
 
-```bash
-flutter pub add typed_form_fields
-```
-
-## Quick Start
-
-### 🎯 **FieldWrapper Integration (Recommended)**
+The `FieldWrapper<T>` is the **core widget** that transforms any Flutter widget into a reactive, validated form field with **optimized performance**:
 
 ```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:typed_form_fields/typed_form_fields.dart';
-
-class MyForm extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CoreFormCubit(
-        fields: [
-          TypedFormField<String>(
-            name: 'email',
-            validators: [
-              CommonValidators.required<String>(),
-              CommonValidators.email(),
-            ],
-            initialValue: '',
-          ),
-          TypedFormField<bool>(
-            name: 'subscribe',
-            validators: [],
-            initialValue: false,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Using pre-built widget
-          TypedTextField(
-            name: 'email',
-            label: 'Email Address',
-            keyboardType: TextInputType.emailAddress,
-            debounceTime: Duration(milliseconds: 300),
-          ),
-
-          SizedBox(height: 16),
-
-          // Using pre-built checkbox
-          TypedCheckbox(
-            name: 'subscribe',
-            title: Text('Subscribe to newsletter'),
-          ),
-
-          SizedBox(height: 24),
-
-          // Submit button with reactive validation
-          BlocBuilder<CoreFormCubit, CoreFormState>(
-            builder: (context, state) {
-              return ElevatedButton(
-                onPressed: state.isValid ? () {
-                  // Type-safe access to form values
-                  final email = state.getValue<String>('email');
-                  final subscribe = state.getValue<bool>('subscribe');
-                  print('Email: $email, Subscribe: $subscribe');
-                } : null,
-                child: Text('Submit'),
-              );
-            },
-          ),
-        ],
+FieldWrapper<String>(
+  fieldName: 'email',
+  debounceTime: Duration(milliseconds: 300),
+  transformValue: (value) => value.toLowerCase().trim(),
+  onFieldStateChanged: (value, error, hasError) {
+    // React to changes without rebuilding
+    print('Field changed: $value, hasError: $hasError');
+  },
+  builder: (context, value, error, hasError, updateValue) {
+    // Use ANY Flutter widget here!
+    return TextFormField(
+      initialValue: value,
+      onChanged: updateValue,
+      decoration: InputDecoration(
+        labelText: 'Email',
+        errorText: hasError ? error : null,
       ),
     );
-  }
-}
+  },
+)
 ```
+
+**Performance Features**:
+
+- 🚀 **BlocConsumer** with `buildWhen`/`listenWhen` for minimal rebuilds
+- 🎯 **Field-specific updates** - only rebuilds when relevant data changes
+- 📡 **Listener support** - react to changes without triggering rebuilds
+- ⚡ **Debouncing** - optimized for rapid input scenarios
+
+**Works with ANY widget**: TextField, Checkbox, Slider, Dropdown, Radio, Switch, or your custom widgets!
 
 ## 🎨 **Custom Validators**
 
@@ -323,7 +331,7 @@ class TotalBudgetValidator extends CrossFieldValidator {
     final total = value as double? ?? 0;
 
     if (total < marketing + development) {
-      return 'Total budget must be at least ${marketing + development}';
+      return 'Total budget must be at least  {marketing + development}';
     }
 
     return null;
@@ -331,15 +339,35 @@ class TotalBudgetValidator extends CrossFieldValidator {
 }
 ```
 
-## 🌍 **Localization**
+## 🧩 **Conditional Validation**
 
-Built-in support for 11 languages:
+`ConditionalValidator` lets you apply validation rules only when certain conditions are met (e.g., only validate if a checkbox is checked, or if a value is not empty).
 
 ```dart
-// Automatic localization
-CommonValidators.required<String>().validate(null, context)
-// Returns "Este campo es obligatorio." in Spanish
+// Only require a field if the user checked a box
+final validator = ConditionalValidator<String>(
+  condition: (value, context) => context.read<CoreFormCubit>().state.getValue<bool>('isChecked') == true,
+  validator: CommonValidators.required<String>(),
+);
+
+// Use with FieldWrapper or TypedFormField
+TypedFormField<String>(
+  name: 'details',
+  validators: [validator],
+  initialValue: '',
+)
 ```
+
+You can also use the built-in helpers in `ConditionalValidators`:
+
+```dart
+// Only validate if not empty
+final validator = ConditionalValidators.whenNotEmpty(
+  CommonValidators.email(),
+);
+```
+
+See also: `SwitchValidator`, `ChainValidator`, and more for advanced conditional flows.
 
 ## 🔄 **Dynamic Form Updates**
 
@@ -478,6 +506,16 @@ context.read<CoreFormCubit>().resetForm();
 - 📱 **Progressive Forms** - Add/remove fields as user progresses
 - 🎯 **Dynamic Requirements** - Adjust validation based on business logic
 - 🔄 **Multi-step Forms** - Update validation per step
+
+## 🌍 **Localization**
+
+Built-in support for 11 languages:
+
+```dart
+// Automatic localization
+CommonValidators.required<String>().validate(null, context)
+// Returns "Este campo es obligatorio." in Spanish
+```
 
 ## 🏗 **Architecture**
 

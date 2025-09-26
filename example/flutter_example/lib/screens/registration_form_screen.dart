@@ -314,9 +314,8 @@ class RegistrationFormScreen extends StatelessWidget {
                                 state.isValid
                                     ? Icons.check_circle
                                     : Icons.error,
-                                color: state.isValid
-                                    ? Colors.green
-                                    : Colors.red,
+                                color:
+                                    state.isValid ? Colors.green : Colors.red,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
