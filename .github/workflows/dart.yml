@@ -1,15 +1,15 @@
 # .github/workflows/ci.yml
 
 # Name for this workflow
-name: Flutter CI
+name: Dart CI
 
 # This workflow runs on pull requests targeting your production and development branches
 on:
   pull_request:
-    branches: [ production, development ]
+    branches: [production, development]
   # Also run on direct pushes to the development branch (optional but good practice)
   push:
-    branches: [ development ]
+    branches: [development, production]
 
 jobs:
   # The job ID, which can be anything
@@ -24,14 +24,12 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Set up the complete Flutter SDK
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
 
       # 3. Get package dependencies
       - name: Install dependencies
-        run: flutter pub get
+        run: dart pub get
 
       # 4. Check for formatting issues
       - name: Check formatting
@@ -47,3 +45,17 @@ jobs:
       - name: Run tests
         run: flutter test
 
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/production'
+    needs: analyze_and_test
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+      - name: Install dependencies
+        run: dart pub get
+      - name: Publish to pub.dev
+        run: dart pub publish 
