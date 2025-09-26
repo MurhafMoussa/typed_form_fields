@@ -7,9 +7,9 @@ description: >-
 
 version: 1.0.0
 
-homepage: https://github.com/yourusername/typed_form_fields
-repository: https://github.com/yourusername/typed_form_fields
-issue_tracker: https://github.com/yourusername/typed_form_fields/issues
+homepage: https://github.com/MurhafMoussa/typed_form_fields
+repository: https://github.com/MurhafMoussa/typed_form_fields
+issue_tracker: https://github.com/MurhafMoussa/typed_form_fields/issues
 documentation: https://pub.dev/documentation/typed_form_fields/latest/
 
 environment:

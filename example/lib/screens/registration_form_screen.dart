@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
+// ignore: unintended_html_in_doc_comment
 /// Complete registration form example using FieldWrapper<T>
 /// This demonstrates the clean, universal integration approach
 class RegistrationFormScreen extends StatelessWidget {
@@ -151,7 +152,7 @@ class RegistrationFormScreen extends StatelessWidget {
                   onFieldStateChanged: (value, error, hasError) {
                     // Example of listener without rebuild
                     if (hasError) {
-                      print('First name error: $error');
+                      debugPrint('First name error: $error');
                     }
                   },
                   builder: (context, value, error, hasError, updateValue) {
@@ -488,6 +489,6 @@ class RegistrationFormScreen extends StatelessWidget {
     );
 
     // TODO: Send data to your backend
-    print('Registration data: $userData');
+    debugPrint('Registration data: $userData');
   }
 }

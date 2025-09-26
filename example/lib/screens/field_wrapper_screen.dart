@@ -145,7 +145,9 @@ class FieldWrapperScreen extends StatelessWidget {
                     transformValue: (value) => value.trim(),
                     onFieldStateChanged: (value, error, hasError) {
                       // This listener doesn't trigger rebuilds!
-                      print('TextField changed: $value (hasError: $hasError)');
+                      debugPrint(
+                        'TextField changed: $value (hasError: $hasError)',
+                      );
                     },
                     builder: (context, value, error, hasError, updateValue) {
                       return TextFormField(
@@ -175,7 +177,9 @@ class FieldWrapperScreen extends StatelessWidget {
                   child: FieldWrapper<double>(
                     fieldName: 'customSlider',
                     onFieldStateChanged: (value, error, hasError) {
-                      print('Slider changed: $value (hasError: $hasError)');
+                      debugPrint(
+                        'Slider changed: $value (hasError: $hasError)',
+                      );
                     },
                     builder: (context, value, error, hasError, updateValue) {
                       return Column(

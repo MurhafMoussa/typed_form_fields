@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'screens/bloc_form_screen.dart';
 import 'screens/field_wrapper_screen.dart';
-import 'screens/multi_step_form_screen.dart';
 import 'screens/registration_form_screen.dart';
 import 'screens/widget_showcase_screen.dart';
 
@@ -47,7 +46,6 @@ class TypedFormFieldsExampleApp extends StatelessWidget {
         '/registration': (context) => const RegistrationFormScreen(),
         '/bloc-form': (context) => const BlocFormScreen(),
         '/field-wrapper': (context) => const FieldWrapperScreen(),
-        '/multi-step': (context) => const MultiStepFormScreen(),
         '/widget-showcase': (context) => const WidgetShowcaseScreen(),
       },
     );
@@ -206,7 +204,7 @@ class ExampleHomeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Color.fromRGBO(33, 150, 243, 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(icon, size: 32, color: Colors.blue),
@@ -238,7 +236,12 @@ class ExampleHomeScreen extends StatelessWidget {
                                 feature,
                                 style: const TextStyle(fontSize: 10),
                               ),
-                              backgroundColor: Colors.blue.withOpacity(0.1),
+                              backgroundColor: Color.fromRGBO(
+                                33,
+                                150,
+                                243,
+                                0.1,
+                              ),
                               side: BorderSide.none,
                             ),
                           )

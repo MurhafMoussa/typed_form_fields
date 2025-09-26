@@ -229,7 +229,7 @@ class WidgetShowcaseScreen extends StatelessWidget {
                     lastDate: DateTime(2030),
                     dateFormat: 'MMM dd, yyyy',
                     onDateSubmitted: (date) {
-                      print('Date selected: $date');
+                      debugPrint('Date selected: $date');
                     },
                   ),
                 ),
@@ -247,7 +247,7 @@ class WidgetShowcaseScreen extends StatelessWidget {
                       prefixIcon: Icon(Icons.access_time),
                     ),
                     onTimeSubmitted: (time) {
-                      print('Time selected: $time');
+                      debugPrint('Time selected: $time');
                     },
                   ),
                 ),
@@ -496,6 +496,6 @@ class WidgetShowcaseScreen extends StatelessWidget {
       ),
     );
 
-    print('Widget showcase data: $formData');
+    debugPrint('Widget showcase data: $formData');
   }
 }

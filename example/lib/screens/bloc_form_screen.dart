@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
+// ignore: unintended_html_in_doc_comment
 /// BLoC-managed form example with FieldWrapper<T> integration
 /// This demonstrates reactive validation with clean architecture
 class BlocFormScreen extends StatelessWidget {
@@ -58,22 +59,24 @@ class LoginFormCubit extends CoreFormCubit {
       final password = state.getValue<String>('password');
       final rememberMe = state.getValue<bool>('rememberMe');
 
-      print('Login attempt: $email, remember: $rememberMe');
+      debugPrint('Login attempt: $email, remember: $rememberMe');
 
       // Simulate success/failure
       if (email == 'admin@example.com' && password == 'password123') {
         // Success - in real app, navigate to home
-        print('Login successful!');
+        debugPrint('Login successful!');
       } else {
         // Simulate server error
-        updateError(
-          fieldName: 'email',
-          errorMessage: 'Invalid email or password',
-          context: context,
-        );
+        if (context.mounted) {
+          updateError(
+            fieldName: 'email',
+            errorMessage: 'Invalid email or password',
+            context: context,
+          );
+        }
       }
     } catch (e) {
-      print('Login error: $e');
+      debugPrint('Login error: $e');
     }
   }
 
@@ -170,9 +173,10 @@ class LoginFormView extends StatelessWidget {
                 debounceTime: const Duration(milliseconds: 500),
                 transformValue: (value) => value.toLowerCase().trim(),
                 onFieldStateChanged: (value, error, hasError) {
-                  // Example: Analytics tracking without rebuilds
                   if (value?.isNotEmpty == true) {
-                    print('User started typing email: ${value?.length} chars');
+                    debugPrint(
+                      'User started typing email:  {value?.length} chars',
+                    );
                   }
                 },
                 builder: (context, value, error, hasError, updateValue) {

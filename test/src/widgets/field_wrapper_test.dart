@@ -216,7 +216,7 @@ void main() {
                     return TextFormField(
                       key: const Key('age_field'),
                       initialValue: value?.toString(),
-                      onChanged: (val) => updateValue(int.tryParse(val ?? '')),
+                      onChanged: (val) => updateValue(int.tryParse(val)),
                     );
                   },
                 ),
@@ -328,7 +328,7 @@ void main() {
                     return TextFormField(
                       key: const Key('age_field'),
                       initialValue: value?.toString(),
-                      onChanged: (val) => updateValue(int.tryParse(val ?? '')),
+                      onChanged: (val) => updateValue(int.tryParse(val)),
                     );
                   },
                 ),
