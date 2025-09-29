@@ -6,7 +6,8 @@ abstract class TypedFormState with _$TypedFormState {
     required Map<String, Object?> values,
     required Map<String, String> errors,
     required bool isValid,
-    @Default(ValidationType.fieldsBeingEdited) ValidationType validationType,
+    @Default(ValidationStrategy.realTimeOnly)
+    ValidationStrategy validationStrategy,
     required Map<String, Type> fieldTypes,
   }) = _TypedFormState;
   const TypedFormState._();
@@ -60,16 +61,19 @@ abstract class TypedFormState with _$TypedFormState {
 }
 
 /// Enum representing the available form validation strategies
-enum ValidationType {
+enum ValidationStrategy {
   /// Validation occurs only upon form submission
-  onSubmit,
+  onSubmitThenRealTime,
 
   /// All fields are validated whenever any field is updated
-  allFields,
+  allFieldsRealTime,
 
   /// Only the field currently being edited is validated
-  fieldsBeingEdited,
+  realTimeOnly,
 
   /// Validation is disabled
   disabled,
+
+  /// Validation is only done on form submission
+  onSubmitOnly,
 }

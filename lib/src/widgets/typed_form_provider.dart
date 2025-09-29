@@ -40,7 +40,7 @@ class TypedFormProvider extends StatefulWidget {
     super.key,
     required this.fields,
     required this.child,
-    this.validationType = ValidationType.fieldsBeingEdited,
+    this.validationStrategy = ValidationStrategy.realTimeOnly,
     this.onFormStateChanged,
   });
 
@@ -52,7 +52,7 @@ class TypedFormProvider extends StatefulWidget {
   final Widget Function(BuildContext context) child;
 
   /// The validation strategy to use.
-  final ValidationType validationType;
+  final ValidationStrategy validationStrategy;
 
   /// Optional callback for form state changes.
   final void Function(TypedFormState state)? onFormStateChanged;
@@ -87,7 +87,7 @@ class _TypedFormProviderState extends State<TypedFormProvider> {
     super.initState();
     _cubit = TypedFormController(
       fields: widget.fields,
-      validationType: widget.validationType,
+      validationStrategy: widget.validationStrategy,
     );
 
     // Listen to form state changes if callback is provided

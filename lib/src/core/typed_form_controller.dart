@@ -15,7 +15,8 @@ part 'typed_form_state.dart';
 class TypedFormController extends Cubit<TypedFormState> {
   TypedFormController({
     List<FormFieldDefinition> fields = const [],
-    ValidationType validationType = ValidationType.allFields,
+    ValidationStrategy validationStrategy =
+        ValidationStrategy.allFieldsRealTime,
   }) : super(TypedFormState.initial()) {
     _fieldManager = FormFieldManager(fields: fields);
     _stateComputer = FormStateComputer();
@@ -26,7 +27,7 @@ class TypedFormController extends Cubit<TypedFormState> {
         values: _fieldManager.getInitialValues(),
         errors: {},
         isValid: false, // Will be computed properly when context is available
-        validationType: validationType,
+        validationStrategy: validationStrategy,
         fieldTypes: _fieldManager.getFieldTypes(),
       ),
     );
@@ -76,7 +77,7 @@ class TypedFormController extends Cubit<TypedFormState> {
       value: value,
       currentValues: state.values,
       currentErrors: state.errors,
-      validationType: state.validationType,
+      validationStrategy: state.validationStrategy,
       fieldManager: _fieldManager,
       context: context,
     );
@@ -122,7 +123,7 @@ class TypedFormController extends Cubit<TypedFormState> {
       value: value,
       currentValues: state.values,
       currentErrors: state.errors,
-      validationType: state.validationType,
+      validationStrategy: state.validationStrategy,
       fieldManager: _fieldManager,
       context: context,
       onStateComputed: (newState) {
@@ -173,7 +174,7 @@ class TypedFormController extends Cubit<TypedFormState> {
       fieldValues: fieldValues,
       currentValues: state.values,
       currentErrors: state.errors,
-      validationType: state.validationType,
+      validationStrategy: state.validationStrategy,
       fieldManager: _fieldManager,
       context: context,
     );
@@ -226,8 +227,8 @@ class TypedFormController extends Cubit<TypedFormState> {
   }
 
   /// Sets a new validation type for the form
-  void setValidationType(ValidationType validationType) {
-    _emitIfChanged(state.copyWith(validationType: validationType));
+  void setValidationStrategy(ValidationStrategy validationStrategy) {
+    _emitIfChanged(state.copyWith(validationStrategy: validationStrategy));
   }
 
   /// Validates the entire form
@@ -236,7 +237,8 @@ class TypedFormController extends Cubit<TypedFormState> {
     required VoidCallback onValidationPass,
     VoidCallback? onValidationFail,
   }) {
-    if (state.validationType == ValidationType.onSubmit) {
+    if (state.validationStrategy == ValidationStrategy.onSubmitThenRealTime ||
+        state.validationStrategy == ValidationStrategy.onSubmitOnly) {
       final newErrors = _stateComputer.validationService.validateFields(
         values: state.values,
         validators: _fieldManager.validators,
@@ -251,7 +253,10 @@ class TypedFormController extends Cubit<TypedFormState> {
       onValidationPass();
     } else {
       onValidationFail?.call();
-      setValidationType(ValidationType.fieldsBeingEdited);
+      // Only switch to real-time validation for onSubmitThenRealTime
+      if (state.validationStrategy == ValidationStrategy.onSubmitThenRealTime) {
+        setValidationStrategy(ValidationStrategy.realTimeOnly);
+      }
     }
   }
 

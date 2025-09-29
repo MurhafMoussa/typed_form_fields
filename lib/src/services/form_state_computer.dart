@@ -29,7 +29,7 @@ class FormStateComputer {
     required Object? value,
     required Map<String, Object?> currentValues,
     required Map<String, String> currentErrors,
-    required ValidationType validationType,
+    required ValidationStrategy validationStrategy,
     required FormFieldManager fieldManager,
     required BuildContext context,
     required void Function(TypedFormState) onStateComputed,
@@ -39,21 +39,22 @@ class FormStateComputer {
       ..[fieldName] = value;
 
     // Handle different validation strategies
-    switch (validationType) {
-      case ValidationType.onSubmit:
+    switch (validationStrategy) {
+      case ValidationStrategy.onSubmitOnly:
+      case ValidationStrategy.onSubmitThenRealTime:
         // No validation on field change
         onStateComputed(
           TypedFormState(
             values: newValues,
             errors: currentErrors,
             isValid: false, // Will be computed on submit
-            validationType: validationType,
+            validationStrategy: validationStrategy,
             fieldTypes: fieldManager.getFieldTypes(),
           ),
         );
         break;
 
-      case ValidationType.allFields:
+      case ValidationStrategy.allFieldsRealTime:
         // Debounced validation for all fields
         _debouncedValidationService.validateAllFieldsWithDebounce(
           values: newValues,
@@ -71,7 +72,7 @@ class FormStateComputer {
                 values: newValues,
                 errors: errors,
                 isValid: overallValid,
-                validationType: validationType,
+                validationStrategy: validationStrategy,
                 fieldTypes: fieldManager.getFieldTypes(),
               ),
             );
@@ -79,7 +80,7 @@ class FormStateComputer {
         );
         break;
 
-      case ValidationType.fieldsBeingEdited:
+      case ValidationStrategy.realTimeOnly:
         // Debounced validation for current field only
         _debouncedValidationService.validateFieldWithDebounce(
           fieldName: fieldName,
@@ -106,7 +107,7 @@ class FormStateComputer {
                 values: newValues,
                 errors: newErrors,
                 isValid: overallValid,
-                validationType: validationType,
+                validationStrategy: validationStrategy,
                 fieldTypes: fieldManager.getFieldTypes(),
               ),
             );
@@ -114,14 +115,14 @@ class FormStateComputer {
         );
         break;
 
-      case ValidationType.disabled:
+      case ValidationStrategy.disabled:
         // No validation
         onStateComputed(
           TypedFormState(
             values: newValues,
             errors: {},
             isValid: false,
-            validationType: validationType,
+            validationStrategy: validationStrategy,
             fieldTypes: fieldManager.getFieldTypes(),
           ),
         );
@@ -135,7 +136,7 @@ class FormStateComputer {
     required Object? value,
     required Map<String, Object?> currentValues,
     required Map<String, String> currentErrors,
-    required ValidationType validationType,
+    required ValidationStrategy validationStrategy,
     required FormFieldManager fieldManager,
     required BuildContext context,
   }) {
@@ -144,11 +145,12 @@ class FormStateComputer {
     final newErrors = Map<String, String>.from(currentErrors);
 
     // Update errors based on the active validation strategy
-    switch (validationType) {
-      case ValidationType.onSubmit:
+    switch (validationStrategy) {
+      case ValidationStrategy.onSubmitOnly:
+      case ValidationStrategy.onSubmitThenRealTime:
         // In onSubmit mode, we don't update errors on field change
         break;
-      case ValidationType.allFields:
+      case ValidationStrategy.allFieldsRealTime:
         // Validate all fields when any field is updated
         newErrors.clear();
         newErrors.addAll(
@@ -159,7 +161,7 @@ class FormStateComputer {
           ),
         );
         break;
-      case ValidationType.fieldsBeingEdited:
+      case ValidationStrategy.realTimeOnly:
         // Validate only the field being edited
         final validator = fieldManager.validators[fieldName];
         if (validator != null) {
@@ -175,24 +177,26 @@ class FormStateComputer {
           }
         }
         break;
-      case ValidationType.disabled:
+      case ValidationStrategy.disabled:
         newErrors.clear();
         break;
     }
 
     // Compute overall validity
-    final overallValid = _validationService.computeOverallValidity(
-      values: newValues,
-      validators: fieldManager.validators,
-      touchedFields: fieldManager.touchedFields,
-      context: context,
-    );
+    final overallValid = validationStrategy == ValidationStrategy.disabled
+        ? true // Always valid when validation is disabled
+        : _validationService.computeOverallValidity(
+            values: newValues,
+            validators: fieldManager.validators,
+            touchedFields: fieldManager.touchedFields,
+            context: context,
+          );
 
     return TypedFormState(
       values: newValues,
       errors: newErrors,
       isValid: overallValid,
-      validationType: validationType,
+      validationStrategy: validationStrategy,
       fieldTypes: fieldManager.getFieldTypes(),
     );
   }
@@ -202,7 +206,7 @@ class FormStateComputer {
     required Map<String, Object?> fieldValues,
     required Map<String, Object?> currentValues,
     required Map<String, String> currentErrors,
-    required ValidationType validationType,
+    required ValidationStrategy validationStrategy,
     required FormFieldManager fieldManager,
     required BuildContext context,
   }) {
@@ -215,11 +219,12 @@ class FormStateComputer {
     }
 
     // Update errors based on validation strategy
-    switch (validationType) {
-      case ValidationType.onSubmit:
+    switch (validationStrategy) {
+      case ValidationStrategy.onSubmitOnly:
+      case ValidationStrategy.onSubmitThenRealTime:
         // No validation on field change
         break;
-      case ValidationType.allFields:
+      case ValidationStrategy.allFieldsRealTime:
         // Validate all fields
         newErrors.clear();
         newErrors.addAll(
@@ -230,7 +235,7 @@ class FormStateComputer {
           ),
         );
         break;
-      case ValidationType.fieldsBeingEdited:
+      case ValidationStrategy.realTimeOnly:
         // Validate only edited fields
         for (final fieldName in fieldValues.keys) {
           final validator = fieldManager.validators[fieldName];
@@ -245,7 +250,7 @@ class FormStateComputer {
           }
         }
         break;
-      case ValidationType.disabled:
+      case ValidationStrategy.disabled:
         newErrors.clear();
         break;
     }
@@ -259,7 +264,7 @@ class FormStateComputer {
         touchedFields: fieldManager.touchedFields,
         context: context,
       ),
-      validationType: validationType,
+      validationStrategy: validationStrategy,
       fieldTypes: fieldManager.getFieldTypes(),
     );
   }
@@ -268,7 +273,7 @@ class FormStateComputer {
   TypedFormState computeErrorUpdateState({
     required Map<String, String> newErrors,
     required Map<String, Object?> currentValues,
-    required ValidationType validationType,
+    required ValidationStrategy validationStrategy,
     required FormFieldManager fieldManager,
     required BuildContext context,
   }) {
@@ -282,14 +287,14 @@ class FormStateComputer {
         validators: fieldManager.validators,
         context: context,
       ),
-      validationType: validationType,
+      validationStrategy: validationStrategy,
       fieldTypes: fieldManager.getFieldTypes(),
     );
   }
 
   /// Compute new state after validation type change
-  TypedFormState computeValidationTypeChangeState({
-    required ValidationType newValidationType,
+  TypedFormState computeValidationStrategyChangeState({
+    required ValidationStrategy newValidationStrategy,
     required Map<String, Object?> currentValues,
     required Map<String, String> currentErrors,
     required FormFieldManager fieldManager,
@@ -304,7 +309,7 @@ class FormStateComputer {
         touchedFields: fieldManager.touchedFields,
         context: context,
       ),
-      validationType: newValidationType,
+      validationStrategy: newValidationStrategy,
       fieldTypes: fieldManager.getFieldTypes(),
     );
   }

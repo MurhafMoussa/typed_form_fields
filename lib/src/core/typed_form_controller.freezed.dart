@@ -17,7 +17,7 @@ mixin _$TypedFormState {
   Map<String, Object?> get values;
   Map<String, String> get errors;
   bool get isValid;
-  ValidationType get validationType;
+  ValidationStrategy get validationStrategy;
   Map<String, Type> get fieldTypes;
 
   /// Create a copy of TypedFormState
@@ -36,8 +36,8 @@ mixin _$TypedFormState {
             const DeepCollectionEquality().equals(other.values, values) &&
             const DeepCollectionEquality().equals(other.errors, errors) &&
             (identical(other.isValid, isValid) || other.isValid == isValid) &&
-            (identical(other.validationType, validationType) ||
-                other.validationType == validationType) &&
+            (identical(other.validationStrategy, validationStrategy) ||
+                other.validationStrategy == validationStrategy) &&
             const DeepCollectionEquality()
                 .equals(other.fieldTypes, fieldTypes));
   }
@@ -48,12 +48,12 @@ mixin _$TypedFormState {
       const DeepCollectionEquality().hash(values),
       const DeepCollectionEquality().hash(errors),
       isValid,
-      validationType,
+      validationStrategy,
       const DeepCollectionEquality().hash(fieldTypes));
 
   @override
   String toString() {
-    return 'TypedFormState(values: $values, errors: $errors, isValid: $isValid, validationType: $validationType, fieldTypes: $fieldTypes)';
+    return 'TypedFormState(values: $values, errors: $errors, isValid: $isValid, validationStrategy: $validationStrategy, fieldTypes: $fieldTypes)';
   }
 }
 
@@ -67,7 +67,7 @@ abstract mixin class $TypedFormStateCopyWith<$Res> {
       {Map<String, Object?> values,
       Map<String, String> errors,
       bool isValid,
-      ValidationType validationType,
+      ValidationStrategy validationStrategy,
       Map<String, Type> fieldTypes});
 }
 
@@ -87,7 +87,7 @@ class _$TypedFormStateCopyWithImpl<$Res>
     Object? values = null,
     Object? errors = null,
     Object? isValid = null,
-    Object? validationType = null,
+    Object? validationStrategy = null,
     Object? fieldTypes = null,
   }) {
     return _then(_self.copyWith(
@@ -103,10 +103,10 @@ class _$TypedFormStateCopyWithImpl<$Res>
           ? _self.isValid
           : isValid // ignore: cast_nullable_to_non_nullable
               as bool,
-      validationType: null == validationType
-          ? _self.validationType
-          : validationType // ignore: cast_nullable_to_non_nullable
-              as ValidationType,
+      validationStrategy: null == validationStrategy
+          ? _self.validationStrategy
+          : validationStrategy // ignore: cast_nullable_to_non_nullable
+              as ValidationStrategy,
       fieldTypes: null == fieldTypes
           ? _self.fieldTypes
           : fieldTypes // ignore: cast_nullable_to_non_nullable
@@ -212,7 +212,7 @@ extension TypedFormStatePatterns on TypedFormState {
             Map<String, Object?> values,
             Map<String, String> errors,
             bool isValid,
-            ValidationType validationType,
+            ValidationStrategy validationStrategy,
             Map<String, Type> fieldTypes)?
         $default, {
     required TResult orElse(),
@@ -221,7 +221,7 @@ extension TypedFormStatePatterns on TypedFormState {
     switch (_that) {
       case _TypedFormState() when $default != null:
         return $default(_that.values, _that.errors, _that.isValid,
-            _that.validationType, _that.fieldTypes);
+            _that.validationStrategy, _that.fieldTypes);
       case _:
         return orElse();
     }
@@ -246,7 +246,7 @@ extension TypedFormStatePatterns on TypedFormState {
             Map<String, Object?> values,
             Map<String, String> errors,
             bool isValid,
-            ValidationType validationType,
+            ValidationStrategy validationStrategy,
             Map<String, Type> fieldTypes)
         $default,
   ) {
@@ -254,7 +254,7 @@ extension TypedFormStatePatterns on TypedFormState {
     switch (_that) {
       case _TypedFormState():
         return $default(_that.values, _that.errors, _that.isValid,
-            _that.validationType, _that.fieldTypes);
+            _that.validationStrategy, _that.fieldTypes);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -278,7 +278,7 @@ extension TypedFormStatePatterns on TypedFormState {
             Map<String, Object?> values,
             Map<String, String> errors,
             bool isValid,
-            ValidationType validationType,
+            ValidationStrategy validationStrategy,
             Map<String, Type> fieldTypes)?
         $default,
   ) {
@@ -286,7 +286,7 @@ extension TypedFormStatePatterns on TypedFormState {
     switch (_that) {
       case _TypedFormState() when $default != null:
         return $default(_that.values, _that.errors, _that.isValid,
-            _that.validationType, _that.fieldTypes);
+            _that.validationStrategy, _that.fieldTypes);
       case _:
         return null;
     }
@@ -300,7 +300,7 @@ class _TypedFormState extends TypedFormState {
       {required final Map<String, Object?> values,
       required final Map<String, String> errors,
       required this.isValid,
-      this.validationType = ValidationType.fieldsBeingEdited,
+      this.validationStrategy = ValidationStrategy.realTimeOnly,
       required final Map<String, Type> fieldTypes})
       : _values = values,
         _errors = errors,
@@ -327,7 +327,7 @@ class _TypedFormState extends TypedFormState {
   final bool isValid;
   @override
   @JsonKey()
-  final ValidationType validationType;
+  final ValidationStrategy validationStrategy;
   final Map<String, Type> _fieldTypes;
   @override
   Map<String, Type> get fieldTypes {
@@ -352,8 +352,8 @@ class _TypedFormState extends TypedFormState {
             const DeepCollectionEquality().equals(other._values, _values) &&
             const DeepCollectionEquality().equals(other._errors, _errors) &&
             (identical(other.isValid, isValid) || other.isValid == isValid) &&
-            (identical(other.validationType, validationType) ||
-                other.validationType == validationType) &&
+            (identical(other.validationStrategy, validationStrategy) ||
+                other.validationStrategy == validationStrategy) &&
             const DeepCollectionEquality()
                 .equals(other._fieldTypes, _fieldTypes));
   }
@@ -364,12 +364,12 @@ class _TypedFormState extends TypedFormState {
       const DeepCollectionEquality().hash(_values),
       const DeepCollectionEquality().hash(_errors),
       isValid,
-      validationType,
+      validationStrategy,
       const DeepCollectionEquality().hash(_fieldTypes));
 
   @override
   String toString() {
-    return 'TypedFormState(values: $values, errors: $errors, isValid: $isValid, validationType: $validationType, fieldTypes: $fieldTypes)';
+    return 'TypedFormState(values: $values, errors: $errors, isValid: $isValid, validationStrategy: $validationStrategy, fieldTypes: $fieldTypes)';
   }
 }
 
@@ -385,7 +385,7 @@ abstract mixin class _$TypedFormStateCopyWith<$Res>
       {Map<String, Object?> values,
       Map<String, String> errors,
       bool isValid,
-      ValidationType validationType,
+      ValidationStrategy validationStrategy,
       Map<String, Type> fieldTypes});
 }
 
@@ -405,7 +405,7 @@ class __$TypedFormStateCopyWithImpl<$Res>
     Object? values = null,
     Object? errors = null,
     Object? isValid = null,
-    Object? validationType = null,
+    Object? validationStrategy = null,
     Object? fieldTypes = null,
   }) {
     return _then(_TypedFormState(
@@ -421,10 +421,10 @@ class __$TypedFormStateCopyWithImpl<$Res>
           ? _self.isValid
           : isValid // ignore: cast_nullable_to_non_nullable
               as bool,
-      validationType: null == validationType
-          ? _self.validationType
-          : validationType // ignore: cast_nullable_to_non_nullable
-              as ValidationType,
+      validationStrategy: null == validationStrategy
+          ? _self.validationStrategy
+          : validationStrategy // ignore: cast_nullable_to_non_nullable
+              as ValidationStrategy,
       fieldTypes: null == fieldTypes
           ? _self._fieldTypes
           : fieldTypes // ignore: cast_nullable_to_non_nullable
