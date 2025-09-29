@@ -10,11 +10,6 @@ class MockBuildContext extends BuildContext {
 
 void main() {
   group('TypedCrossFieldValidator', () {
-    late MockBuildContext mockContext;
-
-    setUp(() {
-      mockContext = MockBuildContext();
-    });
 
     testWidgets('should validate field based on other field values',
         (tester) async {

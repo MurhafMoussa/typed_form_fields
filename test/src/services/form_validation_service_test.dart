@@ -299,10 +299,6 @@ void main() {
           'email': 'valid@example.com',
           'password': 'validpassword',
         };
-        final touchedFields = {
-          'email': false, // Not touched, but should be ignored
-          'password': false, // Not touched, but should be ignored
-        };
 
         final result = service.computeOverallValidityIgnoringTouched(
           values: values,
@@ -487,10 +483,10 @@ class MockValidator implements Validator {
 }
 
 class MockCrossFieldValidator extends TypedCrossFieldValidator<String> {
-  int validateCallCount = 0;
-  bool shouldReturnError = true;
+  final int validateCallCount;
+  final bool shouldReturnError;
 
-  MockCrossFieldValidator({this.shouldReturnError = true})
+  MockCrossFieldValidator({this.shouldReturnError = true, this.validateCallCount = 0})
       : super(
           dependentFields: ['password'],
           validator: (value, fieldValues, context) => null,
@@ -498,7 +494,8 @@ class MockCrossFieldValidator extends TypedCrossFieldValidator<String> {
 
   @override
   String? validate(String? value, BuildContext context) {
-    validateCallCount++;
+    // Note: validateCallCount is now final, so we can't increment it
+    // This is a test mock, so we'll just return the error based on shouldReturnError
     return shouldReturnError ? 'Cross field error' : null;
   }
 }

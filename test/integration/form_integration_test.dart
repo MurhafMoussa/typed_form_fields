@@ -476,10 +476,10 @@ class DynamicFormTestWidget extends StatefulWidget {
   const DynamicFormTestWidget({super.key});
 
   @override
-  _DynamicFormTestWidgetState createState() => _DynamicFormTestWidgetState();
+  DynamicFormTestWidgetState createState() => DynamicFormTestWidgetState();
 }
 
-class _DynamicFormTestWidgetState extends State<DynamicFormTestWidget> {
+class DynamicFormTestWidgetState extends State<DynamicFormTestWidget> {
   bool _showEmailField = false;
 
   @override

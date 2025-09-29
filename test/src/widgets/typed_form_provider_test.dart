@@ -5,11 +5,6 @@ import 'package:typed_form_fields/typed_form_fields.dart';
 
 void main() {
   group('TypedFormProvider', () {
-    late MockBuildContext mockContext;
-
-    setUp(() {
-      mockContext = MockBuildContext();
-    });
 
     testWidgets('should provide form state to child widgets', (tester) async {
       final testFields = [

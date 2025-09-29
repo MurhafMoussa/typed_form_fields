@@ -294,7 +294,7 @@ class _MockBuildContext implements BuildContext {
 
 /// Main function to run all benchmarks
 void main() {
-  print('Running Typed Form Fields Performance Benchmarks...\n');
+  // print('Running Typed Form Fields Performance Benchmarks...\n');
 
   // Run benchmarks
   FormFieldUpdateBenchmark().report();
@@ -303,5 +303,5 @@ void main() {
   CrossFieldValidationBenchmark().report();
   FormStateAccessBenchmark().report();
 
-  print('\nBenchmarks completed!');
+  // print('\nBenchmarks completed!');
 }
