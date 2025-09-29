@@ -33,7 +33,7 @@ class LoginFormScreen extends StatelessWidget {
           initialValue: false,
         ),
       ],
-      validationType: ValidationType.fieldsBeingEdited,
+      validationStrategy: ValidationStrategy.realTimeOnly,
       child: (context) => const LoginFormView(),
     );
   }

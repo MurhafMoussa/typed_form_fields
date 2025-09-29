@@ -93,7 +93,7 @@ class WidgetShowcaseScreen extends StatelessWidget {
               initialValue: '',
             ),
           ],
-          validationType: ValidationType.fieldsBeingEdited,
+          validationStrategy: ValidationStrategy.realTimeOnly,
           child: (context) => const WidgetShowcaseView(),
         ),
       ),
@@ -312,7 +312,7 @@ class WidgetShowcaseView extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Validation Type: ${state.validationType.name}',
+                      'Validation Type: ${state.validationStrategy.name}',
                       style: const TextStyle(fontSize: 14),
                     ),
                     if (state.values.isNotEmpty) ...[

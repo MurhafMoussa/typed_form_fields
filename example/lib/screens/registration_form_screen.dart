@@ -84,7 +84,7 @@ class RegistrationFormScreen extends StatelessWidget {
               initialValue: false,
             ),
           ],
-          validationType: ValidationType.fieldsBeingEdited,
+          validationStrategy: ValidationStrategy.realTimeOnly,
           child: (context) => const RegistrationFormView(),
         ),
       ),
@@ -111,29 +111,31 @@ class RegistrationFormView extends StatelessWidget {
                     'Validation: ',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  DropdownButton<ValidationType>(
-                    value: state.validationType,
+                  DropdownButton<ValidationStrategy>(
+                    value: state.validationStrategy,
                     items: const [
                       DropdownMenuItem(
-                        value: ValidationType.onSubmit,
+                        value: ValidationStrategy.onSubmitThenRealTime,
                         child: Text('On Submit'),
                       ),
                       DropdownMenuItem(
-                        value: ValidationType.allFields,
+                        value: ValidationStrategy.allFieldsRealTime,
                         child: Text('All Fields'),
                       ),
                       DropdownMenuItem(
-                        value: ValidationType.fieldsBeingEdited,
+                        value: ValidationStrategy.realTimeOnly,
                         child: Text('Fields Being Edited'),
                       ),
                       DropdownMenuItem(
-                        value: ValidationType.disabled,
+                        value: ValidationStrategy.disabled,
                         child: Text('Disabled'),
                       ),
                     ],
                     onChanged: (type) {
                       if (type != null) {
-                        TypedFormProvider.of(context).setValidationType(type);
+                        TypedFormProvider.of(
+                          context,
+                        ).setValidationStrategy(type);
                       }
                     },
                     underline: Container(),
@@ -322,7 +324,20 @@ class RegistrationFormView extends StatelessWidget {
               return Column(
                 children: [
                   ElevatedButton(
-                    onPressed: state.isValid
+                    onPressed:
+                        state.validationStrategy ==
+                            ValidationStrategy.onSubmitThenRealTime
+                        ? () => context.validateForm(
+                            onValidationPass: () => _submitForm(context, state),
+                            onValidationFail: () =>
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please fill all fields'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                ),
+                          )
+                        : state.isValid
                         ? () => _submitForm(context, state)
                         : null,
                     style: ElevatedButton.styleFrom(
