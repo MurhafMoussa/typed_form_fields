@@ -2,30 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:typed_form_fields/src/core/typed_form_controller.dart';
 import 'package:typed_form_fields/src/models/form_field_definition.dart';
-import 'package:typed_form_fields/src/services/form_debounced_validation_service.dart';
-import 'package:typed_form_fields/src/services/form_field_manager.dart';
-import 'package:typed_form_fields/src/services/form_state_computer.dart';
-import 'package:typed_form_fields/src/services/form_validation_service.dart';
+import 'package:typed_form_fields/src/services/field_registry.dart';
+import 'package:typed_form_fields/src/services/state_calculation.dart';
+import 'package:typed_form_fields/src/services/validation_debounce.dart';
+import 'package:typed_form_fields/src/validators/typed_cross_field_validator.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 void main() {
-  group('FormStateComputer', () {
-    late FormStateComputer stateComputer;
-    late FormFieldManager fieldManager;
+  group('StateCalculation', () {
+    late StateCalculation stateCalculator;
+    late FieldRegistry fieldRegistry;
     late MockBuildContext mockContext;
 
     setUp(() {
-      stateComputer = FormStateComputer();
-      fieldManager = FormFieldManager(
-        fields: [
-          FormFieldDefinition<String>(
-            name: 'email',
-            validators: [MockValidator<String>()],
-          ),
-          FormFieldDefinition<int>(
-              name: 'age', validators: [MockValidator<int>()]),
-        ],
-      );
+      final fields = [
+        FormFieldDefinition<String>(
+          name: 'email',
+          validators: [MockValidator<String>()],
+        ),
+        FormFieldDefinition<int>(
+            name: 'age', validators: [MockValidator<int>()]),
+      ];
+
+      fieldRegistry = DefaultFieldRegistry(fields: fields);
+      stateCalculator = StateCalculation();
       mockContext = MockBuildContext();
     });
 
@@ -34,14 +34,14 @@ void main() {
         final currentValues = {'email': 'old@example.com'};
         final currentErrors = {'email': 'old error'};
 
-        final result = stateComputer.computeFieldUpdateState(
+        final result = stateCalculator.computeFieldUpdateState(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.onSubmitThenRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -55,14 +55,14 @@ void main() {
         final currentValues = {'email': 'old@example.com', 'age': 25};
         final currentErrors = <String, String>{};
 
-        final result = stateComputer.computeFieldUpdateState(
+        final result = stateCalculator.computeFieldUpdateState(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.allFieldsRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -74,14 +74,14 @@ void main() {
         final currentValues = {'email': 'old@example.com', 'age': 25};
         final currentErrors = <String, String>{};
 
-        final result = stateComputer.computeFieldUpdateState(
+        final result = stateCalculator.computeFieldUpdateState(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.realTimeOnly,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -91,27 +91,27 @@ void main() {
 
       test('should remove error when validation passes in fieldsBeingEdited',
           () {
-        // Create a field manager with a validator that returns null (no error)
-        final noErrorFieldManager = FormFieldManager(
-          fields: [
-            FormFieldDefinition<String>(
-              name: 'email',
-              validators: [NoErrorValidator<String>()],
-            ),
-          ],
-        );
+        // Create a new field manager with a validator that returns null (no error)
+        final noErrorFields = [
+          FormFieldDefinition<String>(
+            name: 'email',
+            validators: [NoErrorValidator<String>()],
+          ),
+        ];
+        final noErrorFieldManager = DefaultFieldRegistry(fields: noErrorFields);
+        final noErrorStateComputer = StateCalculation();
 
         final currentValues = {'email': 'old@example.com'};
         final currentErrors = {'email': 'Previous error'};
 
-        final result = stateComputer.computeFieldUpdateState(
+        final result = noErrorStateComputer.computeFieldUpdateState(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.realTimeOnly,
-          fieldManager: noErrorFieldManager,
           context: mockContext,
+          fieldRegistry: noErrorFieldManager,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -122,14 +122,14 @@ void main() {
         final currentValues = {'email': 'old@example.com'};
         final currentErrors = {'email': 'old error'};
 
-        final result = stateComputer.computeFieldUpdateState(
+        final result = stateCalculator.computeFieldUpdateState(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.disabled,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -138,27 +138,28 @@ void main() {
       });
 
       test('should remove error when validation passes with debounce', () {
-        final noErrorFieldManager = FormFieldManager(
-          fields: [
-            FormFieldDefinition<String>(
-              name: 'email',
-              validators: [NoErrorValidator<String>()],
-            ),
-          ],
-        );
+        // Create a new field manager with a validator that returns null (no error)
+        final noErrorFields = [
+          FormFieldDefinition<String>(
+            name: 'email',
+            validators: [NoErrorValidator<String>()],
+          ),
+        ];
+        final noErrorFieldManager = DefaultFieldRegistry(fields: noErrorFields);
+        final noErrorStateComputer = StateCalculation();
 
         final currentValues = {'email': 'old@example.com'};
         final currentErrors = {'email': 'Previous error'};
 
         bool stateComputed = false;
-        stateComputer.computeFieldUpdateStateWithDebounce(
+        noErrorStateComputer.computeFieldUpdateStateWithDebounce(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.realTimeOnly,
-          fieldManager: noErrorFieldManager,
           context: mockContext,
+          fieldRegistry: noErrorFieldManager,
           onStateComputed: (newState) {
             stateComputed = true;
             expect(newState.values['email'], 'new@example.com');
@@ -179,13 +180,13 @@ void main() {
         final currentErrors = <String, String>{};
         final fieldValues = {'email': 'new@example.com', 'age': 30};
 
-        final result = stateComputer.computeFieldsUpdateState(
+        final result = stateCalculator.computeFieldsUpdateState(
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.realTimeOnly,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -195,30 +196,31 @@ void main() {
 
       test('should remove errors when validation passes for multiple fields',
           () {
-        final noErrorFieldManager = FormFieldManager(
-          fields: [
-            FormFieldDefinition<String>(
-              name: 'email',
-              validators: [NoErrorValidator<String>()],
-            ),
-            FormFieldDefinition<int>(
-              name: 'age',
-              validators: [NoErrorValidator<int>()],
-            ),
-          ],
-        );
+        // Create a new field manager with validators that return null (no error)
+        final noErrorFields = [
+          FormFieldDefinition<String>(
+            name: 'email',
+            validators: [NoErrorValidator<String>()],
+          ),
+          FormFieldDefinition<int>(
+            name: 'age',
+            validators: [NoErrorValidator<int>()],
+          ),
+        ];
+        final noErrorFieldManager = DefaultFieldRegistry(fields: noErrorFields);
+        final noErrorStateComputer = StateCalculation();
 
         final currentValues = {'email': 'old@example.com', 'age': 25};
         final currentErrors = {'email': 'old error', 'age': 'age error'};
         final fieldValues = {'email': 'new@example.com', 'age': 30};
 
-        final result = stateComputer.computeFieldsUpdateState(
+        final result = noErrorStateComputer.computeFieldsUpdateState(
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.realTimeOnly,
-          fieldManager: noErrorFieldManager,
           context: mockContext,
+          fieldRegistry: noErrorFieldManager,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -231,13 +233,13 @@ void main() {
         final currentErrors = {'email': 'old error', 'age': 'age error'};
         final fieldValues = {'email': 'new@example.com', 'age': 30};
 
-        final result = stateComputer.computeFieldsUpdateState(
+        final result = stateCalculator.computeFieldsUpdateState(
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.disabled,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -253,13 +255,13 @@ void main() {
         final currentErrors = <String, String>{};
         final fieldValues = {'email': 'new@example.com', 'age': 30};
 
-        final result = stateComputer.computeFieldsUpdateState(
+        final result = stateCalculator.computeFieldsUpdateState(
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.allFieldsRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -272,13 +274,13 @@ void main() {
         final currentErrors = {'email': 'old error'};
         final fieldValues = {'email': 'new@example.com', 'age': 30};
 
-        final result = stateComputer.computeFieldsUpdateState(
+        final result = stateCalculator.computeFieldsUpdateState(
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.onSubmitThenRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values['email'], 'new@example.com');
@@ -292,12 +294,12 @@ void main() {
         final currentValues = {'email': 'test@example.com', 'age': 25};
         final newErrors = {'email': 'Email error', 'age': 'Age error'};
 
-        final result = stateComputer.computeErrorUpdateState(
+        final result = stateCalculator.computeErrorUpdateState(
           newErrors: newErrors,
           currentValues: currentValues,
           validationStrategy: ValidationStrategy.allFieldsRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values, currentValues);
@@ -309,12 +311,12 @@ void main() {
         final currentValues = {'email': 'test@example.com', 'age': 25};
         final newErrors = <String, String>{}; // No errors
 
-        final result = stateComputer.computeErrorUpdateState(
+        final result = stateCalculator.computeErrorUpdateState(
           newErrors: newErrors,
           currentValues: currentValues,
           validationStrategy: ValidationStrategy.allFieldsRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.errors, isEmpty);
@@ -327,12 +329,12 @@ void main() {
         final currentValues = {'email': 'test@example.com', 'age': 25};
         final currentErrors = {'email': 'Email error'};
 
-        final result = stateComputer.computeValidationStrategyChangeState(
+        final result = stateCalculator.computeValidationStrategyChangeState(
           newValidationStrategy: ValidationStrategy.realTimeOnly,
           currentValues: currentValues,
           currentErrors: currentErrors,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
         );
 
         expect(result.values, currentValues);
@@ -347,14 +349,14 @@ void main() {
         final currentErrors = {'email': 'old error'};
         TypedFormState? capturedState;
 
-        stateComputer.computeFieldUpdateStateWithDebounce(
+        stateCalculator.computeFieldUpdateStateWithDebounce(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.onSubmitThenRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
           onStateComputed: (state) {
             capturedState = state;
           },
@@ -372,14 +374,14 @@ void main() {
         final currentErrors = <String, String>{};
         TypedFormState? capturedState;
 
-        stateComputer.computeFieldUpdateStateWithDebounce(
+        stateCalculator.computeFieldUpdateStateWithDebounce(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.allFieldsRealTime,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
           onStateComputed: (state) {
             capturedState = state;
           },
@@ -405,14 +407,14 @@ void main() {
           final currentErrors = <String, String>{};
           TypedFormState? capturedState;
 
-          stateComputer.computeFieldUpdateStateWithDebounce(
+          stateCalculator.computeFieldUpdateStateWithDebounce(
             fieldName: 'email',
             value: 'new@example.com',
             currentValues: currentValues,
             currentErrors: currentErrors,
             validationStrategy: ValidationStrategy.realTimeOnly,
-            fieldManager: fieldManager,
             context: mockContext,
+            fieldRegistry: fieldRegistry,
             onStateComputed: (state) {
               capturedState = state;
             },
@@ -439,14 +441,14 @@ void main() {
         final currentErrors = {'email': 'old error'};
         TypedFormState? capturedState;
 
-        stateComputer.computeFieldUpdateStateWithDebounce(
+        stateCalculator.computeFieldUpdateStateWithDebounce(
           fieldName: 'email',
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
           validationStrategy: ValidationStrategy.disabled,
-          fieldManager: fieldManager,
           context: mockContext,
+          fieldRegistry: fieldRegistry,
           onStateComputed: (state) {
             capturedState = state;
           },
@@ -461,14 +463,129 @@ void main() {
 
     group('getters', () {
       test('should provide access to validation service', () {
-        expect(stateComputer.validationService, isA<FormValidationService>());
+        // validationService getter has been removed as validation is now internal
       });
 
       test('should provide access to debounced validation service', () {
         expect(
-          stateComputer.debouncedValidationService,
-          isA<FormDebouncedValidationService>(),
+          stateCalculator.validationDebounce,
+          isA<ValidationDebounce>(),
         );
+      });
+    });
+
+    group('computeOverallValidityIgnoringTouched', () {
+      test('should return true when all fields are valid', () {
+        final currentValues = {'email': 'test@example.com', 'age': 25};
+        final validators = <String, Validator>{
+          'email': NoErrorValidator<String>(),
+          'age': NoErrorValidator<int>(),
+        };
+
+        final result = stateCalculator.computeOverallValidityIgnoringTouched(
+          values: currentValues,
+          validators: validators,
+          context: mockContext,
+        );
+
+        expect(result, isTrue);
+      });
+
+      test('should return false when any field is invalid', () {
+        final currentValues = {'email': 'invalid-email', 'age': 25};
+        final validators = <String, Validator>{
+          'email': MockValidator<String>(),
+          'age': NoErrorValidator<int>(),
+        };
+
+        final result = stateCalculator.computeOverallValidityIgnoringTouched(
+          values: currentValues,
+          validators: validators,
+          context: mockContext,
+        );
+
+        expect(result, isFalse);
+      });
+    });
+
+    group('validateDependentFields', () {
+      test('should validate fields that depend on changed field', () {
+        final currentValues = {'email': 'test@example.com', 'age': 25};
+        final validators = fieldRegistry.validators;
+
+        final result = stateCalculator.validateDependentFields(
+          changedFieldName: 'email',
+          values: currentValues,
+          validators: validators,
+          context: mockContext,
+        );
+
+        expect(result, isA<Map<String, String>>());
+      });
+
+      test('should return empty map when no dependent fields', () {
+        final currentValues = {'email': 'test@example.com', 'age': 25};
+        final validators = fieldRegistry.validators;
+
+        final result = stateCalculator.validateDependentFields(
+          changedFieldName: 'nonExistentField',
+          values: currentValues,
+          validators: validators,
+          context: mockContext,
+        );
+
+        expect(result, isEmpty);
+      });
+
+      test(
+          'should validate cross-field validators that depend on changed field',
+          () {
+        final currentValues = {
+          'email': 'test@example.com',
+          'confirmEmail': 'test@example.com'
+        };
+        final validators = <String, Validator>{
+          'email': NoErrorValidator<String>(),
+          'confirmEmail': MockCrossFieldValidator<String>(
+            dependentFields: ['email'],
+            shouldReturnError: false,
+          ),
+        };
+
+        final result = stateCalculator.validateDependentFields(
+          changedFieldName: 'email',
+          values: currentValues,
+          validators: validators,
+          context: mockContext,
+        );
+
+        expect(result, isEmpty); // No error should be returned
+      });
+
+      test(
+          'should return error for cross-field validators that fail validation',
+          () {
+        final currentValues = {
+          'email': 'test@example.com',
+          'confirmEmail': 'different@example.com'
+        };
+        final validators = <String, Validator>{
+          'email': NoErrorValidator<String>(),
+          'confirmEmail': MockCrossFieldValidator<String>(
+            dependentFields: ['email'],
+            shouldReturnError: true,
+          ),
+        };
+
+        final result = stateCalculator.validateDependentFields(
+          changedFieldName: 'email',
+          values: currentValues,
+          validators: validators,
+          context: mockContext,
+        );
+
+        expect(result, isNotEmpty);
+        expect(result['confirmEmail'], isNotNull);
       });
     });
   });
@@ -491,4 +608,17 @@ class NoErrorValidator<T> implements Validator<T> {
   String? validate(T? value, BuildContext context) {
     return null; // Always returns no error
   }
+}
+
+class MockCrossFieldValidator<T> extends TypedCrossFieldValidator<T> {
+  final bool shouldReturnError;
+
+  MockCrossFieldValidator({
+    required super.dependentFields,
+    required this.shouldReturnError,
+  }) : super(
+          validator: (value, fieldValues, context) {
+            return shouldReturnError ? 'Cross-field validation error' : null;
+          },
+        );
 }

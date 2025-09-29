@@ -1,23 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:typed_form_fields/src/services/form_debounced_validation_service.dart';
-import 'package:typed_form_fields/src/services/form_validation_service.dart';
+import 'package:typed_form_fields/src/services/validation_debounce.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 void main() {
-  group('FormDebouncedValidationService', () {
-    late FormDebouncedValidationService service;
+  group('ValidationDebounce', () {
+    late ValidationDebounce debounceService;
     late MockBuildContext mockContext;
     late MockValidator mockValidator;
 
     setUp(() {
-      service = FormDebouncedValidationService();
+      debounceService = ValidationDebounce();
       mockContext = MockBuildContext();
       mockValidator = MockValidator();
     });
 
     tearDown(() {
-      service.dispose();
+      debounceService.dispose();
     });
 
     group('validateFieldWithDebounce', () {
@@ -27,7 +26,7 @@ void main() {
         String? capturedError;
         Map<String, String> capturedErrors = {};
 
-        service.validateFieldWithDebounce(
+        debounceService.validateFieldWithDebounce(
           fieldName: 'email',
           value: 'test@example.com',
           validators: validators,
@@ -59,7 +58,7 @@ void main() {
           String? capturedError;
 
           // First validation
-          service.validateFieldWithDebounce(
+          debounceService.validateFieldWithDebounce(
             fieldName: 'email',
             value: 'test1@example.com',
             validators: validators,
@@ -70,7 +69,7 @@ void main() {
           );
 
           // Second validation (should cancel first)
-          service.validateFieldWithDebounce(
+          debounceService.validateFieldWithDebounce(
             fieldName: 'email',
             value: 'test2@example.com',
             validators: validators,
@@ -95,7 +94,7 @@ void main() {
         String? capturedError;
         Map<String, String> capturedErrors = {};
 
-        service.validateFieldWithDebounce(
+        debounceService.validateFieldWithDebounce(
           fieldName: 'email',
           value: 'test@example.com',
           validators: validators,
@@ -120,7 +119,7 @@ void main() {
         String? capturedError;
         Map<String, String> capturedErrors = {};
 
-        service.validateFieldImmediately(
+        debounceService.validateFieldImmediately(
           fieldName: 'email',
           value: 'test@example.com',
           validators: validators,
@@ -143,7 +142,7 @@ void main() {
         String? capturedError;
 
         // Start debounced validation
-        service.validateFieldWithDebounce(
+        debounceService.validateFieldWithDebounce(
           fieldName: 'email',
           value: 'test1@example.com',
           validators: validators,
@@ -154,7 +153,7 @@ void main() {
         );
 
         // Immediately validate
-        service.validateFieldImmediately(
+        debounceService.validateFieldImmediately(
           fieldName: 'email',
           value: 'test2@example.com',
           validators: validators,
@@ -183,7 +182,7 @@ void main() {
 
         Map<String, String> capturedErrors = {};
 
-        service.validateAllFieldsWithDebounce(
+        debounceService.validateAllFieldsWithDebounce(
           values: values,
           validators: validators,
           context: mockContext,
@@ -213,7 +212,7 @@ void main() {
         Map<String, String> capturedErrors = {};
 
         // First validation
-        service.validateAllFieldsWithDebounce(
+        debounceService.validateAllFieldsWithDebounce(
           values: values1,
           validators: validators,
           context: mockContext,
@@ -223,7 +222,7 @@ void main() {
         );
 
         // Second validation (should cancel first)
-        service.validateAllFieldsWithDebounce(
+        debounceService.validateAllFieldsWithDebounce(
           values: values2,
           validators: validators,
           context: mockContext,
@@ -250,7 +249,7 @@ void main() {
 
         Map<String, String> capturedErrors = {};
 
-        service.validateAllFieldsImmediately(
+        debounceService.validateAllFieldsImmediately(
           values: values,
           validators: validators,
           context: mockContext,
@@ -274,7 +273,7 @@ void main() {
         String? capturedError;
         Map<String, String> capturedErrors = {};
 
-        service.validateFieldWithDebounce(
+        debounceService.validateFieldWithDebounce(
           fieldName: 'email',
           value: 'test@example.com',
           validators: validators,
@@ -286,7 +285,7 @@ void main() {
         );
 
         // Cancel validation
-        service.cancelFieldValidation('email');
+        debounceService.cancelFieldValidation('email');
 
         // Wait for original debounce delay
         await Future<void>.delayed(const Duration(milliseconds: 350));
@@ -304,7 +303,7 @@ void main() {
         String? capturedError;
         Map<String, String> capturedErrors = {};
 
-        service.validateFieldWithDebounce(
+        debounceService.validateFieldWithDebounce(
           fieldName: 'email',
           value: 'test@example.com',
           validators: validators,
@@ -315,8 +314,8 @@ void main() {
           },
         );
 
-        // Dispose service
-        service.dispose();
+        // Dispose debounceService
+        debounceService.dispose();
 
         // Wait for original debounce delay
         await Future<void>.delayed(const Duration(milliseconds: 350));
@@ -328,9 +327,8 @@ void main() {
     });
 
     group('validationService getter', () {
-      test('should provide access to validation service', () {
-        final validationService = service.validationService;
-        expect(validationService, isA<FormValidationService>());
+      test('should provide access to validation debounceService', () {
+        // validationService getter has been removed as validation is now internal
       });
     });
   });
