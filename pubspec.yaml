@@ -1,7 +1,7 @@
 # Example pubspec.yaml for your package
 name: typed_form_fields
 description: >-
-  Type-safe, universal form field wrapper for Flutter with BLoC integration, validation, and performance optimizations.
+  Type-safe, universal form field wrapper for Flutter with zero dependencies, high performance, and validation optimizations.
 
 version: 1.0.2
 
@@ -32,12 +32,15 @@ dev_dependencies:
   build_runner: ^2.4.12
   freezed: ^3.2.3
   json_serializable: ^6.8.0
+  benchmark_harness: ^2.2.2
 
 topics:
   - forms
   - validation
-  - bloc
   - type-safety
+  - state-management
+  - zero-dependencies
+  - performance
 
 # screenshots:
 #   - description: "Basic form with typed fields"
