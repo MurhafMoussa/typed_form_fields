@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'field_wrapper.dart';
+import 'typed_field_wrapper.dart';
 
 /// A pre-built text input widget that integrates with typed form validation.
 ///
-/// This widget wraps a [TextFormField] with [FieldWrapper] to provide
+/// This widget wraps a [TextFormField] with [TypedFieldWrapper] to provide
 /// automatic form state management, validation, and error handling.
 ///
 /// Supports all [TextFormField] parameters plus additional form integration features.
@@ -155,7 +155,7 @@ class TypedTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FieldWrapper<String>(
+    return TypedFieldWrapper<String>(
       fieldName: name,
       debounceTime: debounceTime,
       transformValue: transformValue,

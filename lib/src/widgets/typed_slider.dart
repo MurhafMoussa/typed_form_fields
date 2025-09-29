@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'field_wrapper.dart';
+import 'typed_field_wrapper.dart';
 
 /// A pre-built slider widget that integrates with typed form validation.
 class TypedSlider extends StatelessWidget {
@@ -49,7 +49,7 @@ class TypedSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FieldWrapper<double>(
+    return TypedFieldWrapper<double>(
       fieldName: name,
       debounceTime: debounceTime,
       transformValue: transformValue,

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'field_wrapper.dart';
+import 'typed_field_wrapper.dart';
 
 /// A pre-built checkbox widget that integrates with typed form validation.
 ///
-/// This widget wraps a [CheckboxListTile] with [FieldWrapper] to provide
+/// This widget wraps a [CheckboxListTile] with [TypedFieldWrapper] to provide
 /// automatic form state management, validation, and error handling.
 class TypedCheckbox extends StatelessWidget {
   const TypedCheckbox({
@@ -121,7 +121,7 @@ class TypedCheckbox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FieldWrapper<bool>(
+    return TypedFieldWrapper<bool>(
       fieldName: name,
       debounceTime: debounceTime,
       transformValue: transformValue,

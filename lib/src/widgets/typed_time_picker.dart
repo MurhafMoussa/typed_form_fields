@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'field_wrapper.dart';
+import 'typed_field_wrapper.dart';
 
 /// A pre-built time picker widget that integrates with typed form validation.
 class TypedTimePicker extends StatefulWidget {
@@ -62,7 +62,7 @@ class _TypedTimePickerState extends State<TypedTimePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return FieldWrapper<TimeOfDay>(
+    return TypedFieldWrapper<TimeOfDay>(
       fieldName: widget.name,
       debounceTime: widget.debounceTime,
       transformValue: widget.transformValue,

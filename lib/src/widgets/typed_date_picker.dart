@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'field_wrapper.dart';
+import 'typed_field_wrapper.dart';
 
 /// A pre-built date picker widget that integrates with typed form validation.
 class TypedDatePicker extends StatefulWidget {
@@ -83,7 +83,7 @@ class _TypedDatePickerState extends State<TypedDatePicker> {
 
   @override
   Widget build(BuildContext context) {
-    return FieldWrapper<DateTime>(
+    return TypedFieldWrapper<DateTime>(
       fieldName: widget.name,
       debounceTime: widget.debounceTime,
       transformValue: widget.transformValue,

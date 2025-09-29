@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'field_wrapper.dart';
+import 'typed_field_wrapper.dart';
 
 /// A pre-built dropdown widget that integrates with typed form validation.
 ///
-/// This widget wraps a [DropdownButtonFormField] with [FieldWrapper] to provide
+/// This widget wraps a [DropdownButtonFormField] with [TypedFieldWrapper] to provide
 /// automatic form state management, validation, and error handling.
 class TypedDropdown<T> extends StatelessWidget {
   const TypedDropdown({
@@ -153,7 +153,7 @@ class TypedDropdown<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FieldWrapper<T>(
+    return TypedFieldWrapper<T>(
       fieldName: name,
       debounceTime: debounceTime,
       transformValue: transformValue,

@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'field_wrapper.dart';
+import 'typed_field_wrapper.dart';
 
 /// A pre-built switch widget that integrates with typed form validation.
 class TypedSwitch extends StatelessWidget {
@@ -70,7 +70,7 @@ class TypedSwitch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FieldWrapper<bool>(
+    return TypedFieldWrapper<bool>(
       fieldName: name,
       debounceTime: debounceTime,
       transformValue: transformValue,
