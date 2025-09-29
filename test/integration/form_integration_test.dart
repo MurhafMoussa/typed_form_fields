@@ -418,7 +418,7 @@ void main() {
         MaterialApp(
           home: TypedFormProvider(
             fields: testFields,
-            validationType: ValidationType.onSubmit,
+            validationStrategy: ValidationStrategy.onSubmitThenRealTime,
             child: (context) => Scaffold(
               body: Column(
                 children: [
@@ -438,7 +438,7 @@ void main() {
                     onPressed: () {
                       final controller = context.formCubit;
                       controller
-                          .setValidationType(ValidationType.fieldsBeingEdited);
+                          .setValidationStrategy(ValidationStrategy.realTimeOnly);
                     },
                     child: const Text('Enable Real-time Validation'),
                   ),

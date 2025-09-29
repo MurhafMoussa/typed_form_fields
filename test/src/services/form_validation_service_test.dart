@@ -483,11 +483,10 @@ class MockValidator implements Validator {
 }
 
 class MockCrossFieldValidator extends TypedCrossFieldValidator<String> {
-  final int validateCallCount;
+  int validateCallCount = 0;
   final bool shouldReturnError;
 
-  MockCrossFieldValidator(
-      {this.shouldReturnError = true, this.validateCallCount = 0})
+  MockCrossFieldValidator({this.shouldReturnError = true})
       : super(
           dependentFields: ['password'],
           validator: (value, fieldValues, context) => null,
@@ -495,8 +494,7 @@ class MockCrossFieldValidator extends TypedCrossFieldValidator<String> {
 
   @override
   String? validate(String? value, BuildContext context) {
-    // Note: validateCallCount is now final, so we can't increment it
-    // This is a test mock, so we'll just return the error based on shouldReturnError
+    validateCallCount++;
     return shouldReturnError ? 'Cross field error' : null;
   }
 }

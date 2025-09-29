@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:typed_form_fields/src/core/typed_form_controller.dart';
 import 'package:typed_form_fields/src/core/form_errors.dart';
+import 'package:typed_form_fields/src/core/typed_form_controller.dart';
 
 void main() {
   group('CoreFormState', () {
@@ -12,7 +12,7 @@ void main() {
         values: {'email': 'test@example.com', 'age': 25, 'name': 'John Doe'},
         errors: {'email': 'Email error', 'age': 'Age error'},
         isValid: false,
-        validationType: ValidationType.allFields,
+        validationStrategy: ValidationStrategy.allFieldsRealTime,
         fieldTypes: {'email': String, 'age': int, 'name': String},
       );
     });
@@ -26,7 +26,7 @@ void main() {
         });
         expect(state.errors, {'email': 'Email error', 'age': 'Age error'});
         expect(state.isValid, isFalse);
-        expect(state.validationType, ValidationType.allFields);
+        expect(state.validationStrategy, ValidationStrategy.allFieldsRealTime);
         expect(state.fieldTypes, {'email': String, 'age': int, 'name': String});
       });
 
@@ -39,8 +39,8 @@ void main() {
         );
 
         expect(
-          stateWithDefault.validationType,
-          ValidationType.fieldsBeingEdited,
+          stateWithDefault.validationStrategy,
+          ValidationStrategy.realTimeOnly,
         );
       });
     });
@@ -52,7 +52,8 @@ void main() {
         expect(initialState.values, isEmpty);
         expect(initialState.errors, isEmpty);
         expect(initialState.isValid, isFalse);
-        expect(initialState.validationType, ValidationType.fieldsBeingEdited);
+        expect(
+            initialState.validationStrategy, ValidationStrategy.realTimeOnly);
         expect(initialState.fieldTypes, isEmpty);
       });
     });
@@ -97,7 +98,7 @@ void main() {
           values: {'email': 'test@example.com'},
           errors: {},
           isValid: false,
-          validationType: ValidationType.allFields,
+          validationStrategy: ValidationStrategy.allFieldsRealTime,
           fieldTypes: {}, // No field types defined
         );
 
@@ -165,10 +166,11 @@ void main() {
 
       test('should create new state with updated validation type', () {
         final newState = state.copyWith(
-          validationType: ValidationType.onSubmit,
+          validationStrategy: ValidationStrategy.onSubmitThenRealTime,
         );
 
-        expect(newState.validationType, ValidationType.onSubmit);
+        expect(newState.validationStrategy,
+            ValidationStrategy.onSubmitThenRealTime);
         expect(newState.values, state.values); // Should remain unchanged
         expect(newState.errors, state.errors); // Should remain unchanged
       });
@@ -193,7 +195,7 @@ void main() {
           values: state.values,
           errors: state.errors,
           isValid: state.isValid,
-          validationType: state.validationType,
+          validationStrategy: state.validationStrategy,
           fieldTypes: state.fieldTypes,
         );
 
@@ -214,29 +216,36 @@ void main() {
         expect(stringRepresentation, contains('test@example.com'));
         expect(stringRepresentation, contains('Email error'));
         expect(stringRepresentation, contains('false'));
-        expect(stringRepresentation, contains('ValidationType.allFields'));
+        expect(stringRepresentation,
+            contains('ValidationStrategy.allFieldsRealTime'));
       });
     });
   });
 
-  group('ValidationType', () {
+  group('validationStrategy', () {
     test('should have correct enum values', () {
-      expect(ValidationType.values, [
-        ValidationType.onSubmit,
-        ValidationType.allFields,
-        ValidationType.fieldsBeingEdited,
-        ValidationType.disabled,
+      expect(ValidationStrategy.values, [
+        ValidationStrategy.onSubmitThenRealTime,
+        ValidationStrategy.allFieldsRealTime,
+        ValidationStrategy.realTimeOnly,
+        ValidationStrategy.disabled,
+        ValidationStrategy.onSubmitOnly,
       ]);
     });
 
     test('should have correct string representation', () {
-      expect(ValidationType.onSubmit.toString(), 'ValidationType.onSubmit');
-      expect(ValidationType.allFields.toString(), 'ValidationType.allFields');
+      expect(ValidationStrategy.onSubmitThenRealTime.toString(),
+          'ValidationStrategy.onSubmitThenRealTime');
+      expect(ValidationStrategy.allFieldsRealTime.toString(),
+          'ValidationStrategy.allFieldsRealTime');
       expect(
-        ValidationType.fieldsBeingEdited.toString(),
-        'ValidationType.fieldsBeingEdited',
+        ValidationStrategy.realTimeOnly.toString(),
+        'ValidationStrategy.realTimeOnly',
       );
-      expect(ValidationType.disabled.toString(), 'ValidationType.disabled');
+      expect(ValidationStrategy.disabled.toString(),
+          'ValidationStrategy.disabled');
+      expect(ValidationStrategy.onSubmitOnly.toString(),
+          'ValidationStrategy.onSubmitOnly');
     });
   });
 }

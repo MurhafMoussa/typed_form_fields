@@ -5,7 +5,6 @@ import 'package:typed_form_fields/typed_form_fields.dart';
 
 void main() {
   group('TypedFormProvider', () {
-
     testWidgets('should provide form state to child widgets', (tester) async {
       final testFields = [
         FormFieldDefinition<String>(
@@ -107,8 +106,8 @@ void main() {
             child: (context) => Builder(
               builder: (context) {
                 final controller = TypedFormProvider.of(context);
-                expect(controller.state.validationType,
-                    ValidationType.fieldsBeingEdited);
+                expect(controller.state.validationStrategy,
+                    ValidationStrategy.realTimeOnly);
                 return const SizedBox();
               },
             ),
@@ -131,12 +130,12 @@ void main() {
         MaterialApp(
           home: TypedFormProvider(
             fields: testFields,
-            validationType: ValidationType.onSubmit,
+            validationStrategy: ValidationStrategy.onSubmitThenRealTime,
             child: (context) => Builder(
               builder: (context) {
                 final controller = TypedFormProvider.of(context);
-                expect(
-                    controller.state.validationType, ValidationType.onSubmit);
+                expect(controller.state.validationStrategy,
+                    ValidationStrategy.onSubmitThenRealTime);
                 return const SizedBox();
               },
             ),

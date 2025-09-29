@@ -39,7 +39,7 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.onSubmit,
+          validationStrategy: ValidationStrategy.onSubmitThenRealTime,
           fieldManager: fieldManager,
           context: mockContext,
         );
@@ -47,7 +47,8 @@ void main() {
         expect(result.values['email'], 'new@example.com');
         expect(result.errors, currentErrors); // Should not change
         expect(result.isValid, isFalse);
-        expect(result.validationType, ValidationType.onSubmit);
+        expect(
+            result.validationStrategy, ValidationStrategy.onSubmitThenRealTime);
       });
 
       test('should compute state for allFields validation type', () {
@@ -59,14 +60,14 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.allFields,
+          validationStrategy: ValidationStrategy.allFieldsRealTime,
           fieldManager: fieldManager,
           context: mockContext,
         );
 
         expect(result.values['email'], 'new@example.com');
         expect(result.errors, isNotEmpty); // Should validate all fields
-        expect(result.validationType, ValidationType.allFields);
+        expect(result.validationStrategy, ValidationStrategy.allFieldsRealTime);
       });
 
       test('should compute state for fieldsBeingEdited validation type', () {
@@ -78,14 +79,14 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.fieldsBeingEdited,
+          validationStrategy: ValidationStrategy.realTimeOnly,
           fieldManager: fieldManager,
           context: mockContext,
         );
 
         expect(result.values['email'], 'new@example.com');
         expect(result.errors.containsKey('email'), isTrue);
-        expect(result.validationType, ValidationType.fieldsBeingEdited);
+        expect(result.validationStrategy, ValidationStrategy.realTimeOnly);
       });
 
       test('should remove error when validation passes in fieldsBeingEdited',
@@ -108,7 +109,7 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.fieldsBeingEdited,
+          validationStrategy: ValidationStrategy.realTimeOnly,
           fieldManager: noErrorFieldManager,
           context: mockContext,
         );
@@ -126,14 +127,14 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.disabled,
+          validationStrategy: ValidationStrategy.disabled,
           fieldManager: fieldManager,
           context: mockContext,
         );
 
         expect(result.values['email'], 'new@example.com');
         expect(result.errors, isEmpty); // Should clear all errors
-        expect(result.validationType, ValidationType.disabled);
+        expect(result.validationStrategy, ValidationStrategy.disabled);
       });
 
       test('should remove error when validation passes with debounce', () {
@@ -155,7 +156,7 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.fieldsBeingEdited,
+          validationStrategy: ValidationStrategy.realTimeOnly,
           fieldManager: noErrorFieldManager,
           context: mockContext,
           onStateComputed: (newState) {
@@ -182,14 +183,14 @@ void main() {
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.fieldsBeingEdited,
+          validationStrategy: ValidationStrategy.realTimeOnly,
           fieldManager: fieldManager,
           context: mockContext,
         );
 
         expect(result.values['email'], 'new@example.com');
         expect(result.values['age'], 30);
-        expect(result.validationType, ValidationType.fieldsBeingEdited);
+        expect(result.validationStrategy, ValidationStrategy.realTimeOnly);
       });
 
       test('should remove errors when validation passes for multiple fields',
@@ -215,7 +216,7 @@ void main() {
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.fieldsBeingEdited,
+          validationStrategy: ValidationStrategy.realTimeOnly,
           fieldManager: noErrorFieldManager,
           context: mockContext,
         );
@@ -234,7 +235,7 @@ void main() {
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.disabled,
+          validationStrategy: ValidationStrategy.disabled,
           fieldManager: fieldManager,
           context: mockContext,
         );
@@ -242,7 +243,7 @@ void main() {
         expect(result.values['email'], 'new@example.com');
         expect(result.values['age'], 30);
         expect(result.errors, isEmpty); // Should clear all errors
-        expect(result.validationType, ValidationType.disabled);
+        expect(result.validationStrategy, ValidationStrategy.disabled);
       });
     });
 
@@ -256,14 +257,14 @@ void main() {
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.allFields,
+          validationStrategy: ValidationStrategy.allFieldsRealTime,
           fieldManager: fieldManager,
           context: mockContext,
         );
 
         expect(result.values['email'], 'new@example.com');
         expect(result.values['age'], 30);
-        expect(result.validationType, ValidationType.allFields);
+        expect(result.validationStrategy, ValidationStrategy.allFieldsRealTime);
       });
 
       test('should handle onSubmit validation type for multiple fields', () {
@@ -275,7 +276,7 @@ void main() {
           fieldValues: fieldValues,
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.onSubmit,
+          validationStrategy: ValidationStrategy.onSubmitThenRealTime,
           fieldManager: fieldManager,
           context: mockContext,
         );
@@ -294,14 +295,14 @@ void main() {
         final result = stateComputer.computeErrorUpdateState(
           newErrors: newErrors,
           currentValues: currentValues,
-          validationType: ValidationType.allFields,
+          validationStrategy: ValidationStrategy.allFieldsRealTime,
           fieldManager: fieldManager,
           context: mockContext,
         );
 
         expect(result.values, currentValues);
         expect(result.errors, newErrors);
-        expect(result.validationType, ValidationType.allFields);
+        expect(result.validationStrategy, ValidationStrategy.allFieldsRealTime);
       });
 
       test('should compute validity based on errors', () {
@@ -311,7 +312,7 @@ void main() {
         final result = stateComputer.computeErrorUpdateState(
           newErrors: newErrors,
           currentValues: currentValues,
-          validationType: ValidationType.allFields,
+          validationStrategy: ValidationStrategy.allFieldsRealTime,
           fieldManager: fieldManager,
           context: mockContext,
         );
@@ -321,13 +322,13 @@ void main() {
       });
     });
 
-    group('computeValidationTypeChangeState', () {
+    group('computevalidationStrategyChangeState', () {
       test('should compute state for validation type change', () {
         final currentValues = {'email': 'test@example.com', 'age': 25};
         final currentErrors = {'email': 'Email error'};
 
-        final result = stateComputer.computeValidationTypeChangeState(
-          newValidationType: ValidationType.fieldsBeingEdited,
+        final result = stateComputer.computeValidationStrategyChangeState(
+          newValidationStrategy: ValidationStrategy.realTimeOnly,
           currentValues: currentValues,
           currentErrors: currentErrors,
           fieldManager: fieldManager,
@@ -336,7 +337,7 @@ void main() {
 
         expect(result.values, currentValues);
         expect(result.errors, currentErrors);
-        expect(result.validationType, ValidationType.fieldsBeingEdited);
+        expect(result.validationStrategy, ValidationStrategy.realTimeOnly);
       });
     });
 
@@ -351,7 +352,7 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.onSubmit,
+          validationStrategy: ValidationStrategy.onSubmitThenRealTime,
           fieldManager: fieldManager,
           context: mockContext,
           onStateComputed: (state) {
@@ -362,7 +363,8 @@ void main() {
         expect(capturedState, isNotNull);
         expect(capturedState!.values['email'], 'new@example.com');
         expect(capturedState!.errors, currentErrors);
-        expect(capturedState!.validationType, ValidationType.onSubmit);
+        expect(capturedState!.validationStrategy,
+            ValidationStrategy.onSubmitThenRealTime);
       });
 
       test('should handle debounced validation for allFields', () async {
@@ -375,7 +377,7 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.allFields,
+          validationStrategy: ValidationStrategy.allFieldsRealTime,
           fieldManager: fieldManager,
           context: mockContext,
           onStateComputed: (state) {
@@ -392,7 +394,8 @@ void main() {
         // Should be called after delay
         expect(capturedState, isNotNull);
         expect(capturedState!.values['email'], 'new@example.com');
-        expect(capturedState!.validationType, ValidationType.allFields);
+        expect(capturedState!.validationStrategy,
+            ValidationStrategy.allFieldsRealTime);
       });
 
       test(
@@ -407,7 +410,7 @@ void main() {
             value: 'new@example.com',
             currentValues: currentValues,
             currentErrors: currentErrors,
-            validationType: ValidationType.fieldsBeingEdited,
+            validationStrategy: ValidationStrategy.realTimeOnly,
             fieldManager: fieldManager,
             context: mockContext,
             onStateComputed: (state) {
@@ -425,8 +428,8 @@ void main() {
           expect(capturedState, isNotNull);
           expect(capturedState!.values['email'], 'new@example.com');
           expect(
-            capturedState!.validationType,
-            ValidationType.fieldsBeingEdited,
+            capturedState!.validationStrategy,
+            ValidationStrategy.realTimeOnly,
           );
         },
       );
@@ -441,7 +444,7 @@ void main() {
           value: 'new@example.com',
           currentValues: currentValues,
           currentErrors: currentErrors,
-          validationType: ValidationType.disabled,
+          validationStrategy: ValidationStrategy.disabled,
           fieldManager: fieldManager,
           context: mockContext,
           onStateComputed: (state) {
@@ -452,7 +455,7 @@ void main() {
         expect(capturedState, isNotNull);
         expect(capturedState!.values['email'], 'new@example.com');
         expect(capturedState!.errors, isEmpty);
-        expect(capturedState!.validationType, ValidationType.disabled);
+        expect(capturedState!.validationStrategy, ValidationStrategy.disabled);
       });
     });
 

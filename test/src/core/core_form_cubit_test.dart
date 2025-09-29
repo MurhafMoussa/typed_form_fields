@@ -25,7 +25,8 @@ void main() {
         expect(formCubit.state.values, isEmpty);
         expect(formCubit.state.errors, isEmpty);
         expect(formCubit.state.isValid, isFalse);
-        expect(formCubit.state.validationType, ValidationType.allFields);
+        expect(formCubit.state.validationStrategy,
+            ValidationStrategy.allFieldsRealTime);
         expect(formCubit.state.fieldTypes, isEmpty);
       });
 
@@ -42,15 +43,16 @@ void main() {
       });
 
       test('should initialize with custom validation type', () {
-        formCubit =
-            TypedFormController(validationType: ValidationType.onSubmit);
-        expect(formCubit.state.validationType, ValidationType.onSubmit);
+        formCubit = TypedFormController(
+            validationStrategy: ValidationStrategy.onSubmitThenRealTime);
+        expect(formCubit.state.validationStrategy,
+            ValidationStrategy.onSubmitThenRealTime);
       });
 
       test('should initialize with all validation types', () {
-        for (final validationType in ValidationType.values) {
-          formCubit = TypedFormController(validationType: validationType);
-          expect(formCubit.state.validationType, validationType);
+        for (final validationStrategy in ValidationStrategy.values) {
+          formCubit = TypedFormController(validationStrategy: validationStrategy);
+          expect(formCubit.state.validationStrategy, validationStrategy);
           formCubit.close();
         }
       });
@@ -329,8 +331,9 @@ void main() {
       });
 
       test('should set validation type', () {
-        formCubit.setValidationType(ValidationType.onSubmit);
-        expect(formCubit.state.validationType, ValidationType.onSubmit);
+        formCubit.setValidationStrategy(ValidationStrategy.onSubmitThenRealTime);
+        expect(formCubit.state.validationStrategy,
+            ValidationStrategy.onSubmitThenRealTime);
       });
     });
 
@@ -341,7 +344,7 @@ void main() {
         emailValidator = MockValidator<String>();
         formCubit = TestFormFactory.createFormWithValidators(
           emailValidator: emailValidator,
-          validationType: ValidationType.onSubmit,
+          validationStrategy: ValidationStrategy.onSubmitThenRealTime,
         );
       });
 
@@ -375,8 +378,7 @@ void main() {
         );
 
         expect(validationFailed, isTrue);
-        expect(
-            formCubit.state.validationType, ValidationType.fieldsBeingEdited);
+        expect(formCubit.state.validationStrategy, ValidationStrategy.realTimeOnly);
       });
     });
 
@@ -587,32 +589,32 @@ class MockValidator<T> implements Validator<T> {
 // Test utilities for creating common form configurations
 class TestFormFactory {
   static TypedFormController createFormWithEmailAndAge({
-    ValidationType validationType = ValidationType.allFields,
+    ValidationStrategy validationStrategy = ValidationStrategy.allFieldsRealTime,
   }) {
     return TypedFormController(
       fields: [
         const FormFieldDefinition<String>(name: 'email', validators: []),
         const FormFieldDefinition<int>(name: 'age', validators: []),
       ],
-      validationType: validationType,
+      validationStrategy: validationStrategy,
     );
   }
 
   static TypedFormController createFormWithEmailOnly({
-    ValidationType validationType = ValidationType.allFields,
+    ValidationStrategy validationStrategy = ValidationStrategy.allFieldsRealTime,
   }) {
     return TypedFormController(
       fields: [
         const FormFieldDefinition<String>(name: 'email', validators: [])
       ],
-      validationType: validationType,
+      validationStrategy: validationStrategy,
     );
   }
 
   static TypedFormController createFormWithValidators({
     MockValidator<String>? emailValidator,
     MockValidator<int>? ageValidator,
-    ValidationType validationType = ValidationType.allFields,
+    ValidationStrategy validationStrategy = ValidationStrategy.allFieldsRealTime,
   }) {
     final fields = <FormFieldDefinition>[];
 
@@ -628,7 +630,7 @@ class TestFormFactory {
           FormFieldDefinition<int>(name: 'age', validators: [ageValidator]));
     }
 
-    return TypedFormController(fields: fields, validationType: validationType);
+    return TypedFormController(fields: fields, validationStrategy: validationStrategy);
   }
 
   static TypedFormController createFormWithInitialValues() {
