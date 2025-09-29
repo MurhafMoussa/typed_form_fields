@@ -41,7 +41,7 @@ class FieldWrapperScreen extends StatelessWidget {
               initialValue: 50.0,
             ),
           ],
-          validationStrategy: ValidationStrategy.realTimeOnly,
+          validationStrategy: ValidationStrategy.allFieldsRealTime,
           child: (context) => const TypedFieldWrapperView(),
         ),
       ),

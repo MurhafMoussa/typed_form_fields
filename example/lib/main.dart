@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'screens/field_wrapper_screen.dart';
 import 'screens/login_form_screen.dart';
 import 'screens/registration_form_screen.dart';
+import 'screens/validation_strategies_screen.dart';
 import 'screens/widget_showcase_screen.dart';
 
 void main() {
@@ -46,6 +47,7 @@ class TypedFormFieldsExampleApp extends StatelessWidget {
         '/registration': (context) => const RegistrationFormScreen(),
         '/login-form': (context) => const LoginFormScreen(),
         '/field-wrapper': (context) => const FieldWrapperScreen(),
+        '/validation-strategies': (context) => const ValidationStrategiesScreen(),
         '/widget-showcase': (context) => const WidgetShowcaseScreen(),
       },
     );
@@ -84,8 +86,8 @@ class ExampleHomeScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 8),
                     Text(
-                      '✅ 18 files at 100% test coverage\n'
-                      '✅ 457 comprehensive tests\n'
+                      '✅ 564 comprehensive tests\n'
+                      '✅ 100% coverage on core files\n'
                       '✅ Performance optimized with BlocConsumer\n'
                       '✅ TDD approach with extensive edge case testing',
                       textAlign: TextAlign.center,
@@ -146,6 +148,20 @@ class ExampleHomeScreen extends StatelessWidget {
                       'Universal integration',
                       'Performance optimized',
                       'Custom widgets',
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  _buildExampleCard(
+                    context,
+                    title: 'Validation Strategies',
+                    description:
+                        'Interactive showcase of all 5 validation strategies',
+                    icon: Icons.settings,
+                    route: '/validation-strategies',
+                    features: [
+                      'All 5 strategies',
+                      'Interactive examples',
+                      'Real-time demos',
                     ],
                   ),
                   const SizedBox(height: 12),
