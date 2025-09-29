@@ -62,12 +62,8 @@ class TypedFormController extends Cubit<TypedFormState> {
 
     // Single emit call with all initial values
     emit(
-      TypedFormState(
-        values: _fieldService.getInitialValues(),
-        errors: {},
-        isValid: false, // Will be computed properly when context is available
+      _validationOrchestrator.getInitialValidationState(
         validationStrategy: validationStrategy,
-        fieldTypes: _fieldService.fieldTypes,
       ),
     );
   }

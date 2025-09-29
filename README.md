@@ -410,6 +410,16 @@ See also: `SwitchValidator`, `ChainValidator`, and more for advanced conditional
 
 The package supports **5 different validation strategies** to control when and how validation occurs:
 
+### 🎨 **Visual Strategy Comparison**
+
+| Strategy                 | Visual                                                    | Description                            |
+| ------------------------ | --------------------------------------------------------- | -------------------------------------- |
+| **onSubmitOnly**         | ![onSubmitOnly](assets/onSubmitOnly.webp)                 | Validation only on form submission     |
+| **onSubmitThenRealTime** | ![onSubmitThenRealTime](assets/onSubmitThenRealTime.webp) | Validation on submit, then real-time   |
+| **realTimeOnly**         | ![realTimeOnly](assets/realTimeOnly.webp)                 | Real-time validation for edited fields |
+| **allFieldsRealTime**    | ![allFieldsRealTime](assets/allFieldsRealTime.webp)       | Real-time validation for all fields    |
+| **disabled**             | ![disabled](assets/disabled.webp)                         | No validation occurs                   |
+
 ### **ValidationStrategy.onSubmitOnly**
 
 Validation only occurs when the form is submitted. Perfect for forms where you want to avoid showing errors until the user attempts to submit.

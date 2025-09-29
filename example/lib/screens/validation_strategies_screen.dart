@@ -52,7 +52,8 @@ class ValidationStrategiesScreen extends StatelessWidget {
                   _buildStrategyCard(
                     context,
                     title: 'onSubmitOnly',
-                    description: 'Validation only occurs on form submission. No automatic switching to real-time validation.',
+                    description:
+                        'Validation only occurs on form submission. No automatic switching to real-time validation.',
                     icon: Icons.send,
                     color: Colors.orange,
                     strategy: ValidationStrategy.onSubmitOnly,
@@ -66,7 +67,8 @@ class ValidationStrategiesScreen extends StatelessWidget {
                   _buildStrategyCard(
                     context,
                     title: 'onSubmitThenRealTime',
-                    description: 'Validation on submit, then automatically switches to real-time if validation fails.',
+                    description:
+                        'Validation on submit, then automatically switches to real-time if validation fails.',
                     icon: Icons.swap_horiz,
                     color: Colors.purple,
                     strategy: ValidationStrategy.onSubmitThenRealTime,
@@ -80,7 +82,8 @@ class ValidationStrategiesScreen extends StatelessWidget {
                   _buildStrategyCard(
                     context,
                     title: 'realTimeOnly',
-                    description: 'Real-time validation for fields being edited. Default strategy.',
+                    description:
+                        'Real-time validation for fields being edited. Default strategy.',
                     icon: Icons.edit,
                     color: Colors.blue,
                     strategy: ValidationStrategy.realTimeOnly,
@@ -94,7 +97,8 @@ class ValidationStrategiesScreen extends StatelessWidget {
                   _buildStrategyCard(
                     context,
                     title: 'allFieldsRealTime',
-                    description: 'Real-time validation for all fields, even when not being edited.',
+                    description:
+                        'Real-time validation for all fields, even when not being edited.',
                     icon: Icons.all_inclusive,
                     color: Colors.green,
                     strategy: ValidationStrategy.allFieldsRealTime,
@@ -108,7 +112,8 @@ class ValidationStrategiesScreen extends StatelessWidget {
                   _buildStrategyCard(
                     context,
                     title: 'disabled',
-                    description: 'No validation occurs. Useful for forms that don\'t need validation.',
+                    description:
+                        'No validation occurs. Useful for forms that don\'t need validation.',
                     icon: Icons.block,
                     color: Colors.red,
                     strategy: ValidationStrategy.disabled,
@@ -125,6 +130,22 @@ class ValidationStrategiesScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Get the asset path for a validation strategy
+  String _getStrategyAssetPath(ValidationStrategy strategy) {
+    switch (strategy) {
+      case ValidationStrategy.onSubmitOnly:
+        return 'assets/onSubmitOnly.webp';
+      case ValidationStrategy.onSubmitThenRealTime:
+        return 'assets/onSubmitThenRealTime.webp';
+      case ValidationStrategy.realTimeOnly:
+        return 'assets/realTimeOnly.webp';
+      case ValidationStrategy.allFieldsRealTime:
+        return 'assets/allFieldsRealTime.webp';
+      case ValidationStrategy.disabled:
+        return 'assets/disabled.webp';
+    }
   }
 
   Widget _buildStrategyCard(
@@ -144,13 +165,44 @@ class ValidationStrategiesScreen extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 32, color: color),
+              Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, size: 32, color: color),
+                  ),
+                  const SizedBox(height: 8),
+                  // Visual asset for the strategy
+                  Container(
+                    width: 60,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Image.asset(
+                        _getStrategyAssetPath(strategy),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey.shade100,
+                            child: const Icon(
+                              Icons.image,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -204,10 +256,8 @@ class ValidationStrategiesScreen extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StrategyExampleScreen(
-          strategy: strategy,
-          title: title,
-        ),
+        builder: (context) =>
+            StrategyExampleScreen(strategy: strategy, title: title),
       ),
     );
   }
@@ -256,9 +306,7 @@ class StrategyExampleScreen extends StatelessWidget {
               name: 'confirmPassword',
               validators: [
                 TypedCommonValidators.required<String>(),
-                TypedCrossFieldValidators.matches<String>(
-               'password',
-                ),
+                TypedCrossFieldValidators.matches<String>('password'),
               ],
               initialValue: '',
             ),
@@ -330,7 +378,19 @@ class StrategyExampleScreen extends StatelessWidget {
 
                   // Submit Button
                   ElevatedButton(
-                    onPressed: state.isValid
+                    onPressed: state.validationStrategy.isSubmissionSpecific
+                        ? () => context.formCubit.validateForm(
+                            context,
+                            onValidationPass: () =>
+                                _handleSubmit(context, state),
+                            onValidationFail: () =>
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Please fill all fields'),
+                                  ),
+                                ),
+                          )
+                        : state.isValid
                         ? () => _handleSubmit(context, state)
                         : null,
                     child: const Text('Submit Form'),
@@ -381,9 +441,9 @@ class StrategyExampleScreen extends StatelessWidget {
     );
   }
 
-  void _handleSubmit(BuildContext context, TypedFormState state) {
+  void _handleSubmit(BuildContext context, TypedFormState state) async {
     // Show success dialog
-    showDialog(
+    await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Form Submitted!'),

@@ -41,11 +41,17 @@ topics:
   - state-management
   - zero-dependencies
 
-# screenshots:
-#   - description: "Basic form with typed fields"
-#     path: screenshots/basic_form.png
-#   - description: "Complex form with validation"
-#     path: screenshots/complex_form.png
+screenshots:
+  - description: "onSubmitOnly - Validation only on form submission"
+    path: assets/onSubmitOnly.webp
+  - description: "onSubmitThenRealTime - Validation on submit, then real-time"
+    path: assets/onSubmitThenRealTime.webp
+  - description: "realTimeOnly - Real-time validation for edited fields"
+    path: assets/realTimeOnly.webp
+  - description: "allFieldsRealTime - Real-time validation for all fields"
+    path: assets/allFieldsRealTime.webp
+  - description: "disabled - No validation occurs"
+    path: assets/disabled.webp
 
 funding:
   - https://github.com/sponsors/yourusername

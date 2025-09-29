@@ -116,7 +116,7 @@ class DefaultValidationCoordination implements ValidationCoordination {
     return TypedFormState(
       values: fieldRegistry.getInitialValues(),
       errors: {},
-      isValid: false,
+      isValid: validationStrategy.initialValidationState,
       validationStrategy: validationStrategy,
       fieldTypes: fieldRegistry.fieldTypes,
     );
@@ -129,15 +129,9 @@ class DefaultValidationCoordination implements ValidationCoordination {
     required Map<String, String?> currentErrors,
     required BuildContext context,
   }) {
-    switch (strategy) {
-      case ValidationStrategy.disabled:
-        return const ValidationCoordinationResult(shouldValidate: false);
-      case ValidationStrategy.onSubmitOnly:
-      case ValidationStrategy.onSubmitThenRealTime:
-      case ValidationStrategy.realTimeOnly:
-      case ValidationStrategy.allFieldsRealTime:
-        return const ValidationCoordinationResult(shouldValidate: true);
-    }
+    return ValidationCoordinationResult(
+      shouldValidate: strategy.shouldValidateOnFieldUpdate(),
+    );
   }
 
   @override
@@ -149,27 +143,22 @@ class DefaultValidationCoordination implements ValidationCoordination {
     required VoidCallback onValidationPass,
     required VoidCallback? onValidationFail,
   }) {
-    switch (strategy) {
-      case ValidationStrategy.onSubmitOnly:
-        return const ValidationCoordinationResult(shouldValidate: true);
-      case ValidationStrategy.onSubmitThenRealTime:
-        // Check if there are validation errors (empty values indicate invalid)
-        final hasErrors = currentValues.values
-            .any((value) => value == null || value.toString().isEmpty);
+    final shouldValidate = strategy.shouldValidateOnSubmission();
 
-        if (hasErrors) {
-          return const ValidationCoordinationResult(
-            shouldValidate: true,
-            shouldSwitchStrategy: true,
-            newStrategy: ValidationStrategy.realTimeOnly,
-          );
-        }
-        return const ValidationCoordinationResult(shouldValidate: true);
-      case ValidationStrategy.realTimeOnly:
-      case ValidationStrategy.allFieldsRealTime:
-      case ValidationStrategy.disabled:
-        return const ValidationCoordinationResult(shouldValidate: false);
+    if (!shouldValidate) {
+      return const ValidationCoordinationResult(shouldValidate: false);
     }
+
+    // Check if strategy should switch after validation failure
+    if (strategy.hasValidationErrorsFromEmptyValues(currentValues)) {
+      return ValidationCoordinationResult(
+        shouldValidate: true,
+        shouldSwitchStrategy: true,
+        newStrategy: strategy.getStrategyAfterValidationFailure(),
+      );
+    }
+
+    return const ValidationCoordinationResult(shouldValidate: true);
   }
 
   @override

@@ -30,12 +30,12 @@ class StateCalculation {
     switch (validationStrategy) {
       case ValidationStrategy.onSubmitOnly:
       case ValidationStrategy.onSubmitThenRealTime:
-        // No validation on field change
+        // No validation on field change - maintain current validation state
         onStateComputed(
           TypedFormState(
             values: newValues,
             errors: currentErrors,
-            isValid: false, // Will be computed on submit
+            isValid: validationStrategy.initialValidationState,
             validationStrategy: validationStrategy,
             fieldTypes: fieldRegistry.fieldTypes,
           ),
