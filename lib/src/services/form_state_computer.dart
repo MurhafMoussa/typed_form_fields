@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:typed_form_fields/src/core/core_form_cubit.dart';
+import 'package:typed_form_fields/src/core/typed_form_controller.dart';
 import 'package:typed_form_fields/src/services/form_debounced_validation_service.dart';
 import 'package:typed_form_fields/src/services/form_field_manager.dart';
 import 'package:typed_form_fields/src/services/form_validation_service.dart';
@@ -32,7 +32,7 @@ class FormStateComputer {
     required ValidationType validationType,
     required FormFieldManager fieldManager,
     required BuildContext context,
-    required void Function(CoreFormState) onStateComputed,
+    required void Function(TypedFormState) onStateComputed,
   }) {
     // Update values immediately
     final newValues = Map<String, Object?>.from(currentValues)
@@ -43,7 +43,7 @@ class FormStateComputer {
       case ValidationType.onSubmit:
         // No validation on field change
         onStateComputed(
-          CoreFormState(
+          TypedFormState(
             values: newValues,
             errors: currentErrors,
             isValid: false, // Will be computed on submit
@@ -67,7 +67,7 @@ class FormStateComputer {
               context: context,
             );
             onStateComputed(
-              CoreFormState(
+              TypedFormState(
                 values: newValues,
                 errors: errors,
                 isValid: overallValid,
@@ -102,7 +102,7 @@ class FormStateComputer {
             );
 
             onStateComputed(
-              CoreFormState(
+              TypedFormState(
                 values: newValues,
                 errors: newErrors,
                 isValid: overallValid,
@@ -117,7 +117,7 @@ class FormStateComputer {
       case ValidationType.disabled:
         // No validation
         onStateComputed(
-          CoreFormState(
+          TypedFormState(
             values: newValues,
             errors: {},
             isValid: false,
@@ -130,7 +130,7 @@ class FormStateComputer {
   }
 
   /// Compute new state after field update
-  CoreFormState computeFieldUpdateState({
+  TypedFormState computeFieldUpdateState({
     required String fieldName,
     required Object? value,
     required Map<String, Object?> currentValues,
@@ -188,7 +188,7 @@ class FormStateComputer {
       context: context,
     );
 
-    return CoreFormState(
+    return TypedFormState(
       values: newValues,
       errors: newErrors,
       isValid: overallValid,
@@ -198,7 +198,7 @@ class FormStateComputer {
   }
 
   /// Compute new state after multiple field updates
-  CoreFormState computeFieldsUpdateState({
+  TypedFormState computeFieldsUpdateState({
     required Map<String, Object?> fieldValues,
     required Map<String, Object?> currentValues,
     required Map<String, String> currentErrors,
@@ -250,7 +250,7 @@ class FormStateComputer {
         break;
     }
 
-    return CoreFormState(
+    return TypedFormState(
       values: newValues,
       errors: newErrors,
       isValid: _validationService.computeOverallValidity(
@@ -265,14 +265,14 @@ class FormStateComputer {
   }
 
   /// Compute new state after error updates
-  CoreFormState computeErrorUpdateState({
+  TypedFormState computeErrorUpdateState({
     required Map<String, String> newErrors,
     required Map<String, Object?> currentValues,
     required ValidationType validationType,
     required FormFieldManager fieldManager,
     required BuildContext context,
   }) {
-    return CoreFormState(
+    return TypedFormState(
       values: currentValues,
       errors: newErrors,
       isValid: _validationService.computeOverallValidityWithErrors(
@@ -288,14 +288,14 @@ class FormStateComputer {
   }
 
   /// Compute new state after validation type change
-  CoreFormState computeValidationTypeChangeState({
+  TypedFormState computeValidationTypeChangeState({
     required ValidationType newValidationType,
     required Map<String, Object?> currentValues,
     required Map<String, String> currentErrors,
     required FormFieldManager fieldManager,
     required BuildContext context,
   }) {
-    return CoreFormState(
+    return TypedFormState(
       values: currentValues,
       errors: currentErrors,
       isValid: _validationService.computeOverallValidity(

@@ -3,11 +3,11 @@ import 'package:typed_form_fields/src/validators/validator.dart';
 
 /// Service responsible for managing form fields and their operations
 class FormFieldManager {
-  late final List<TypedFormField> _fields;
+  late final List<FormFieldDefinition> _fields;
   late final Map<String, Validator> _validators;
   late final Map<String, bool> _touchedFields;
 
-  FormFieldManager({List<TypedFormField> fields = const []}) {
+  FormFieldManager({List<FormFieldDefinition> fields = const []}) {
     _validators = {};
     _touchedFields = {};
     _fields = fields;
@@ -20,7 +20,7 @@ class FormFieldManager {
   }
 
   /// Get the list of fields
-  List<TypedFormField> get fields => _fields;
+  List<FormFieldDefinition> get fields => _fields;
 
   /// Get the validators map
   Map<String, Validator> get validators => _validators;
@@ -91,7 +91,7 @@ class FormFieldManager {
 
     // Update the stored field definition using copyWith
     final oldField = _fields[fieldIndex];
-    final newField = (oldField as TypedFormField<T>).copyWith(
+    final newField = (oldField as FormFieldDefinition<T>).copyWith(
       validators: validators,
     );
     _fields[fieldIndex] = newField;
@@ -119,7 +119,7 @@ class FormFieldManager {
   }
 
   /// Add a field dynamically
-  void addField(TypedFormField field) {
+  void addField(FormFieldDefinition field) {
     if (fieldExists(field.name)) {
       throw ArgumentError('Field "${field.name}" already exists');
     }

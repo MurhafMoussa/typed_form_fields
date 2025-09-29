@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:typed_form_fields/src/validators/cross_field_validator.dart';
+import 'package:typed_form_fields/src/validators/typed_cross_field_validator.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 /// Service responsible for handling form validation logic
@@ -76,6 +76,29 @@ class FormValidationService {
     return true;
   }
 
+  /// Computes the overall form validity without requiring touched fields
+  /// This is useful for initial validation or when you want to check validity
+  /// regardless of user interaction
+  bool computeOverallValidityIgnoringTouched({
+    required Map<String, Object?> values,
+    required Map<String, Validator> validators,
+    required BuildContext context,
+  }) {
+    // Check if all fields pass validation, regardless of touched state
+    for (final fieldName in validators.keys) {
+      final error = validateFieldByName(
+        fieldName: fieldName,
+        values: values,
+        validators: validators,
+        context: context,
+      );
+      if (error != null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   /// Computes the overall form validity with custom errors
   ///
   /// This is a variation of computeOverallValidity that takes explicit errors
@@ -124,7 +147,7 @@ class FormValidationService {
       final validator = entry.value;
 
       // Check if this validator is a CrossFieldValidator that depends on the changed field
-      if (validator is CrossFieldValidator &&
+      if (validator is TypedCrossFieldValidator &&
           validator.dependentFields.contains(changedFieldName)) {
         final value = values[fieldName];
         final error = validator.validate(value, context);
