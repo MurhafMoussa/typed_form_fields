@@ -22,11 +22,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '',
           ),
         ],
@@ -38,9 +38,9 @@ void main() {
 
       // Add a new field dynamically
       formCubit.addField<String>(
-        field: TypedFormField<String>(
+        field: FormFieldDefinition<String>(
           name: 'phone',
-          validators: [CommonValidators.required<String>()],
+          validators: [TypedCommonValidators.required<String>()],
           initialValue: '',
         ),
         context: context,
@@ -66,11 +66,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '',
           ),
         ],
@@ -79,17 +79,17 @@ void main() {
       // Add multiple fields at once
       formCubit.addFields(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'phone',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '',
           ),
-          TypedFormField<int>(
+          FormFieldDefinition<int>(
             name: 'age',
-            validators: [CommonValidators.required<int>()],
+            validators: [TypedCommonValidators.required<int>()],
             initialValue: 0,
           ),
-          TypedFormField<bool>(
+          FormFieldDefinition<bool>(
             name: 'subscribe',
             validators: [],
             initialValue: false,
@@ -122,11 +122,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: 'original@example.com',
           ),
         ],
@@ -135,9 +135,9 @@ void main() {
       // Try to add field with existing name
       try {
         formCubit.addField<String>(
-          field: TypedFormField<String>(
+          field: FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.email()],
+            validators: [TypedCommonValidators.email()],
             initialValue: 'new@example.com',
           ),
           context: context,
@@ -166,16 +166,16 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '',
           ),
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'phone',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '',
           ),
         ],
@@ -209,11 +209,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '',
           ),
         ],
@@ -247,11 +247,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: 'test@example.com',
           ),
         ],
@@ -269,9 +269,9 @@ void main() {
 
       // Add required field without value
       formCubit.addField<String>(
-        field: TypedFormField<String>(
+        field: FormFieldDefinition<String>(
           name: 'phone',
-          validators: [CommonValidators.required<String>()],
+          validators: [TypedCommonValidators.required<String>()],
           initialValue: '',
         ),
         context: context,
@@ -302,11 +302,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '',
           ),
         ],
@@ -323,9 +323,9 @@ void main() {
 
       // Add new field
       formCubit.addField<String>(
-        field: TypedFormField<String>(
+        field: FormFieldDefinition<String>(
           name: 'phone',
-          validators: [CommonValidators.required<String>()],
+          validators: [TypedCommonValidators.required<String>()],
           initialValue: '',
         ),
         context: context,
@@ -351,11 +351,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: 'test@example.com',
           ),
         ],
@@ -366,14 +366,14 @@ void main() {
       // Add multiple fields
       formCubit.addFields(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'phone',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '123-456-7890',
           ),
-          TypedFormField<int>(
+          FormFieldDefinition<int>(
             name: 'age',
-            validators: [CommonValidators.required<int>()],
+            validators: [TypedCommonValidators.required<int>()],
             initialValue: 25,
           ),
         ],
@@ -401,11 +401,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: 'test@example.com',
           ),
         ],
@@ -417,14 +417,14 @@ void main() {
       try {
         formCubit.addFields(
           fields: [
-            TypedFormField<String>(
+            FormFieldDefinition<String>(
               name: 'email', // This already exists
-              validators: [CommonValidators.required<String>()],
+              validators: [TypedCommonValidators.required<String>()],
               initialValue: 'new@example.com',
             ),
-            TypedFormField<String>(
+            FormFieldDefinition<String>(
               name: 'phone',
-              validators: [CommonValidators.required<String>()],
+              validators: [TypedCommonValidators.required<String>()],
               initialValue: '123-456-7890',
             ),
           ],
@@ -452,21 +452,21 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: 'test@example.com',
           ),
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'phone',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: '123-456-7890',
           ),
-          TypedFormField<int>(
+          FormFieldDefinition<int>(
             name: 'age',
-            validators: [CommonValidators.required<int>()],
+            validators: [TypedCommonValidators.required<int>()],
             initialValue: 25,
           ),
         ],
@@ -508,11 +508,11 @@ void main() {
         ),
       );
 
-      final formCubit = CoreFormCubit(
+      final formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.required<String>()],
+            validators: [TypedCommonValidators.required<String>()],
             initialValue: 'test@example.com',
           ),
         ],
