@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:typed_form_fields/src/models/typed_form_field.dart';
+import 'package:typed_form_fields/src/models/form_field_definition.dart';
 import 'package:typed_form_fields/src/services/form_field_manager.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 void main() {
   group('FormFieldManager', () {
     late FormFieldManager fieldManager;
-    late List<TypedFormField> testFields;
+    late List<FormFieldDefinition> testFields;
 
     setUp(() {
       testFields = [
-        TypedFormField<String>(
+        FormFieldDefinition<String>(
           name: 'email',
           validators: [MockValidator<String>()],
           initialValue: 'initial@example.com',
         ),
-        TypedFormField<int>(
+        FormFieldDefinition<int>(
           name: 'age',
           validators: [MockValidator<int>()],
           initialValue: 25,
         ),
-        const TypedFormField<String>(name: 'name', validators: []),
+        const FormFieldDefinition<String>(name: 'name', validators: []),
       ];
       fieldManager = FormFieldManager(fields: testFields);
     });
@@ -234,14 +234,15 @@ void main() {
 
     setUp(() {
       fieldManager = FormFieldManager(fields: [
-        const TypedFormField<String>(name: 'email', validators: []),
+        const FormFieldDefinition<String>(name: 'email', validators: []),
       ]);
     });
 
     group('addField', () {
       test('should add a new field successfully', () {
         // Arrange
-        const newField = TypedFormField<String>(name: 'phone', validators: []);
+        const newField =
+            FormFieldDefinition<String>(name: 'phone', validators: []);
 
         // Act
         fieldManager.addField(newField);
@@ -254,7 +255,7 @@ void main() {
       test('should throw ArgumentError when adding existing field', () {
         // Arrange - This test covers line 124
         const existingField =
-            TypedFormField<String>(name: 'email', validators: []);
+            FormFieldDefinition<String>(name: 'email', validators: []);
 
         // Act & Assert
         expect(

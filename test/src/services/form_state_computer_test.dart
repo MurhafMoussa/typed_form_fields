@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:typed_form_fields/src/core/core_form_cubit.dart';
-import 'package:typed_form_fields/src/models/typed_form_field.dart';
+import 'package:typed_form_fields/src/core/typed_form_controller.dart';
+import 'package:typed_form_fields/src/models/form_field_definition.dart';
 import 'package:typed_form_fields/src/services/form_debounced_validation_service.dart';
 import 'package:typed_form_fields/src/services/form_field_manager.dart';
 import 'package:typed_form_fields/src/services/form_state_computer.dart';
@@ -18,11 +18,12 @@ void main() {
       stateComputer = FormStateComputer();
       fieldManager = FormFieldManager(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
             validators: [MockValidator<String>()],
           ),
-          TypedFormField<int>(name: 'age', validators: [MockValidator<int>()]),
+          FormFieldDefinition<int>(
+              name: 'age', validators: [MockValidator<int>()]),
         ],
       );
       mockContext = MockBuildContext();
@@ -92,7 +93,7 @@ void main() {
         // Create a field manager with a validator that returns null (no error)
         final noErrorFieldManager = FormFieldManager(
           fields: [
-            TypedFormField<String>(
+            FormFieldDefinition<String>(
               name: 'email',
               validators: [NoErrorValidator<String>()],
             ),
@@ -138,7 +139,7 @@ void main() {
       test('should remove error when validation passes with debounce', () {
         final noErrorFieldManager = FormFieldManager(
           fields: [
-            TypedFormField<String>(
+            FormFieldDefinition<String>(
               name: 'email',
               validators: [NoErrorValidator<String>()],
             ),
@@ -195,11 +196,11 @@ void main() {
           () {
         final noErrorFieldManager = FormFieldManager(
           fields: [
-            TypedFormField<String>(
+            FormFieldDefinition<String>(
               name: 'email',
               validators: [NoErrorValidator<String>()],
             ),
-            TypedFormField<int>(
+            FormFieldDefinition<int>(
               name: 'age',
               validators: [NoErrorValidator<int>()],
             ),
@@ -343,7 +344,7 @@ void main() {
       test('should handle debounced validation for onSubmit', () {
         final currentValues = {'email': 'old@example.com'};
         final currentErrors = {'email': 'old error'};
-        CoreFormState? capturedState;
+        TypedFormState? capturedState;
 
         stateComputer.computeFieldUpdateStateWithDebounce(
           fieldName: 'email',
@@ -367,7 +368,7 @@ void main() {
       test('should handle debounced validation for allFields', () async {
         final currentValues = {'email': 'old@example.com', 'age': 25};
         final currentErrors = <String, String>{};
-        CoreFormState? capturedState;
+        TypedFormState? capturedState;
 
         stateComputer.computeFieldUpdateStateWithDebounce(
           fieldName: 'email',
@@ -399,7 +400,7 @@ void main() {
         () async {
           final currentValues = {'email': 'old@example.com', 'age': 25};
           final currentErrors = <String, String>{};
-          CoreFormState? capturedState;
+          TypedFormState? capturedState;
 
           stateComputer.computeFieldUpdateStateWithDebounce(
             fieldName: 'email',
@@ -433,7 +434,7 @@ void main() {
       test('should handle disabled validation type', () {
         final currentValues = {'email': 'old@example.com'};
         final currentErrors = {'email': 'old error'};
-        CoreFormState? capturedState;
+        TypedFormState? capturedState;
 
         stateComputer.computeFieldUpdateStateWithDebounce(
           fieldName: 'email',
