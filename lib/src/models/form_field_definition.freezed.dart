@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'typed_form_field.dart';
+part of 'form_field_definition.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,24 +13,24 @@ part of 'typed_form_field.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$TypedFormField<T> {
+mixin _$FormFieldDefinition<T> {
   String get name;
   List<Validator<T>> get validators;
   T? get initialValue;
 
-  /// Create a copy of TypedFormField
+  /// Create a copy of FormFieldDefinition
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $TypedFormFieldCopyWith<T, TypedFormField<T>> get copyWith =>
-      _$TypedFormFieldCopyWithImpl<T, TypedFormField<T>>(
-          this as TypedFormField<T>, _$identity);
+  $FormFieldDefinitionCopyWith<T, FormFieldDefinition<T>> get copyWith =>
+      _$FormFieldDefinitionCopyWithImpl<T, FormFieldDefinition<T>>(
+          this as FormFieldDefinition<T>, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is TypedFormField<T> &&
+            other is FormFieldDefinition<T> &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality()
                 .equals(other.validators, validators) &&
@@ -47,28 +47,28 @@ mixin _$TypedFormField<T> {
 
   @override
   String toString() {
-    return 'TypedFormField<$T>(name: $name, validators: $validators, initialValue: $initialValue)';
+    return 'FormFieldDefinition<$T>(name: $name, validators: $validators, initialValue: $initialValue)';
   }
 }
 
 /// @nodoc
-abstract mixin class $TypedFormFieldCopyWith<T, $Res> {
-  factory $TypedFormFieldCopyWith(
-          TypedFormField<T> value, $Res Function(TypedFormField<T>) _then) =
-      _$TypedFormFieldCopyWithImpl;
+abstract mixin class $FormFieldDefinitionCopyWith<T, $Res> {
+  factory $FormFieldDefinitionCopyWith(FormFieldDefinition<T> value,
+          $Res Function(FormFieldDefinition<T>) _then) =
+      _$FormFieldDefinitionCopyWithImpl;
   @useResult
   $Res call({String name, List<Validator<T>> validators, T? initialValue});
 }
 
 /// @nodoc
-class _$TypedFormFieldCopyWithImpl<T, $Res>
-    implements $TypedFormFieldCopyWith<T, $Res> {
-  _$TypedFormFieldCopyWithImpl(this._self, this._then);
+class _$FormFieldDefinitionCopyWithImpl<T, $Res>
+    implements $FormFieldDefinitionCopyWith<T, $Res> {
+  _$FormFieldDefinitionCopyWithImpl(this._self, this._then);
 
-  final TypedFormField<T> _self;
-  final $Res Function(TypedFormField<T>) _then;
+  final FormFieldDefinition<T> _self;
+  final $Res Function(FormFieldDefinition<T>) _then;
 
-  /// Create a copy of TypedFormField
+  /// Create a copy of FormFieldDefinition
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -94,8 +94,8 @@ class _$TypedFormFieldCopyWithImpl<T, $Res>
   }
 }
 
-/// Adds pattern-matching-related methods to [TypedFormField].
-extension TypedFormFieldPatterns<T> on TypedFormField<T> {
+/// Adds pattern-matching-related methods to [FormFieldDefinition].
+extension FormFieldDefinitionPatterns<T> on FormFieldDefinition<T> {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -110,12 +110,12 @@ extension TypedFormFieldPatterns<T> on TypedFormField<T> {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_TypedFormField<T> value)? $default, {
+    TResult Function(_FormFieldDefinition<T> value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _TypedFormField() when $default != null:
+      case _FormFieldDefinition() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -137,11 +137,11 @@ extension TypedFormFieldPatterns<T> on TypedFormField<T> {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_TypedFormField<T> value) $default,
+    TResult Function(_FormFieldDefinition<T> value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TypedFormField():
+      case _FormFieldDefinition():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -162,11 +162,11 @@ extension TypedFormFieldPatterns<T> on TypedFormField<T> {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_TypedFormField<T> value)? $default,
+    TResult? Function(_FormFieldDefinition<T> value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _TypedFormField() when $default != null:
+      case _FormFieldDefinition() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -194,7 +194,7 @@ extension TypedFormFieldPatterns<T> on TypedFormField<T> {
   }) {
     final _that = this;
     switch (_that) {
-      case _TypedFormField() when $default != null:
+      case _FormFieldDefinition() when $default != null:
         return $default(_that.name, _that.validators, _that.initialValue);
       case _:
         return orElse();
@@ -222,7 +222,7 @@ extension TypedFormFieldPatterns<T> on TypedFormField<T> {
   ) {
     final _that = this;
     switch (_that) {
-      case _TypedFormField():
+      case _FormFieldDefinition():
         return $default(_that.name, _that.validators, _that.initialValue);
       case _:
         throw StateError('Unexpected subclass');
@@ -249,7 +249,7 @@ extension TypedFormFieldPatterns<T> on TypedFormField<T> {
   ) {
     final _that = this;
     switch (_that) {
-      case _TypedFormField() when $default != null:
+      case _FormFieldDefinition() when $default != null:
         return $default(_that.name, _that.validators, _that.initialValue);
       case _:
         return null;
@@ -259,8 +259,8 @@ extension TypedFormFieldPatterns<T> on TypedFormField<T> {
 
 /// @nodoc
 
-class _TypedFormField<T> extends TypedFormField<T> {
-  const _TypedFormField(
+class _FormFieldDefinition<T> extends FormFieldDefinition<T> {
+  const _FormFieldDefinition(
       {required this.name,
       required final List<Validator<T>> validators,
       this.initialValue})
@@ -280,19 +280,20 @@ class _TypedFormField<T> extends TypedFormField<T> {
   @override
   final T? initialValue;
 
-  /// Create a copy of TypedFormField
+  /// Create a copy of FormFieldDefinition
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$TypedFormFieldCopyWith<T, _TypedFormField<T>> get copyWith =>
-      __$TypedFormFieldCopyWithImpl<T, _TypedFormField<T>>(this, _$identity);
+  _$FormFieldDefinitionCopyWith<T, _FormFieldDefinition<T>> get copyWith =>
+      __$FormFieldDefinitionCopyWithImpl<T, _FormFieldDefinition<T>>(
+          this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _TypedFormField<T> &&
+            other is _FormFieldDefinition<T> &&
             (identical(other.name, name) || other.name == name) &&
             const DeepCollectionEquality()
                 .equals(other._validators, _validators) &&
@@ -309,30 +310,30 @@ class _TypedFormField<T> extends TypedFormField<T> {
 
   @override
   String toString() {
-    return 'TypedFormField<$T>(name: $name, validators: $validators, initialValue: $initialValue)';
+    return 'FormFieldDefinition<$T>(name: $name, validators: $validators, initialValue: $initialValue)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$TypedFormFieldCopyWith<T, $Res>
-    implements $TypedFormFieldCopyWith<T, $Res> {
-  factory _$TypedFormFieldCopyWith(
-          _TypedFormField<T> value, $Res Function(_TypedFormField<T>) _then) =
-      __$TypedFormFieldCopyWithImpl;
+abstract mixin class _$FormFieldDefinitionCopyWith<T, $Res>
+    implements $FormFieldDefinitionCopyWith<T, $Res> {
+  factory _$FormFieldDefinitionCopyWith(_FormFieldDefinition<T> value,
+          $Res Function(_FormFieldDefinition<T>) _then) =
+      __$FormFieldDefinitionCopyWithImpl;
   @override
   @useResult
   $Res call({String name, List<Validator<T>> validators, T? initialValue});
 }
 
 /// @nodoc
-class __$TypedFormFieldCopyWithImpl<T, $Res>
-    implements _$TypedFormFieldCopyWith<T, $Res> {
-  __$TypedFormFieldCopyWithImpl(this._self, this._then);
+class __$FormFieldDefinitionCopyWithImpl<T, $Res>
+    implements _$FormFieldDefinitionCopyWith<T, $Res> {
+  __$FormFieldDefinitionCopyWithImpl(this._self, this._then);
 
-  final _TypedFormField<T> _self;
-  final $Res Function(_TypedFormField<T>) _then;
+  final _FormFieldDefinition<T> _self;
+  final $Res Function(_FormFieldDefinition<T>) _then;
 
-  /// Create a copy of TypedFormField
+  /// Create a copy of FormFieldDefinition
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -341,7 +342,7 @@ class __$TypedFormFieldCopyWithImpl<T, $Res>
     Object? validators = null,
     Object? initialValue = freezed,
   }) {
-    return _then(_TypedFormField<T>(
+    return _then(_FormFieldDefinition<T>(
       name: null == name
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable

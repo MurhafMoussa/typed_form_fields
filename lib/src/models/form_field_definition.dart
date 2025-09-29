@@ -2,17 +2,17 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:typed_form_fields/src/validators/composite_validator.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
-part 'typed_form_field.freezed.dart';
+part 'form_field_definition.freezed.dart';
 
 @freezed
-abstract class TypedFormField<T> with _$TypedFormField<T> {
-  const factory TypedFormField({
+abstract class FormFieldDefinition<T> with _$FormFieldDefinition<T> {
+  const factory FormFieldDefinition({
     required String name,
     required List<Validator<T>> validators,
     T? initialValue,
-  }) = _TypedFormField<T>;
+  }) = _FormFieldDefinition<T>;
 
-  const TypedFormField._();
+  const FormFieldDefinition._();
 
   /// Get the runtime type of the field value
   Type get valueType => T;
