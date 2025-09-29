@@ -12,8 +12,10 @@ on:
     branches: [development, production]
 
 jobs:
+  
   # The job ID, which can be anything
   analyze_and_test:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
     # The name that will appear on GitHub
     name: Analyze & Test
     runs-on: ubuntu-latest
@@ -68,4 +70,4 @@ jobs:
       # Step 1: Authenticate with pub.dev using OIDC
 
       - name: Publish to pub.dev
-        run: dart pub publish
+        run: dart pub publish --force

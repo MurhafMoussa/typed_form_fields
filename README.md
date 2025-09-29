@@ -1,6 +1,11 @@
 # Typed Form Fields
 
-A **production-ready** Flutter package for **type-safe form validation** with **universal widget integration**. The high-performance `FieldWrapper<T>` widget makes any Flutter widget work seamlessly with reactive form validation.
+[![pub version](https://img.shields.io/pub/v/typed_form_fields.svg)](https://pub.dev/packages/typed_form_fields)
+[![pub points](https://img.shields.io/pub/points/typed_form_fields.svg)](https://pub.dev/packages/typed_form_fields/score)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+
+A **production-ready** Flutter package for **type-safe form validation** with **universal widget integration**. The high-performance `TypedFieldWrapper<T>` widget makes any Flutter widget work seamlessly with reactive form validation.
 
 ## Installation
 
@@ -10,35 +15,32 @@ flutter pub add typed_form_fields
 
 ## Quick Start
 
-### 🎯 **FieldWrapper Integration (Recommended)**
+### 🎯 **TypedFieldWrapper Integration (Recommended)**
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
 class MyForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CoreFormCubit(
-        fields: [
-          TypedFormField<String>(
-            name: 'email',
-            validators: [
-              CommonValidators.required<String>(),
-              CommonValidators.email(),
-            ],
-            initialValue: '',
-          ),
-          TypedFormField<bool>(
-            name: 'subscribe',
-            validators: [],
-            initialValue: false,
-          ),
-        ],
-      ),
-      child: Column(
+    return TypedFormProvider(
+      fields: [
+        FormFieldDefinition<String>(
+          name: 'email',
+          validators: [
+            TypedCommonValidators.required<String>(),
+            TypedCommonValidators.email(),
+          ],
+          initialValue: '',
+        ),
+        FormFieldDefinition<bool>(
+          name: 'subscribe',
+          validators: [],
+          initialValue: false,
+        ),
+      ],
+      child: (context) => Column(
         children: [
           // Using pre-built widget
           TypedTextField(
@@ -59,7 +61,7 @@ class MyForm extends StatelessWidget {
           SizedBox(height: 24),
 
           // Submit button with reactive validation
-          BlocBuilder<CoreFormCubit, CoreFormState>(
+          TypedFormBuilder(
             builder: (context, state) {
               return ElevatedButton(
                 onPressed: state.isValid ? () {
@@ -100,11 +102,37 @@ if (state.isValid) {
 ## 🚀 **Key Features**
 
 - **Type-safe, universal form field wrapper**
-- **BLoC integration** for reactive state management
+- **Zero dependencies** - no flutter_bloc required for users
+- **TypedFormProvider** for clean, simple API
+- **High performance** - uses BLoC internally with buildWhen/listenWhen optimizations
+- **4 validation strategies** (onSubmit, fieldsBeingEdited, allFields, disabled)
 - **Debouncing, performance optimizations**
 - **Cross-field, conditional, and composite validation**
 - **Pre-built widgets** for all common form controls
 - **Localization** in 11 languages
+
+## ⚡ **Performance Optimizations**
+
+The package uses **BLoC internally** for maximum performance while maintaining a **zero-dependency API** for users:
+
+### **Field-Specific Rebuilds**
+
+- **`buildWhen`** - Only rebuilds when the specific field's value or error changes
+- **`listenWhen`** - Only triggers listeners for relevant field changes
+- **Prevents unnecessary rebuilds** - Other fields changing won't affect unrelated widgets
+
+### **Optimized State Management**
+
+- **BlocConsumer** for TypedFieldWrapper with field-specific conditions
+- **BlocBuilder** for FormBuilder with direct state access
+- **BlocListener** for FormListener with automatic lifecycle management
+- **BlocProvider** for FormProvider with battle-tested performance
+
+### **Memory Efficiency**
+
+- **No manual stream subscriptions** - BLoC handles lifecycle automatically
+- **Optimized rebuilds** - Uses Flutter BLoC's proven optimization patterns
+- **Debouncing support** - Configurable delays to reduce update frequency
 
 ## 🎨 **Pre-built Widgets**
 
@@ -141,6 +169,13 @@ TypedCheckbox(
   title: Text('I agree to the terms'),
   subtitle: Text('Please read our terms and conditions'),
   tristate: false, // true/false/null support
+)
+
+// For checkboxes that must be checked, use mustBeTrue validator:
+FormFieldDefinition<bool>(
+  name: 'terms',
+  validators: [TypedCommonValidators.mustBeTrue()],
+  initialValue: false,
 )
 ```
 
@@ -221,7 +256,7 @@ TypedTimePicker(
 
 ### 🔧 **All Widgets Support**
 
-- **Form Integration** - Automatic state management via `FieldWrapper<T>`
+- **Form Integration** - Automatic state management via `TypedFieldWrapper<T>`
 - **Validation** - Built-in error display and validation
 - **Customization** - All original widget parameters supported
 - **Controllers** - Optional `TextEditingController` support with proper disposal
@@ -229,12 +264,12 @@ TypedTimePicker(
 - **Value Transformation** - Transform values before storing
 - **Localization** - Error messages in 11 languages
 
-## ✅ **FieldWrapper<T> - High-Performance Universal Form Integration**
+## ✅ **TypedFieldWrapper<T> - High-Performance Universal Form Integration**
 
-The `FieldWrapper<T>` is the **core widget** that transforms any Flutter widget into a reactive, validated form field with **optimized performance**:
+The `TypedFieldWrapper<T>` is the **core widget** that transforms any Flutter widget into a reactive, validated form field with **optimized performance**:
 
 ```dart
-FieldWrapper<String>(
+TypedFieldWrapper<String>(
   fieldName: 'email',
   debounceTime: Duration(milliseconds: 300),
   transformValue: (value) => value.toLowerCase().trim(),
@@ -259,9 +294,10 @@ FieldWrapper<String>(
 **Performance Features**:
 
 - 🚀 **BlocConsumer** with `buildWhen`/`listenWhen` for minimal rebuilds
-- 🎯 **Field-specific updates** - only rebuilds when relevant data changes
+- 🎯 **Field-specific updates** - only rebuilds when the specific field's value or error changes
 - 📡 **Listener support** - react to changes without triggering rebuilds
 - ⚡ **Debouncing** - optimized for rapid input scenarios
+- 🔥 **High Performance** - uses BLoC internally for maximum efficiency
 
 **Works with ANY widget**: TextField, Checkbox, Slider, Dropdown, Radio, Switch, or your custom widgets!
 
@@ -271,7 +307,7 @@ Create powerful custom validators with full type safety:
 
 ```dart
 // Simple custom validator
-final customValidator = CommonValidators.custom<String>(
+final customValidator = TypedCommonValidators.custom<String>(
   (value) => value?.contains('@company.com') == true
       ? null
       : 'Must be a company email',
@@ -295,19 +331,20 @@ class CompanyEmailValidator extends Validator<String> {
 
 ## 📋 **Common Validators**
 
-| Validator             | Description              | Example                                                                                      |
-| --------------------- | ------------------------ | -------------------------------------------------------------------------------------------- |
-| `required<T>()`       | Field cannot be empty    | `CommonValidators.required<String>()`                                                        |
-| `email()`             | Valid email format       | `CommonValidators.email()`                                                                   |
-| `minLength(int)`      | Minimum character length | `CommonValidators.minLength(8)`                                                              |
-| `maxLength(int)`      | Maximum character length | `CommonValidators.maxLength(50)`                                                             |
-| `pattern(RegExp)`     | Matches regex pattern    | `CommonValidators.pattern(RegExp(r'^\d+$'))`                                                 |
-| `min(num)`            | Minimum numeric value    | `CommonValidators.min(18)`                                                                   |
-| `max(num)`            | Maximum numeric value    | `CommonValidators.max(100)`                                                                  |
-| `phoneNumber()`       | Valid phone number       | `CommonValidators.phoneNumber()`                                                             |
-| `creditCard()`        | Valid credit card        | `CommonValidators.creditCard()`                                                              |
-| `url()`               | Valid URL format         | `CommonValidators.url()`                                                                     |
-| `custom<T>(function)` | **Your custom logic**    | `CommonValidators.custom<String>((v) => v?.contains('x') == true ? null : 'Must contain x')` |
+| Validator             | Description              | Example                                                                                           |
+| --------------------- | ------------------------ | ------------------------------------------------------------------------------------------------- |
+| `required<T>()`       | Field cannot be empty    | `TypedCommonValidators.required<String>()`                                                        |
+| `email()`             | Valid email format       | `TypedCommonValidators.email()`                                                                   |
+| `minLength(int)`      | Minimum character length | `TypedCommonValidators.minLength(8)`                                                              |
+| `maxLength(int)`      | Maximum character length | `TypedCommonValidators.maxLength(50)`                                                             |
+| `pattern(RegExp)`     | Matches regex pattern    | `TypedCommonValidators.pattern(RegExp(r'^\d+$'))`                                                 |
+| `min(num)`            | Minimum numeric value    | `TypedCommonValidators.min(18)`                                                                   |
+| `max(num)`            | Maximum numeric value    | `TypedCommonValidators.max(100)`                                                                  |
+| `phoneNumber()`       | Valid phone number       | `TypedCommonValidators.phoneNumber()`                                                             |
+| `creditCard()`        | Valid credit card        | `TypedCommonValidators.creditCard()`                                                              |
+| `url()`               | Valid URL format         | `TypedCommonValidators.url()`                                                                     |
+| `custom<T>(function)` | **Your custom logic**    | `TypedCommonValidators.custom<String>((v) => v?.contains('x') == true ? null : 'Must contain x')` |
+| `mustBeTrue()`        | **Boolean must be true** | `TypedCommonValidators.mustBeTrue()` (for checkboxes that must be checked)                        |
 
 ## 🔗 **Cross-Field Validation**
 
@@ -346,12 +383,12 @@ class TotalBudgetValidator extends CrossFieldValidator {
 ```dart
 // Only require a field if the user checked a box
 final validator = ConditionalValidator<String>(
-  condition: (value, context) => context.read<CoreFormCubit>().state.getValue<bool>('isChecked') == true,
-  validator: CommonValidators.required<String>(),
+  condition: (value, context) => TypedFormProvider.of(context).state.getValue<bool>('isChecked') == true,
+  validator: TypedCommonValidators.required<String>(),
 );
 
-// Use with FieldWrapper or TypedFormField
-TypedFormField<String>(
+// Use with TypedFieldWrapper or TypedFormField
+FormFieldDefinition<String>(
   name: 'details',
   validators: [validator],
   initialValue: '',
@@ -363,35 +400,135 @@ You can also use the built-in helpers in `ConditionalValidators`:
 ```dart
 // Only validate if not empty
 final validator = ConditionalValidators.whenNotEmpty(
-  CommonValidators.email(),
+  TypedCommonValidators.email(),
 );
 ```
 
 See also: `SwitchValidator`, `ChainValidator`, and more for advanced conditional flows.
 
+## ⚙️ **Validation Types**
+
+The package supports **4 different validation strategies** to control when and how validation occurs:
+
+### **ValidationType.onSubmit**
+
+Validation only occurs when the form is submitted. Perfect for forms where you want to avoid showing errors until the user attempts to submit.
+
+```dart
+TypedFormController(
+  fields: fields,
+  validationType: ValidationType.onSubmit,
+)
+
+// Trigger validation on form submission
+TypedFormProvider.of(context).validateForm(
+  context,
+  onValidationPass: () {
+    // Form is valid, proceed with submission
+    print('Form submitted successfully!');
+  },
+  onValidationFail: () {
+    // Form has errors, show feedback to user
+    print('Please fix the errors before submitting');
+  },
+);
+
+// Example: Submit button implementation
+ElevatedButton(
+  onPressed: () {
+    TypedFormProvider.of(context).validateForm(
+      context,
+      onValidationPass: () {
+        // Get form values and submit
+        final email = TypedFormProvider.of(context).getValue<String>('email');
+        final password = TypedFormProvider.of(context).getValue<String>('password');
+
+        // Submit to API or handle form data
+        submitUserData(email!, password!);
+      },
+      onValidationFail: () {
+        // Show error message to user
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please fix the errors before submitting')),
+        );
+      },
+    );
+  },
+  child: const Text('Submit'),
+)
+```
+
+### **ValidationType.fieldsBeingEdited** (Default)
+
+Only validates fields that are currently being edited. This provides a balanced approach between user experience and performance.
+
+```dart
+TypedFormController(
+  fields: fields,
+  validationType: ValidationType.fieldsBeingEdited,
+)
+```
+
+### **ValidationType.allFields**
+
+Validates all fields whenever any field is updated. Provides immediate feedback but may impact performance with large forms.
+
+```dart
+TypedFormController(
+  fields: fields,
+  validationType: ValidationType.allFields,
+)
+```
+
+### **ValidationType.disabled**
+
+Disables automatic validation. Useful when you want to handle validation manually or in specific scenarios.
+
+```dart
+TypedFormController(
+  fields: fields,
+  validationType: ValidationType.disabled,
+)
+```
+
+### **Dynamic Validation Type Changes**
+
+You can change the validation type at runtime:
+
+```dart
+// Change validation behavior dynamically
+TypedFormProvider.of(context).setValidationType(ValidationType.onSubmit);
+
+// Available validation types:
+// - ValidationType.allFields: Validate all fields on every change
+// - ValidationType.fieldsBeingEdited: Only validate fields being edited
+// - ValidationType.onSubmit: Only validate on form submission
+// - ValidationType.disabled: Disable automatic validation
+```
+
 ## 🔄 **Dynamic Form Updates**
 
-The `CoreFormCubit` provides comprehensive APIs for **real-time form updates**:
+The `TypedFormController` provides comprehensive APIs for **real-time form updates**:
 
 ### ✅ **Update Error Messages**
 
 ```dart
 // Set custom error for a specific field (e.g., from API response)
-context.read<CoreFormCubit>().updateError(
+TypedFormProvider.of(context).updateError(
   fieldName: 'email',
   errorMessage: 'Email already exists',
   context: context,
 );
 
 // Clear error for a specific field
-context.read<CoreFormCubit>().updateError(
+TypedFormProvider.of(context).updateError(
   fieldName: 'email',
   errorMessage: null, // null clears the error
   context: context,
 );
 
 // Update multiple errors at once
-context.read<CoreFormCubit>().updateErrors(
+TypedFormProvider.of(context).updateErrors(
   errors: {
     'email': 'Email already exists',
     'username': 'Username is taken',
@@ -405,12 +542,12 @@ context.read<CoreFormCubit>().updateErrors(
 
 ```dart
 // Update validators for a field dynamically
-context.read<CoreFormCubit>().updateFieldValidators<String>(
+TypedFormProvider.of(context).updateFieldValidators<String>(
   name: 'password',
   validators: [
-    CommonValidators.required<String>(),
-    CommonValidators.minLength(12), // Increased security requirement
-    CommonValidators.pattern(RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])')),
+    TypedCommonValidators.required<String>(),
+    TypedCommonValidators.minLength(12), // Increased security requirement
+    TypedCommonValidators.pattern(RegExp(r'^(?=.*[A-Z])(?=.*[!@#$%^&*])')),
   ],
   context: context,
 );
@@ -420,14 +557,14 @@ context.read<CoreFormCubit>().updateFieldValidators<String>(
 
 ```dart
 // Update single field value
-context.read<CoreFormCubit>().updateField<String>(
+TypedFormProvider.of(context).updateField<String>(
   fieldName: 'country',
   value: 'USA',
   context: context,
 );
 
 // Update multiple fields at once
-context.read<CoreFormCubit>().updateFields<String>(
+TypedFormProvider.of(context).updateFields<String>(
   fieldValues: {
     'firstName': 'John',
     'lastName': 'Doe',
@@ -441,62 +578,60 @@ context.read<CoreFormCubit>().updateFields<String>(
 
 ```dart
 // Change validation behavior for the entire form
-context.read<CoreFormCubit>().setValidationType(ValidationType.onSubmit);
+TypedFormProvider.of(context).setValidationType(ValidationType.onSubmit);
 
-// Available validation types:
-// - ValidationType.allFields: Validate all fields on every change
-// - ValidationType.fieldsBeingEdited: Only validate fields being edited
-// - ValidationType.onSubmit: Only validate on form submission
+// See the "Validation Types" section above for detailed explanations
+// of all available validation strategies
 ```
 
 ### ✅ **Dynamic Field Management**
 
 ```dart
 // Add new fields dynamically
-context.read<CoreFormCubit>().addField<String>(
-  field: TypedFormField<String>(
+TypedFormProvider.of(context).addField<String>(
+  field: FormFieldDefinition<String>(
     name: 'newField',
-    validators: [CommonValidators.required<String>()],
+    validators: [TypedCommonValidators.required<String>()],
     initialValue: '',
   ),
   context: context,
 );
 
 // Add multiple fields at once
-context.read<CoreFormCubit>().addFields(
+TypedFormProvider.of(context).addFields(
   fields: [
-    TypedFormField<String>(name: 'field1', validators: [], initialValue: ''),
-    TypedFormField<bool>(name: 'field2', validators: [], initialValue: false),
+    FormFieldDefinition<String>(name: 'field1', validators: [], initialValue: ''),
+    FormFieldDefinition<bool>(name: 'field2', validators: [], initialValue: false),
   ],
   context: context,
 );
 
 // Remove fields dynamically
-context.read<CoreFormCubit>().removeField('fieldName', context: context);
-context.read<CoreFormCubit>().removeFields(['field1', 'field2'], context: context);
+TypedFormProvider.of(context).removeField('fieldName', context: context);
+TypedFormProvider.of(context).removeFields(['field1', 'field2'], context: context);
 ```
 
 ### ✅ **Form Control Methods**
 
 ```dart
 // Validate entire form (useful for submit buttons)
-context.read<CoreFormCubit>().validateForm(
+TypedFormProvider.of(context).validateForm(
   context,
   onValidationPass: () => print('Form is valid!'),
   onValidationFail: () => print('Form has errors'),
 );
 
 // Validate specific field immediately (no debouncing)
-context.read<CoreFormCubit>().validateFieldImmediately(
+TypedFormProvider.of(context).validateFieldImmediately(
   fieldName: 'email',
   context: context,
 );
 
 // Mark all fields as touched and validate them
-context.read<CoreFormCubit>().touchAllFields(context);
+TypedFormProvider.of(context).touchAllFields(context);
 
 // Reset form to initial state
-context.read<CoreFormCubit>().resetForm();
+TypedFormProvider.of(context).resetForm();
 ```
 
 **Use Cases:**
@@ -513,7 +648,7 @@ Built-in support for 11 languages:
 
 ```dart
 // Automatic localization
-CommonValidators.required<String>().validate(null, context)
+TypedCommonValidators.required<String>().validate(null, context)
 // Returns "Este campo es obligatorio." in Spanish
 ```
 
@@ -521,7 +656,7 @@ CommonValidators.required<String>().validate(null, context)
 
 ### Current Features (Production Ready)
 
-- ✅ **FieldWrapper<T>** - Universal widget integration
+- ✅ **TypedFieldWrapper<T>** - Universal widget integration
 - ✅ **Pre-built widgets** - 7 production-ready widgets (TextField, Checkbox, Switch, Dropdown, Slider, DatePicker, TimePicker)
 - ✅ **Type-safe validation** - Compile-time type checking
 - ✅ **Custom validators** - Easy to create and reuse
@@ -531,9 +666,9 @@ CommonValidators.required<String>().validate(null, context)
 - ✅ **Localization** - 11 languages supported
 - ✅ **Performance** - Debouncing, caching, efficient updates
 
-## 🎯 **Why FieldWrapper?**
+## 🎯 **Why TypedFieldWrapper?**
 
-**Before FieldWrapper:**
+**Before TypedFieldWrapper:**
 
 ```dart
 // Lots of boilerplate, manual state management
@@ -547,11 +682,11 @@ TextFormField(
 )
 ```
 
-**With FieldWrapper:**
+**With TypedFieldWrapper:**
 
 ```dart
 // Clean, declarative, works with ANY widget
-FieldWrapper<String>(
+TypedFieldWrapper<String>(
   fieldName: 'email',
   debounceTime: Duration(milliseconds: 300),
   transformValue: (value) => value.toLowerCase().trim(),
@@ -571,10 +706,11 @@ FieldWrapper<String>(
 
 - 🎯 **Universal** - Works with any Flutter widget
 - 🔒 **Type-safe** - Compile-time type checking
-- ⚡ **Performance** - Built-in debouncing and optimization
+- ⚡ **High Performance** - Uses BlocConsumer with buildWhen/listenWhen for field-specific rebuilds
 - 🧩 **Composable** - Easy to combine and reuse
 - 🎨 **Flexible** - Full control over UI while handling validation
 - 🔄 **Reactive** - Automatic UI updates on state changes
+- 🚀 **Optimized** - Only rebuilds when the specific field's value or error changes
 
 ## 📄 **License**
 
@@ -612,4 +748,4 @@ We welcome contributions of all kinds! Please see [CONTRIBUTING.md](CONTRIBUTING
 
 ---
 
-**Ready to build better forms?** Start with `FieldWrapper<T>` and create your custom validators! 🚀
+**Ready to build better forms?** Start with `TypedFieldWrapper<T>` and create your custom validators! 🚀

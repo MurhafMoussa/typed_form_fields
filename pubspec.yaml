@@ -40,7 +40,7 @@ topics:
   - type-safety
   - state-management
   - zero-dependencies
-  - performance
+
 
 # screenshots:
 #   - description: "Basic form with typed fields"
