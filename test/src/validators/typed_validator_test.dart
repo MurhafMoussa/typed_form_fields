@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:typed_form_fields/src/validators/typed_common_validators.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 void main() {
@@ -61,14 +62,12 @@ void main() {
       expect(intValidator.validate(42, mockContext), isNull);
     });
 
-    test('should work with SimpleValidator implementation', () {
-      final validator = SimpleValidator<String>((value, context) {
-        return value == null || value.isEmpty ? 'Required' : null;
-      });
+    test('should work with TypedCommonValidators implementation', () {
+      final validator = TypedCommonValidators.required<String>();
 
       expect(validator, isA<Validator<String>>());
-      expect(validator.validate(null, mockContext), 'Required');
-      expect(validator.validate('', mockContext), 'Required');
+      expect(validator.validate(null, mockContext), 'This field is required.');
+      expect(validator.validate('', mockContext), 'This field is required.');
       expect(validator.validate('test', mockContext), isNull);
     });
   });

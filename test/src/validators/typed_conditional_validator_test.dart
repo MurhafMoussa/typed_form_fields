@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:typed_form_fields/src/validators/conditional_validator.dart';
+import 'package:typed_form_fields/src/validators/typed_conditional_validator.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 class MockBuildContext extends Mock implements BuildContext {}
@@ -24,7 +24,7 @@ void main() {
     registerFallbackValue(MockBuildContext());
   });
 
-  group('ConditionalValidator', () {
+  group('TypedConditionalValidator', () {
     late MockBuildContext mockContext;
     late MockValidator mockValidator;
     late MockValidator mockElseValidator;
@@ -38,7 +38,7 @@ void main() {
     test('should apply validator when condition is true', () {
       // Arrange
       const expectedError = 'Validation error';
-      final validator = ConditionalValidator<String>(
+      final validator = TypedConditionalValidator<String>(
         condition: (value, context) => true,
         validator: mockValidator,
       );
@@ -56,7 +56,7 @@ void main() {
 
     test('should not apply validator when condition is false', () {
       // Arrange
-      final validator = ConditionalValidator<String>(
+      final validator = TypedConditionalValidator<String>(
         condition: (value, context) => false,
         validator: mockValidator,
       );
@@ -74,7 +74,7 @@ void main() {
         () {
       // Arrange
       const expectedError = 'Else validation error';
-      final validator = ConditionalValidator<String>(
+      final validator = TypedConditionalValidator<String>(
         condition: (value, context) => false,
         validator: mockValidator,
         elseValidator: mockElseValidator,
@@ -99,7 +99,7 @@ void main() {
       String? receivedValue;
       BuildContext? receivedContext;
 
-      final validator = ConditionalValidator<String>(
+      final validator = TypedConditionalValidator<String>(
         condition: (value, context) {
           conditionCalled = true;
           receivedValue = value;
@@ -238,11 +238,11 @@ void main() {
       const firstError = 'First error';
       final validator = ChainValidator<String>(
         validators: [
-          ConditionalValidator<String>(
+          TypedConditionalValidator<String>(
             condition: (value, context) => true,
             validator: TestValidator<String>(firstError),
           ),
-          ConditionalValidator<String>(
+          TypedConditionalValidator<String>(
             condition: (value, context) => true,
             validator: TestValidator<String>('Second error'),
           ),
@@ -263,11 +263,11 @@ void main() {
       const secondError = 'Second error';
       final validator = ChainValidator<String>(
         validators: [
-          ConditionalValidator<String>(
+          TypedConditionalValidator<String>(
             condition: (value, context) => true,
             validator: TestValidator<String>(firstError),
           ),
-          ConditionalValidator<String>(
+          TypedConditionalValidator<String>(
             condition: (value, context) => true,
             validator: TestValidator<String>(secondError),
           ),
@@ -286,11 +286,11 @@ void main() {
       // Arrange
       final validator = ChainValidator<String>(
         validators: [
-          ConditionalValidator<String>(
+          TypedConditionalValidator<String>(
             condition: (value, context) => true,
             validator: TestValidator<String>(null),
           ),
-          ConditionalValidator<String>(
+          TypedConditionalValidator<String>(
             condition: (value, context) => true,
             validator: TestValidator<String>(null),
           ),
@@ -316,7 +316,7 @@ void main() {
     });
   });
 
-  group('ConditionalValidators', () {
+  group('TypedConditionalValidators', () {
     late MockBuildContext mockContext;
 
     setUp(() {
@@ -327,7 +327,7 @@ void main() {
       test('should apply validator when string is not empty', () {
         // Arrange
         const expectedError = 'Validation error';
-        final validator = ConditionalValidators.whenNotEmpty<String>(
+        final validator = TypedConditionalValidators.whenNotEmpty<String>(
           TestValidator<String>(expectedError),
         );
 
@@ -340,7 +340,7 @@ void main() {
 
       test('should not apply validator when string is empty', () {
         // Arrange
-        final validator = ConditionalValidators.whenNotEmpty<String>(
+        final validator = TypedConditionalValidators.whenNotEmpty<String>(
           TestValidator<String>('Should not be called'),
         );
 
@@ -353,7 +353,7 @@ void main() {
 
       test('should not apply validator when value is null', () {
         // Arrange
-        final validator = ConditionalValidators.whenNotEmpty<String>(
+        final validator = TypedConditionalValidators.whenNotEmpty<String>(
           TestValidator<String>('Should not be called'),
         );
 
@@ -367,7 +367,7 @@ void main() {
       test('should apply validator when list is not empty', () {
         // Arrange
         const expectedError = 'Validation error';
-        final validator = ConditionalValidators.whenNotEmpty<List<String>>(
+        final validator = TypedConditionalValidators.whenNotEmpty<List<String>>(
           TestValidator<List<String>>(expectedError),
         );
 
@@ -380,7 +380,7 @@ void main() {
 
       test('should not apply validator when list is empty', () {
         // Arrange
-        final validator = ConditionalValidators.whenNotEmpty<List<String>>(
+        final validator = TypedConditionalValidators.whenNotEmpty<List<String>>(
           TestValidator<List<String>>('Should not be called'),
         );
 
@@ -393,7 +393,7 @@ void main() {
 
       test('should not apply validator when Set is empty', () {
         // Arrange - This test covers the Iterable check on line 157
-        final validator = ConditionalValidators.whenNotEmpty<Set<String>>(
+        final validator = TypedConditionalValidators.whenNotEmpty<Set<String>>(
           TestValidator<Set<String>>('Should not be called'),
         );
 
@@ -407,7 +407,7 @@ void main() {
       test('should apply validator when Set is not empty', () {
         // Arrange - This test covers the Iterable check on line 157
         const expectedError = 'Validation error';
-        final validator = ConditionalValidators.whenNotEmpty<Set<String>>(
+        final validator = TypedConditionalValidators.whenNotEmpty<Set<String>>(
           TestValidator<Set<String>>(expectedError),
         );
 
@@ -423,7 +423,7 @@ void main() {
       test('should apply validator when string is empty', () {
         // Arrange
         const expectedError = 'Validation error';
-        final validator = ConditionalValidators.whenEmpty<String>(
+        final validator = TypedConditionalValidators.whenEmpty<String>(
           TestValidator<String>(expectedError),
         );
 
@@ -437,7 +437,7 @@ void main() {
       test('should apply validator when value is null', () {
         // Arrange
         const expectedError = 'Validation error';
-        final validator = ConditionalValidators.whenEmpty<String>(
+        final validator = TypedConditionalValidators.whenEmpty<String>(
           TestValidator<String>(expectedError),
         );
 
@@ -450,7 +450,7 @@ void main() {
 
       test('should not apply validator when string is not empty', () {
         // Arrange
-        final validator = ConditionalValidators.whenEmpty<String>(
+        final validator = TypedConditionalValidators.whenEmpty<String>(
           TestValidator<String>('Should not be called'),
         );
 
@@ -464,7 +464,7 @@ void main() {
       test('should apply validator when Set is empty', () {
         // Arrange - This test covers the Iterable check on line 157
         const expectedError = 'Validation error';
-        final validator = ConditionalValidators.whenEmpty<Set<String>>(
+        final validator = TypedConditionalValidators.whenEmpty<Set<String>>(
           TestValidator<Set<String>>(expectedError),
         );
 
@@ -477,7 +477,7 @@ void main() {
 
       test('should not apply validator when Set is not empty', () {
         // Arrange - This test covers the Iterable check on line 157
-        final validator = ConditionalValidators.whenEmpty<Set<String>>(
+        final validator = TypedConditionalValidators.whenEmpty<Set<String>>(
           TestValidator<Set<String>>('Should not be called'),
         );
 
@@ -493,7 +493,7 @@ void main() {
       test('should apply short validator when length is at threshold', () {
         // Arrange
         const expectedError = 'Short error';
-        final validator = ConditionalValidators.byLength(
+        final validator = TypedConditionalValidators.byLength(
           5,
           TestValidator<String>(expectedError),
           TestValidator<String>('Long error'),
@@ -509,7 +509,7 @@ void main() {
       test('should apply long validator when length exceeds threshold', () {
         // Arrange
         const expectedError = 'Long error';
-        final validator = ConditionalValidators.byLength(
+        final validator = TypedConditionalValidators.byLength(
           5,
           TestValidator<String>('Short error'),
           TestValidator<String>(expectedError),
@@ -525,7 +525,7 @@ void main() {
       test('should handle null value', () {
         // Arrange
         const expectedError = 'Short error';
-        final validator = ConditionalValidators.byLength(
+        final validator = TypedConditionalValidators.byLength(
           5,
           TestValidator<String>(expectedError),
           TestValidator<String>('Long error'),
@@ -543,7 +543,7 @@ void main() {
       test('should apply small validator when value is at threshold', () {
         // Arrange
         const expectedError = 'Small error';
-        final validator = ConditionalValidators.byValue(
+        final validator = TypedConditionalValidators.byValue(
           10,
           TestValidator<num>(expectedError),
           TestValidator<num>('Large error'),
@@ -559,7 +559,7 @@ void main() {
       test('should apply large validator when value exceeds threshold', () {
         // Arrange
         const expectedError = 'Large error';
-        final validator = ConditionalValidators.byValue(
+        final validator = TypedConditionalValidators.byValue(
           10,
           TestValidator<num>('Small error'),
           TestValidator<num>(expectedError),
@@ -575,7 +575,7 @@ void main() {
       test('should handle null value', () {
         // Arrange
         const expectedError = 'Small error';
-        final validator = ConditionalValidators.byValue(
+        final validator = TypedConditionalValidators.byValue(
           10,
           TestValidator<num>(expectedError),
           TestValidator<num>('Large error'),
@@ -594,7 +594,7 @@ void main() {
         // Arrange
         const expectedError = 'Match error';
         final pattern = RegExp(r'\d+');
-        final validator = ConditionalValidators.byPattern(
+        final validator = TypedConditionalValidators.byPattern(
           pattern,
           TestValidator<String>(expectedError),
           TestValidator<String>('No match error'),
@@ -611,7 +611,7 @@ void main() {
         // Arrange
         const expectedError = 'No match error';
         final pattern = RegExp(r'\d+');
-        final validator = ConditionalValidators.byPattern(
+        final validator = TypedConditionalValidators.byPattern(
           pattern,
           TestValidator<String>('Match error'),
           TestValidator<String>(expectedError),
@@ -628,7 +628,7 @@ void main() {
         // Arrange
         const expectedError = 'No match error';
         final pattern = RegExp(r'\d+');
-        final validator = ConditionalValidators.byPattern(
+        final validator = TypedConditionalValidators.byPattern(
           pattern,
           TestValidator<String>('Match error'),
           TestValidator<String>(expectedError),
@@ -646,7 +646,7 @@ void main() {
       test('should apply true validator when predicate returns true', () {
         // Arrange
         const expectedError = 'True error';
-        final validator = ConditionalValidators.custom<String>(
+        final validator = TypedConditionalValidators.custom<String>(
           (value, context) => true,
           TestValidator<String>(expectedError),
           TestValidator<String>('False error'),
@@ -662,7 +662,7 @@ void main() {
       test('should apply false validator when predicate returns false', () {
         // Arrange
         const expectedError = 'False error';
-        final validator = ConditionalValidators.custom<String>(
+        final validator = TypedConditionalValidators.custom<String>(
           (value, context) => false,
           TestValidator<String>('True error'),
           TestValidator<String>(expectedError),
@@ -683,7 +683,7 @@ void main() {
       test('should apply basic validator for short input', () {
         // Arrange
         const expectedError = 'Basic error';
-        final validator = ConditionalValidators.progressive(
+        final validator = TypedConditionalValidators.progressive(
           basicValidator: TestValidator<String>(expectedError),
           intermediateValidator: TestValidator<String>('Intermediate error'),
           advancedValidator: TestValidator<String>('Advanced error'),
@@ -699,7 +699,7 @@ void main() {
       test('should apply intermediate validator for medium input', () {
         // Arrange
         const expectedError = 'Intermediate error';
-        final validator = ConditionalValidators.progressive(
+        final validator = TypedConditionalValidators.progressive(
           basicValidator: TestValidator<String>(null),
           intermediateValidator: TestValidator<String>(expectedError),
           advancedValidator: TestValidator<String>('Advanced error'),
@@ -716,7 +716,7 @@ void main() {
       test('should apply advanced validator for long input', () {
         // Arrange
         const expectedError = 'Advanced error';
-        final validator = ConditionalValidators.progressive(
+        final validator = TypedConditionalValidators.progressive(
           basicValidator: TestValidator<String>(null),
           intermediateValidator: TestValidator<String>(null),
           advancedValidator: TestValidator<String>(expectedError),
@@ -733,7 +733,7 @@ void main() {
       test('should stop on first error', () {
         // Arrange
         const expectedError = 'Basic error';
-        final validator = ConditionalValidators.progressive(
+        final validator = TypedConditionalValidators.progressive(
           basicValidator: TestValidator<String>(expectedError),
           intermediateValidator: TestValidator<String>('Intermediate error'),
           advancedValidator: TestValidator<String>('Advanced error'),
@@ -748,7 +748,7 @@ void main() {
 
       test('should handle null validators', () {
         // Arrange
-        final validator = ConditionalValidators.progressive();
+        final validator = TypedConditionalValidators.progressive();
 
         // Act
         final result = validator.validate('test', mockContext);

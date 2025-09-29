@@ -4,19 +4,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
 void main() {
-  group('FieldWrapper', () {
-    late CoreFormCubit formCubit;
+  group('TypedFieldWrapper', () {
+    late TypedFormController formCubit;
 
     setUp(() {
-      formCubit = CoreFormCubit(
+      formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(
+          FormFieldDefinition<String>(
             name: 'email',
-            validators: [CommonValidators.email()],
+            validators: [TypedCommonValidators.email()],
           ),
-          TypedFormField<int>(
+          FormFieldDefinition<int>(
             name: 'age',
-            validators: [CommonValidators.required<int>()],
+            validators: [TypedCommonValidators.required<int>()],
           ),
         ],
       );
@@ -28,7 +28,7 @@ void main() {
 
     Widget createTestWidget(Widget child) {
       return MaterialApp(
-        home: BlocProvider<CoreFormCubit>(
+        home: BlocProvider<TypedFormController>(
           create: (context) => formCubit,
           child: Scaffold(body: child),
         ),
@@ -39,7 +39,7 @@ void main() {
       testWidgets('should render with initial value', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               initialValue: 'test@example.com',
               builder: (context, value, error, hasError, updateValue) {
@@ -70,7 +70,7 @@ void main() {
           (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               builder: (context, value, error, hasError, updateValue) {
                 return TextFormField(
@@ -101,7 +101,7 @@ void main() {
       testWidgets('should display error messages', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               builder: (context, value, error, hasError, updateValue) {
                 return TextFormField(
@@ -126,7 +126,7 @@ void main() {
         await tester.pump();
 
         // Trigger validation
-        final context = tester.element(find.byType(FieldWrapper<String>));
+        final context = tester.element(find.byType(TypedFieldWrapper<String>));
         formCubit.validateForm(
           context,
           onValidationPass: () {},
@@ -147,7 +147,7 @@ void main() {
 
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               builder: (context, value, error, hasError, updateValue) {
                 buildCount++;
@@ -169,7 +169,7 @@ void main() {
         final initialBuildCount = buildCount;
 
         // Update a different field - should not trigger rebuild
-        final context = tester.element(find.byType(FieldWrapper<String>));
+        final context = tester.element(find.byType(TypedFieldWrapper<String>));
         formCubit.updateField<int>(
           fieldName: 'age',
           value: 25,
@@ -199,7 +199,7 @@ void main() {
           createTestWidget(
             Column(
               children: [
-                FieldWrapper<String>(
+                TypedFieldWrapper<String>(
                   fieldName: 'email',
                   builder: (context, value, error, hasError, updateValue) {
                     buildCount++;
@@ -210,7 +210,7 @@ void main() {
                     );
                   },
                 ),
-                FieldWrapper<int>(
+                TypedFieldWrapper<int>(
                   fieldName: 'age',
                   builder: (context, value, error, hasError, updateValue) {
                     return TextFormField(
@@ -247,7 +247,7 @@ void main() {
 
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               onFieldStateChanged: (value, error, hasError) {
                 lastValue = value;
@@ -287,7 +287,7 @@ void main() {
             find.byKey(const Key('email_field')), 'invalid-email');
         await tester.pump();
 
-        final context = tester.element(find.byType(FieldWrapper<String>));
+        final context = tester.element(find.byType(TypedFieldWrapper<String>));
         formCubit.validateForm(
           context,
           onValidationPass: () {},
@@ -309,7 +309,7 @@ void main() {
           createTestWidget(
             Column(
               children: [
-                FieldWrapper<String>(
+                TypedFieldWrapper<String>(
                   fieldName: 'email',
                   onFieldStateChanged: (value, error, hasError) {
                     emailListenerCallCount++;
@@ -322,7 +322,7 @@ void main() {
                     );
                   },
                 ),
-                FieldWrapper<int>(
+                TypedFieldWrapper<int>(
                   fieldName: 'age',
                   builder: (context, value, error, hasError, updateValue) {
                     return TextFormField(
@@ -354,7 +354,7 @@ void main() {
           (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               debounceTime: const Duration(milliseconds: 300),
               builder: (context, value, error, hasError, updateValue) {
@@ -397,7 +397,7 @@ void main() {
 
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               debounceTime: const Duration(milliseconds: 300),
               onValueChanged: (value) {
@@ -435,7 +435,7 @@ void main() {
           (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               transformValue: (value) => value.toLowerCase().trim(),
               builder: (context, value, error, hasError, updateValue) {
@@ -463,7 +463,7 @@ void main() {
       testWidgets('should not transform null values', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               transformValue: (value) => value.toLowerCase(),
               builder: (context, value, error, hasError, updateValue) {
@@ -492,7 +492,7 @@ void main() {
       testWidgets('should handle field removal gracefully', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               builder: (context, value, error, hasError, updateValue) {
                 return TextFormField(
@@ -513,18 +513,18 @@ void main() {
         await tester.pump();
 
         // Remove field from form
-        final context = tester.element(find.byType(FieldWrapper<String>));
+        final context = tester.element(find.byType(TypedFieldWrapper<String>));
         formCubit.removeField('email', context: context);
         await tester.pump();
 
         // Widget should still render without crashing
-        expect(find.byType(FieldWrapper<String>), findsOneWidget);
+        expect(find.byType(TypedFieldWrapper<String>), findsOneWidget);
       });
 
       testWidgets('should handle rapid state changes', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               builder: (context, value, error, hasError, updateValue) {
                 return TextFormField(
@@ -547,7 +547,7 @@ void main() {
         }
 
         // Should handle all changes without crashing
-        expect(find.byType(FieldWrapper<String>), findsOneWidget);
+        expect(find.byType(TypedFieldWrapper<String>), findsOneWidget);
         expect(formCubit.state.values['email'], equals('test9@example.com'));
       });
     });
@@ -556,7 +556,7 @@ void main() {
       testWidgets('should cancel debounce timer on dispose', (tester) async {
         await tester.pumpWidget(
           createTestWidget(
-            FieldWrapper<String>(
+            TypedFieldWrapper<String>(
               fieldName: 'email',
               debounceTime: const Duration(milliseconds: 1000),
               builder: (context, value, error, hasError, updateValue) {

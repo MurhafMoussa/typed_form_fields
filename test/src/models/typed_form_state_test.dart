@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:typed_form_fields/src/core/core_form_cubit.dart';
+import 'package:typed_form_fields/src/core/typed_form_controller.dart';
 import 'package:typed_form_fields/src/core/form_errors.dart';
 
 void main() {
   group('CoreFormState', () {
-    late CoreFormState state;
+    late TypedFormState state;
 
     setUp(() {
-      state = const CoreFormState(
+      state = const TypedFormState(
         values: {'email': 'test@example.com', 'age': 25, 'name': 'John Doe'},
         errors: {'email': 'Email error', 'age': 'Age error'},
         isValid: false,
@@ -31,7 +31,7 @@ void main() {
       });
 
       test('should use default validation type when not provided', () {
-        const stateWithDefault = CoreFormState(
+        const stateWithDefault = TypedFormState(
           values: {'email': 'test@example.com'},
           errors: {},
           isValid: true,
@@ -47,7 +47,7 @@ void main() {
 
     group('initial factory', () {
       test('should create initial state with empty values', () {
-        final initialState = CoreFormState.initial();
+        final initialState = TypedFormState.initial();
 
         expect(initialState.values, isEmpty);
         expect(initialState.errors, isEmpty);
@@ -93,7 +93,7 @@ void main() {
 
       test('should handle null field type gracefully', () {
         // Create a state with a field that has no type defined
-        const stateWithNullType = CoreFormState(
+        const stateWithNullType = TypedFormState(
           values: {'email': 'test@example.com'},
           errors: {},
           isValid: false,
@@ -189,7 +189,7 @@ void main() {
 
     group('equality', () {
       test('should be equal to identical state', () {
-        final identicalState = CoreFormState(
+        final identicalState = TypedFormState(
           values: state.values,
           errors: state.errors,
           isValid: state.isValid,

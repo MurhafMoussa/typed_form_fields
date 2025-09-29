@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:typed_form_fields/src/core/core_form_cubit.dart';
 import 'package:typed_form_fields/src/core/form_errors.dart';
-import 'package:typed_form_fields/src/models/typed_form_field.dart';
+import 'package:typed_form_fields/src/core/typed_form_controller.dart';
+import 'package:typed_form_fields/src/models/form_field_definition.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 void main() {
-  group('CoreFormCubit', () {
-    late CoreFormCubit formCubit;
+  group('TypedFormController', () {
+    late TypedFormController formCubit;
     late MockBuildContext mockContext;
 
     setUp(() {
@@ -20,7 +20,7 @@ void main() {
 
     group('Initialization', () {
       test('should initialize with empty form by default', () {
-        formCubit = CoreFormCubit();
+        formCubit = TypedFormController();
 
         expect(formCubit.state.values, isEmpty);
         expect(formCubit.state.errors, isEmpty);
@@ -31,7 +31,7 @@ void main() {
 
       test('should initialize with provided fields', () {
         final fields = TestFieldFactory.createEmailAndAgeFields();
-        formCubit = CoreFormCubit(fields: fields);
+        formCubit = TypedFormController(fields: fields);
 
         expect(formCubit.state.values, {
           'email': 'test@example.com',
@@ -42,13 +42,14 @@ void main() {
       });
 
       test('should initialize with custom validation type', () {
-        formCubit = CoreFormCubit(validationType: ValidationType.onSubmit);
+        formCubit =
+            TypedFormController(validationType: ValidationType.onSubmit);
         expect(formCubit.state.validationType, ValidationType.onSubmit);
       });
 
       test('should initialize with all validation types', () {
         for (final validationType in ValidationType.values) {
-          formCubit = CoreFormCubit(validationType: validationType);
+          formCubit = TypedFormController(validationType: validationType);
           expect(formCubit.state.validationType, validationType);
           formCubit.close();
         }
@@ -176,9 +177,9 @@ void main() {
           // This test covers line 39 in CoreFormState where TypeError is thrown
           // when the value is not of the expected type
           final fields = [
-            const TypedFormField<String>(name: 'email', validators: []),
+            const FormFieldDefinition<String>(name: 'email', validators: []),
           ];
-          formCubit = CoreFormCubit(fields: fields);
+          formCubit = TypedFormController(fields: fields);
 
           // Store a String value
           formCubit.updateField(
@@ -450,7 +451,7 @@ void main() {
 
         formCubit.resetForm();
 
-        expect(formCubit.state.values['email'], isNull);
+        expect(formCubit.state.values['email'], 'initial@example.com');
         expect(formCubit.state.errors, isEmpty);
         expect(formCubit.state.isValid, isFalse);
       });
@@ -585,56 +586,60 @@ class MockValidator<T> implements Validator<T> {
 
 // Test utilities for creating common form configurations
 class TestFormFactory {
-  static CoreFormCubit createFormWithEmailAndAge({
+  static TypedFormController createFormWithEmailAndAge({
     ValidationType validationType = ValidationType.allFields,
   }) {
-    return CoreFormCubit(
+    return TypedFormController(
       fields: [
-        const TypedFormField<String>(name: 'email', validators: []),
-        const TypedFormField<int>(name: 'age', validators: []),
+        const FormFieldDefinition<String>(name: 'email', validators: []),
+        const FormFieldDefinition<int>(name: 'age', validators: []),
       ],
       validationType: validationType,
     );
   }
 
-  static CoreFormCubit createFormWithEmailOnly({
+  static TypedFormController createFormWithEmailOnly({
     ValidationType validationType = ValidationType.allFields,
   }) {
-    return CoreFormCubit(
-      fields: [const TypedFormField<String>(name: 'email', validators: [])],
+    return TypedFormController(
+      fields: [
+        const FormFieldDefinition<String>(name: 'email', validators: [])
+      ],
       validationType: validationType,
     );
   }
 
-  static CoreFormCubit createFormWithValidators({
+  static TypedFormController createFormWithValidators({
     MockValidator<String>? emailValidator,
     MockValidator<int>? ageValidator,
     ValidationType validationType = ValidationType.allFields,
   }) {
-    final fields = <TypedFormField>[];
+    final fields = <FormFieldDefinition>[];
 
     if (emailValidator != null) {
       fields.add(
-        TypedFormField<String>(name: 'email', validators: [emailValidator]),
+        FormFieldDefinition<String>(
+            name: 'email', validators: [emailValidator]),
       );
     }
 
     if (ageValidator != null) {
-      fields.add(TypedFormField<int>(name: 'age', validators: [ageValidator]));
+      fields.add(
+          FormFieldDefinition<int>(name: 'age', validators: [ageValidator]));
     }
 
-    return CoreFormCubit(fields: fields, validationType: validationType);
+    return TypedFormController(fields: fields, validationType: validationType);
   }
 
-  static CoreFormCubit createFormWithInitialValues() {
-    return CoreFormCubit(
+  static TypedFormController createFormWithInitialValues() {
+    return TypedFormController(
       fields: [
-        TypedFormField<String>(
+        FormFieldDefinition<String>(
           name: 'email',
           validators: [MockValidator<String>()],
           initialValue: 'initial@example.com',
         ),
-        TypedFormField<int>(
+        FormFieldDefinition<int>(
           name: 'age',
           validators: [MockValidator<int>()],
           initialValue: 25,
@@ -645,14 +650,14 @@ class TestFormFactory {
 }
 
 class TestFieldFactory {
-  static List<TypedFormField> createEmailAndAgeFields() {
+  static List<FormFieldDefinition> createEmailAndAgeFields() {
     return [
-      TypedFormField<String>(
+      FormFieldDefinition<String>(
         name: 'email',
         validators: [MockValidator<String>()],
         initialValue: 'test@example.com',
       ),
-      TypedFormField<int>(
+      FormFieldDefinition<int>(
         name: 'age',
         validators: [MockValidator<int>()],
         initialValue: 25,

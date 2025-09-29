@@ -5,25 +5,26 @@ import 'package:typed_form_fields/typed_form_fields.dart';
 
 void main() {
   group('Pre-built Widgets Tests', () {
-    late CoreFormCubit formCubit;
+    late TypedFormController formCubit;
 
     setUp(() {
-      formCubit = CoreFormCubit(
+      formCubit = TypedFormController(
         fields: [
-          TypedFormField<String>(name: 'text', validators: []),
-          TypedFormField<String>(
-              name: 'email', validators: [CommonValidators.email()]),
-          TypedFormField<String>(
+          FormFieldDefinition<String>(name: 'text', validators: []),
+          FormFieldDefinition<String>(
+              name: 'email', validators: [TypedCommonValidators.email()]),
+          FormFieldDefinition<String>(
               name: 'password',
-              validators: [CommonValidators.required<String>()]),
-          TypedFormField<bool>(name: 'checkbox', validators: []),
-          TypedFormField<String>(name: 'dropdown', validators: []),
-          TypedFormField<DateTime>(name: 'date', validators: []),
-          TypedFormField<TimeOfDay>(name: 'time', validators: []),
-          TypedFormField<bool>(name: 'switch', validators: []),
-          TypedFormField<double>(name: 'slider', validators: []),
-          TypedFormField<String>(name: 'radio', validators: []),
-          TypedFormField<List<String>>(name: 'multiselect', validators: []),
+              validators: [TypedCommonValidators.required<String>()]),
+          FormFieldDefinition<bool>(name: 'checkbox', validators: []),
+          FormFieldDefinition<String>(name: 'dropdown', validators: []),
+          FormFieldDefinition<DateTime>(name: 'date', validators: []),
+          FormFieldDefinition<TimeOfDay>(name: 'time', validators: []),
+          FormFieldDefinition<bool>(name: 'switch', validators: []),
+          FormFieldDefinition<double>(name: 'slider', validators: []),
+          FormFieldDefinition<String>(name: 'radio', validators: []),
+          FormFieldDefinition<List<String>>(
+              name: 'multiselect', validators: []),
         ],
       );
     });
@@ -34,7 +35,7 @@ void main() {
 
     Widget createTestWidget(Widget child) {
       return MaterialApp(
-        home: BlocProvider<CoreFormCubit>(
+        home: BlocProvider<TypedFormController>(
           create: (context) => formCubit,
           child: Scaffold(body: child),
         ),
