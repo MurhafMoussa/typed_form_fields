@@ -486,7 +486,8 @@ class MockCrossFieldValidator extends TypedCrossFieldValidator<String> {
   final int validateCallCount;
   final bool shouldReturnError;
 
-  MockCrossFieldValidator({this.shouldReturnError = true, this.validateCallCount = 0})
+  MockCrossFieldValidator(
+      {this.shouldReturnError = true, this.validateCallCount = 0})
       : super(
           dependentFields: ['password'],
           validator: (value, fieldValues, context) => null,
