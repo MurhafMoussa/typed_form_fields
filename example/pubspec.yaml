@@ -36,7 +36,6 @@ dependencies:
   cupertino_icons: ^1.0.8
   typed_form_fields:
     path: ../
-  flutter_bloc: ^9.1.1
 
 dev_dependencies:
   flutter_test:

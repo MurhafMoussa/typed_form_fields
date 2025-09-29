@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'screens/bloc_form_screen.dart';
 import 'screens/field_wrapper_screen.dart';
+import 'screens/login_form_screen.dart';
 import 'screens/registration_form_screen.dart';
 import 'screens/widget_showcase_screen.dart';
 
@@ -44,7 +44,7 @@ class TypedFormFieldsExampleApp extends StatelessWidget {
       home: const ExampleHomeScreen(),
       routes: {
         '/registration': (context) => const RegistrationFormScreen(),
-        '/bloc-form': (context) => const BlocFormScreen(),
+        '/login-form': (context) => const LoginFormScreen(),
         '/field-wrapper': (context) => const FieldWrapperScreen(),
         '/widget-showcase': (context) => const WidgetShowcaseScreen(),
       },
@@ -123,15 +123,15 @@ class ExampleHomeScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildExampleCard(
                     context,
-                    title: 'BLoC Form Architecture',
+                    title: 'Login Form Example',
                     description:
-                        'Clean architecture with custom BLoC extending CoreFormCubit',
-                    icon: Icons.architecture,
-                    route: '/bloc-form',
+                        'Complete login form with TypedFormProvider and validation',
+                    icon: Icons.login,
+                    route: '/login-form',
                     features: [
-                      'Custom BLoC',
-                      'Clean architecture',
-                      'Reactive validation',
+                      'TypedFormProvider',
+                      'Form validation',
+                      'Async form submission',
                     ],
                   ),
                   const SizedBox(height: 12),

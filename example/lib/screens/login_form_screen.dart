@@ -4,8 +4,8 @@ import 'package:typed_form_fields/typed_form_fields.dart';
 // ignore: unintended_html_in_doc_comment
 /// Form example with TypedFormProvider integration
 /// This demonstrates reactive validation with clean architecture and zero dependencies
-class BlocFormScreen extends StatelessWidget {
-  const BlocFormScreen({super.key});
+class LoginFormScreen extends StatelessWidget {
+  const LoginFormScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

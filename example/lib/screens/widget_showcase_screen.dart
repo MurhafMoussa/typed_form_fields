@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:typed_form_fields/typed_form_fields.dart';
 
 /// Comprehensive showcase of all 7 pre-built widgets
@@ -17,474 +16,418 @@ class WidgetShowcaseScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: BlocProvider(
-          create: (context) => CoreFormCubit(
-            fields: [
-              // Text Field
-              TypedFormField<String>(
-                name: 'textField',
-                validators: [
-                  CommonValidators.required<String>(),
-                  CommonValidators.minLength(3),
-                ],
-                initialValue: '',
-              ),
-
-              // Checkbox
-              TypedFormField<bool>(
-                name: 'checkbox',
-                validators: [
-                  SimpleValidator<bool>(
-                    (value, context) =>
-                        value == true ? null : 'Please check this box',
-                  ),
-                ],
-                initialValue: false,
-              ),
-
-              // Switch
-              const TypedFormField<bool>(
-                name: 'switch',
-                validators: [],
-                initialValue: false,
-              ),
-
-              // Dropdown
-              TypedFormField<String>(
-                name: 'dropdown',
-                validators: [CommonValidators.required<String>()],
-                initialValue: '',
-              ),
-
-              // Slider
-              TypedFormField<double>(
-                name: 'slider',
-                validators: [
-                  SimpleValidator<double>(
-                    (value, context) =>
-                        (value ?? 0) >= 30 ? null : 'Value must be at least 30',
-                  ),
-                ],
-                initialValue: 50.0,
-              ),
-
-              // Date Picker
-              TypedFormField<DateTime>(
-                name: 'datePicker',
-                validators: [
-                  SimpleValidator<DateTime>(
-                    (value, context) =>
-                        value != null ? null : 'Please select a date',
-                  ),
-                ],
-                initialValue: null,
-              ),
-
-              // Time Picker
-              TypedFormField<TimeOfDay>(
-                name: 'timePicker',
-                validators: [
-                  SimpleValidator<TimeOfDay>(
-                    (value, context) =>
-                        value != null ? null : 'Please select a time',
-                  ),
-                ],
-                initialValue: null,
-              ),
-            ],
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                BlocBuilder<CoreFormCubit, CoreFormState>(
-                  builder: (context, state) {
-                    final cubit = context.read<CoreFormCubit>();
-                    return Row(
-                      children: [
-                        const Icon(Icons.verified_user, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Validation: ',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        DropdownButton<ValidationType>(
-                          value: state.validationType,
-                          items: const [
-                            DropdownMenuItem(
-                              value: ValidationType.onSubmit,
-                              child: Text('On Submit'),
-                            ),
-                            DropdownMenuItem(
-                              value: ValidationType.allFields,
-                              child: Text('All Fields'),
-                            ),
-                            DropdownMenuItem(
-                              value: ValidationType.fieldsBeingEdited,
-                              child: Text('Fields Being Edited'),
-                            ),
-                            DropdownMenuItem(
-                              value: ValidationType.disabled,
-                              child: Text('Disabled'),
-                            ),
-                          ],
-                          onChanged: (type) {
-                            if (type != null) cubit.setValidationType(type);
-                          },
-                          underline: Container(),
-                          style: const TextStyle(color: Colors.blue),
-                          dropdownColor: Colors.white,
-                        ),
-                      ],
-                    );
-                  },
+        child: TypedFormProvider(
+          fields: [
+            // Text Field
+            FormFieldDefinition<String>(
+              name: 'textField',
+              validators: [
+                TypedCommonValidators.required<String>(),
+                TypedCommonValidators.minLength(3),
+              ],
+              initialValue: '',
+            ),
+            // Number Field
+            FormFieldDefinition<double>(
+              name: 'numberField',
+              validators: [
+                TypedCommonValidators.required<double>(),
+                TypedCommonValidators.custom<double>((value, context) {
+                  if (value == null) return null;
+                  if (value < 0.0) return 'Value must be at least 0.0';
+                  if (value > 100.0) return 'Value must be at most 100.0';
+                  return null;
+                }),
+              ],
+              initialValue: 0.0,
+            ),
+            // Email Field
+            FormFieldDefinition<String>(
+              name: 'emailField',
+              validators: [
+                TypedCommonValidators.required<String>(),
+                TypedCommonValidators.email(),
+              ],
+              initialValue: '',
+            ),
+            // Password Field
+            FormFieldDefinition<String>(
+              name: 'passwordField',
+              validators: [
+                TypedCommonValidators.required<String>(),
+                TypedCommonValidators.minLength(8),
+                TypedCommonValidators.pattern(
+                  RegExp(r'[A-Z]'),
+                  errorText: 'Must contain uppercase letter',
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'All 7 Pre-built Widgets',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                TypedCommonValidators.pattern(
+                  RegExp(r'[a-z]'),
+                  errorText: 'Must contain lowercase letter',
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'Production-ready widgets with comprehensive validation',
-                  style: TextStyle(fontSize: 16, color: Colors.blue.shade600),
-                ),
-                const SizedBox(height: 32),
-
-                // 1. TypedTextField
-                _buildWidgetSection(
-                  title: '1. TypedTextField',
-                  description:
-                      'Universal text input with all TextFormField parameters',
-                  child: const TypedTextField(
-                    name: 'textField',
-                    label: 'Text Field',
-                    hintText: 'Enter some text...',
-                    prefixIcon: Icon(Icons.text_fields),
-                    helperText: 'Minimum 3 characters required',
-                  ),
-                ),
-
-                // 2. TypedCheckbox
-                _buildWidgetSection(
-                  title: '2. TypedCheckbox',
-                  description:
-                      'Checkbox with title, subtitle, and error handling',
-                  child: const TypedCheckbox(
-                    name: 'checkbox',
-                    title: Text('I agree to the terms'),
-                    subtitle: Text('This checkbox is required'),
-                  ),
-                ),
-
-                // 3. TypedSwitch
-                _buildWidgetSection(
-                  title: '3. TypedSwitch',
-                  description: 'Switch with title, subtitle, and error display',
-                  child: const TypedSwitch(
-                    name: 'switch',
-                    title: Text('Enable notifications'),
-                    subtitle: Text('Receive push notifications'),
-                  ),
-                ),
-
-                // 4. TypedDropdown
-                _buildWidgetSection(
-                  title: '4. TypedDropdown',
-                  description: 'Dropdown with custom items and validation',
-                  child: TypedDropdown<String>(
-                    name: 'dropdown',
-                    label: 'Select Option',
-                    items: const ['Option 1', 'Option 2', 'Option 3'],
-                    itemBuilder: (item) => Text(item),
-                    hintText: 'Choose an option...',
-                  ),
-                ),
-
-                // 5. TypedSlider
-                _buildWidgetSection(
-                  title: '5. TypedSlider',
-                  description:
-                      'Slider with labels, divisions, and value display',
-                  child: const TypedSlider(
-                    name: 'slider',
-                    label: 'Volume Level',
-                    min: 0.0,
-                    max: 100.0,
-                    divisions: 10,
-                    showValue: true,
-                    activeColor: Colors.blue,
-                  ),
-                ),
-
-                // 6. TypedDatePicker
-                _buildWidgetSection(
-                  title: '6. TypedDatePicker',
-                  description:
-                      'Date picker with custom formatting and validation',
-                  child: TypedDatePicker(
-                    name: 'datePicker',
-                    label: 'Select Date',
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2030),
-                    dateFormat: 'MMM dd, yyyy',
-                    onDateSubmitted: (date) {
-                      debugPrint('Date selected: $date');
-                    },
-                  ),
-                ),
-
-                // 7. TypedTimePicker
-                _buildWidgetSection(
-                  title: '7. TypedTimePicker',
-                  description:
-                      'Time picker with custom decoration and callbacks',
-                  child: TypedTimePicker(
-                    name: 'timePicker',
-                    label: 'Select Time',
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.access_time),
-                    ),
-                    onTimeSubmitted: (time) {
-                      debugPrint('Time selected: $time');
-                    },
-                  ),
-                ),
-
-                const SizedBox(height: 32),
-
-                // Form Status Summary
-                BlocBuilder<CoreFormCubit, CoreFormState>(
-                  builder: (context, state) {
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  state.isValid
-                                      ? Icons.check_circle
-                                      : Icons.error,
-                                  color: state.isValid
-                                      ? Colors.green
-                                      : Colors.red,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Form Status: ${state.isValid ? 'Valid' : 'Invalid'}',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: state.isValid
-                                        ? Colors.green
-                                        : Colors.red,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Current Values:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            _buildValueRow(
-                              'Text Field',
-                              state.getValue<String>('textField'),
-                            ),
-                            _buildValueRow(
-                              'Checkbox',
-                              state.getValue<bool>('checkbox'),
-                            ),
-                            _buildValueRow(
-                              'Switch',
-                              state.getValue<bool>('switch'),
-                            ),
-                            _buildValueRow(
-                              'Dropdown',
-                              state.getValue<String>('dropdown'),
-                            ),
-                            _buildValueRow(
-                              'Slider',
-                              state.getValue<double>('slider')?.round(),
-                            ),
-                            _buildValueRow(
-                              'Date',
-                              state
-                                  .getValue<DateTime>('datePicker')
-                                  ?.toString()
-                                  .split(' ')[0],
-                            ),
-                            _buildValueRow(
-                              'Time',
-                              state
-                                  .getValue<TimeOfDay>('timePicker')
-                                  ?.format(context),
-                            ),
-                            if (state.errors.isNotEmpty) ...[
-                              const SizedBox(height: 16),
-                              Text(
-                                'Validation Errors: ${state.errors.length}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              ...state.errors.entries.map(
-                                (entry) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 4),
-                                  child: Text(
-                                    '• ${entry.key}: ${entry.value}',
-                                    style: const TextStyle(color: Colors.red),
-                                  ),
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: state.isValid
-                                  ? () => _showFormData(context, state)
-                                  : null,
-                              child: const Text('Submit All Data'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-
-                const SizedBox(height: 24),
-
-                // Features Summary
-                const Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '🚀 Widget Features',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Text('✅ Type-safe form integration'),
-                        Text('✅ Automatic validation'),
-                        Text('✅ Error handling and display'),
-                        Text('✅ Reactive state management'),
-                        Text('✅ Customizable styling'),
-                        Text('✅ Accessibility support'),
-                        Text('✅ Performance optimized'),
-                        Text('✅ Production ready'),
-                      ],
-                    ),
-                  ),
+                TypedCommonValidators.pattern(
+                  RegExp(r'[0-9]'),
+                  errorText: 'Must contain digit',
                 ),
               ],
+              initialValue: '',
             ),
-          ),
+            // Phone Field
+            FormFieldDefinition<String>(
+              name: 'phoneField',
+              validators: [
+                TypedCommonValidators.required<String>(),
+                TypedCommonValidators.phoneNumber(),
+              ],
+              initialValue: '',
+            ),
+            // Checkbox Field
+            FormFieldDefinition<bool>(
+              name: 'checkboxField',
+              validators: [TypedCommonValidators.mustBeTrue()],
+              initialValue: false,
+            ),
+            // Dropdown Field
+            FormFieldDefinition<String>(
+              name: 'dropdownField',
+              validators: [TypedCommonValidators.required<String>()],
+              initialValue: '',
+            ),
+          ],
+          validationType: ValidationType.fieldsBeingEdited,
+          child: (context) => const WidgetShowcaseView(),
         ),
       ),
     );
   }
+}
 
-  Widget _buildWidgetSection({
-    required String title,
-    required String description,
-    required Widget child,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          description,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey.shade300),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: child,
-        ),
-        const SizedBox(height: 24),
-      ],
-    );
-  }
+/// Widget Showcase View
+class WidgetShowcaseView extends StatelessWidget {
+  const WidgetShowcaseView({super.key});
 
-  Widget _buildValueRow(String label, dynamic value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+          const Text(
+            'Pre-built Widget Showcase',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
-          Expanded(
-            child: Text(
-              value?.toString() ?? 'null',
-              style: TextStyle(
-                color: value != null ? Colors.black87 : Colors.grey,
+          const SizedBox(height: 8),
+          Text(
+            '7 ready-to-use form widgets with built-in validation',
+            style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+          ),
+          const SizedBox(height: 24),
+
+          // TypedTextField
+          const Text(
+            'TypedTextField',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TypedTextField(
+            name: 'textField',
+            label: 'Text Input',
+            hintText: 'Enter some text',
+            prefixIcon: const Icon(Icons.text_fields),
+            helperText: 'Minimum 3 characters',
+          ),
+          const SizedBox(height: 24),
+
+          // Number Field with TypedFieldWrapper
+          const Text(
+            'Number Field with TypedFieldWrapper',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TypedFieldWrapper<double>(
+            fieldName: 'numberField',
+            builder: (context, value, error, hasError, updateValue) {
+              return TextFormField(
+                initialValue: value?.toString() ?? '0',
+                onChanged: (text) {
+                  final number = double.tryParse(text);
+                  if (number != null) updateValue(number);
+                },
+                decoration: InputDecoration(
+                  labelText: 'Number Input',
+                  hintText: 'Enter a number',
+                  prefixIcon: const Icon(Icons.numbers),
+                  errorText: hasError ? error : null,
+                  border: const OutlineInputBorder(),
+                  helperText: 'Range: 0-100',
+                ),
+                keyboardType: TextInputType.number,
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // Email Field with TypedFieldWrapper
+          const Text(
+            'Email Field with TypedFieldWrapper',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TypedFieldWrapper<String>(
+            fieldName: 'emailField',
+            builder: (context, value, error, hasError, updateValue) {
+              return TextFormField(
+                initialValue: value,
+                onChanged: updateValue,
+                decoration: InputDecoration(
+                  labelText: 'Email Address',
+                  hintText: 'Enter your email',
+                  prefixIcon: const Icon(Icons.email),
+                  errorText: hasError ? error : null,
+                  border: const OutlineInputBorder(),
+                  helperText: 'Valid email format required',
+                ),
+                keyboardType: TextInputType.emailAddress,
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // Password Field with TypedFieldWrapper
+          const Text(
+            'Password Field with TypedFieldWrapper',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TypedFieldWrapper<String>(
+            fieldName: 'passwordField',
+            builder: (context, value, error, hasError, updateValue) {
+              return TextFormField(
+                initialValue: value,
+                onChanged: updateValue,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  hintText: 'Create a strong password',
+                  prefixIcon: const Icon(Icons.lock),
+                  errorText: hasError ? error : null,
+                  border: const OutlineInputBorder(),
+                  helperText: 'Min 8 chars, uppercase, lowercase, digit',
+                ),
+                obscureText: true,
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // Phone Field with TypedFieldWrapper
+          const Text(
+            'Phone Field with TypedFieldWrapper',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TypedFieldWrapper<String>(
+            fieldName: 'phoneField',
+            builder: (context, value, error, hasError, updateValue) {
+              return TextFormField(
+                initialValue: value,
+                onChanged: updateValue,
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  hintText: 'Enter your phone number',
+                  prefixIcon: const Icon(Icons.phone),
+                  errorText: hasError ? error : null,
+                  border: const OutlineInputBorder(),
+                  helperText: 'Valid phone format required',
+                ),
+                keyboardType: TextInputType.phone,
+              );
+            },
+          ),
+          const SizedBox(height: 24),
+
+          // TypedCheckbox
+          const Text(
+            'TypedCheckbox',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TypedCheckbox(
+            name: 'checkboxField',
+            title: const Text('I agree to the terms'),
+            subtitle: const Text('This checkbox must be checked'),
+          ),
+          const SizedBox(height: 24),
+
+          // TypedDropdown
+          const Text(
+            'TypedDropdown',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          TypedDropdown<String>(
+            name: 'dropdownField',
+            label: 'Select an option',
+            hintText: 'Choose from the list',
+            items: const ['option1', 'option2', 'option3'],
+            prefixIcon: const Icon(Icons.arrow_drop_down),
+            helperText: 'Please select an option',
+          ),
+
+          const SizedBox(height: 32),
+
+          // Form Status
+          TypedFormBuilder(
+            builder: (context, state) {
+              return Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: state.isValid
+                      ? Colors.green.shade50
+                      : Colors.orange.shade50,
+                  border: Border.all(
+                    color: state.isValid ? Colors.green : Colors.orange,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          state.isValid ? Icons.check_circle : Icons.info,
+                          color: state.isValid ? Colors.green : Colors.orange,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Form Status: ${state.isValid ? 'Valid' : 'Invalid'}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: state.isValid
+                                ? Colors.green.shade700
+                                : Colors.orange.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Validation Type: ${state.validationType.name}',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                    if (state.values.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Values: ${state.values}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'monospace',
+                        ),
+                      ),
+                    ],
+                    if (state.errors.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Errors: ${state.errors}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'monospace',
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 24),
+
+          // Widget Benefits
+          const Card(
+            child: Padding(
+              padding: EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Pre-built Widget Benefits:',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text('✅ Ready-to-use - no custom builders needed'),
+                  Text('✅ Consistent styling - Material Design'),
+                  Text('✅ Built-in validation - automatic error display'),
+                  Text('✅ Type-safe - compile-time type checking'),
+                  Text('✅ Performance optimized - minimal rebuilds'),
+                  Text('✅ Accessibility - screen reader support'),
+                  Text('✅ Internationalization - localized error messages'),
+                  SizedBox(height: 12),
+                  Text(
+                    'Available Widgets:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text('• TypedTextField - text input'),
+                  Text('• TypedNumberField - numeric input'),
+                  Text('• TypedEmailField - email validation'),
+                  Text('• TypedPasswordField - password with strength'),
+                  Text('• TypedPhoneField - phone number validation'),
+                  Text('• TypedCheckbox - boolean input'),
+                  Text('• TypedDropdownField - selection dropdown'),
+                ],
               ),
             ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Submit Button
+          TypedFormBuilder(
+            builder: (context, state) {
+              return ElevatedButton(
+                onPressed: state.isValid
+                    ? () => _showFormData(context, state)
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text(
+                  state.isValid
+                      ? 'Show Form Data'
+                      : 'Please fill all required fields',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  void _showFormData(BuildContext context, CoreFormState state) {
-    final formData = {
-      'textField': state.getValue<String>('textField'),
-      'checkbox': state.getValue<bool>('checkbox'),
-      'switch': state.getValue<bool>('switch'),
-      'dropdown': state.getValue<String>('dropdown'),
-      'slider': state.getValue<double>('slider'),
-      'datePicker': state.getValue<DateTime>('datePicker'),
-      'timePicker': state.getValue<TimeOfDay>('timePicker'),
-    };
+  void _showFormData(BuildContext context, TypedFormState state) {
+    final formData = state.values;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Form Data Submitted!'),
+        title: const Text('Form Data'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('All widget data has been collected:'),
-              const SizedBox(height: 12),
-              ...formData.entries.map(
-                (entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text('${entry.key}: ${entry.value}'),
-                ),
-              ),
-            ],
+            children: formData.entries
+                .map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text('${entry.key}: ${entry.value}'),
+                  ),
+                )
+                .toList(),
           ),
         ),
         actions: [
