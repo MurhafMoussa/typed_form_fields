@@ -21,6 +21,7 @@ abstract class ValidatorLocalizations {
 
   // Required field validation messages
   String get requiredFieldError => 'This field is required.';
+  String get mustBeTrueError => 'This field must be checked.';
 
   // Email validation messages
   String get invalidEmailError => 'Please enter a valid email address.';
@@ -106,6 +107,9 @@ class DefaultValidatorLocalizations extends ValidatorLocalizations {
 
   @override
   String get requiredFieldError => 'This field is required.';
+
+  @override
+  String get mustBeTrueError => 'This field must be checked.';
 
   @override
   String get invalidEmailError => 'Please enter a valid email address.';
