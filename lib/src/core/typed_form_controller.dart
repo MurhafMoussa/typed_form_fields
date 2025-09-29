@@ -2,8 +2,14 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:typed_form_fields/src/models/models.dart';
-import 'package:typed_form_fields/src/services/form_field_manager.dart';
-import 'package:typed_form_fields/src/services/form_state_computer.dart';
+import 'package:typed_form_fields/src/services/error_management.dart';
+import 'package:typed_form_fields/src/services/field_lifecycle.dart';
+import 'package:typed_form_fields/src/services/field_mutations.dart';
+import 'package:typed_form_fields/src/services/field_registry.dart';
+import 'package:typed_form_fields/src/services/state_calculation.dart';
+import 'package:typed_form_fields/src/services/submission_handling.dart';
+import 'package:typed_form_fields/src/services/validation_coordination.dart';
+import 'package:typed_form_fields/src/services/validation_execution.dart';
 import 'package:typed_form_fields/src/validators/validator.dart';
 
 import 'form_errors.dart';
@@ -17,24 +23,63 @@ class TypedFormController extends Cubit<TypedFormState> {
     List<FormFieldDefinition> fields = const [],
     ValidationStrategy validationStrategy =
         ValidationStrategy.allFieldsRealTime,
+    FieldRegistry? fieldService,
+    ValidationCoordination? validationOrchestrator,
+    SubmissionHandling? submissionService,
+    FieldLifecycle? fieldManagementService,
+    FieldMutations? fieldUpdateService,
+    ValidationExecution? validationService,
+    ErrorManagement? errorService,
   }) : super(TypedFormState.initial()) {
-    _fieldManager = FormFieldManager(fields: fields);
-    _stateComputer = FormStateComputer();
+    _fieldService = fieldService ?? DefaultFieldRegistry(fields: fields);
+    _stateComputer = StateCalculation();
+    _validationOrchestrator = validationOrchestrator ??
+        DefaultValidationCoordination(fieldRegistry: _fieldService);
+    _submissionService = submissionService ?? DefaultSubmissionHandling();
+    _fieldManagementService = fieldManagementService ??
+        DefaultFieldLifecycle(
+          stateCalculation: _stateComputer,
+          fieldRegistry: _fieldService,
+        );
+    _fieldUpdateService = fieldUpdateService ??
+        DefaultFieldMutations(
+          validationCoordination: _validationOrchestrator,
+          fieldRegistry: _fieldService,
+          stateCalculation: _stateComputer,
+        );
+    _validationService = validationService ??
+        DefaultValidationExecution(
+          validationCoordination: _validationOrchestrator,
+          fieldRegistry: _fieldService,
+          stateCalculation: _stateComputer,
+        );
+    _errorService = errorService ??
+        DefaultErrorManagement(
+          validationCoordination: _validationOrchestrator,
+          fieldRegistry: _fieldService,
+          stateCalculation: _stateComputer,
+        );
 
     // Single emit call with all initial values
     emit(
       TypedFormState(
-        values: _fieldManager.getInitialValues(),
+        values: _fieldService.getInitialValues(),
         errors: {},
         isValid: false, // Will be computed properly when context is available
         validationStrategy: validationStrategy,
-        fieldTypes: _fieldManager.getFieldTypes(),
+        fieldTypes: _fieldService.fieldTypes,
       ),
     );
   }
 
-  late final FormFieldManager _fieldManager;
-  late final FormStateComputer _stateComputer;
+  late final FieldRegistry _fieldService;
+  late final StateCalculation _stateComputer;
+  late final ValidationCoordination _validationOrchestrator;
+  late final SubmissionHandling _submissionService;
+  late final FieldLifecycle _fieldManagementService;
+  late final FieldMutations _fieldUpdateService;
+  late final ValidationExecution _validationService;
+  late final ErrorManagement _errorService;
 
   /// Type-safe getter for field values
   T? getValue<T>(String fieldName) => state.getValue<T>(fieldName);
@@ -45,40 +90,12 @@ class TypedFormController extends Cubit<TypedFormState> {
     T? value,
     required BuildContext context,
   }) {
-    // Field existence check
-    if (!_fieldManager.fieldExists(fieldName)) {
-      throw FormFieldError.fieldNotFound(
-        fieldName: fieldName,
-        availableFields: _fieldManager.validators.keys.toList(),
-        fieldTypes: _fieldManager.getFieldTypes(),
-        currentValues: state.values,
-      );
-    }
-
-    // Type check
-    if (value != null) {
-      final expectedType = _fieldManager.getFieldType(fieldName);
-      if (expectedType != null && expectedType != T) {
-        throw FormFieldError.typeMismatch(
-          fieldName: fieldName,
-          expectedType: expectedType,
-          actualType: T,
-          operation: 'updateField',
-        );
-      }
-    }
-
-    // Mark this field as touched
-    _fieldManager.markFieldAsTouched(fieldName);
-
-    // Compute new state using the state computer
-    final newState = _stateComputer.computeFieldUpdateState(
+    final newState = _fieldUpdateService.updateField<T>(
       fieldName: fieldName,
       value: value,
       currentValues: state.values,
       currentErrors: state.errors,
       validationStrategy: state.validationStrategy,
-      fieldManager: _fieldManager,
       context: context,
     );
 
@@ -91,40 +108,12 @@ class TypedFormController extends Cubit<TypedFormState> {
     T? value,
     required BuildContext context,
   }) {
-    // Field existence check
-    if (!_fieldManager.fieldExists(fieldName)) {
-      throw FormFieldError.fieldNotFound(
-        fieldName: fieldName,
-        availableFields: _fieldManager.fieldNames,
-        fieldTypes: _fieldManager.fieldTypes,
-        currentValues: state.values,
-      );
-    }
-
-    // Type check
-    if (value != null) {
-      final expectedType = _fieldManager.getFieldType(fieldName);
-      if (expectedType != null && expectedType != T) {
-        throw FormFieldError.typeMismatch(
-          fieldName: fieldName,
-          expectedType: expectedType,
-          actualType: T,
-          operation: 'updateFieldWithDebounce',
-        );
-      }
-    }
-
-    // Mark this field as touched
-    _fieldManager.markFieldAsTouched(fieldName);
-
-    // Compute new state using debounced validation
-    _stateComputer.computeFieldUpdateStateWithDebounce(
+    _fieldUpdateService.updateFieldWithDebounce<T>(
       fieldName: fieldName,
       value: value,
       currentValues: state.values,
       currentErrors: state.errors,
       validationStrategy: state.validationStrategy,
-      fieldManager: _fieldManager,
       context: context,
       onStateComputed: (newState) {
         _emitIfChanged(newState);
@@ -137,45 +126,11 @@ class TypedFormController extends Cubit<TypedFormState> {
     required Map<String, T?> fieldValues,
     required BuildContext context,
   }) {
-    // Field existence and type check, then mark fields as touched
-    for (final entry in fieldValues.entries) {
-      final fieldName = entry.key;
-      final value = entry.value;
-
-      // Field existence check
-      if (!_fieldManager.fieldExists(fieldName)) {
-        throw FormFieldError.fieldNotFound(
-          fieldName: fieldName,
-          availableFields: _fieldManager.fieldNames,
-          fieldTypes: _fieldManager.fieldTypes,
-          currentValues: state.values,
-        );
-      }
-
-      // Type check
-      if (value != null) {
-        final expectedType = _fieldManager.getFieldType(fieldName);
-        if (expectedType != null && expectedType != T) {
-          throw FormFieldError.typeMismatch(
-            fieldName: fieldName,
-            expectedType: expectedType,
-            actualType: T,
-            operation: 'updateFields',
-          );
-        }
-      }
-    }
-
-    // Mark fields as touched
-    _fieldManager.markFieldsAsTouched(fieldValues.keys.toList());
-
-    // Compute new state using the state computer
-    final newState = _stateComputer.computeFieldsUpdateState(
+    final newState = _fieldUpdateService.updateFields<T>(
       fieldValues: fieldValues,
       currentValues: state.values,
       currentErrors: state.errors,
       validationStrategy: state.validationStrategy,
-      fieldManager: _fieldManager,
       context: context,
     );
 
@@ -189,34 +144,19 @@ class TypedFormController extends Cubit<TypedFormState> {
     required List<Validator<T>> validators,
     required BuildContext context,
   }) {
-    // Check if field exists first
-    if (!_fieldManager.fieldExists(name)) {
-      throw FormFieldError.fieldNotFound(
-        fieldName: name,
-        availableFields: _fieldManager.fieldNames,
-        fieldTypes: _fieldManager.fieldTypes,
-        currentValues: state.values,
-      );
-    }
-
-    // Update field validators using the field manager
-    _fieldManager.updateFieldValidators<T>(name: name, validators: validators);
-
-    // Re-validate all fields with the new rules to update errors and form validity
-    final newErrors = _stateComputer.validationService.validateFields(
-      values: state.values,
-      validators: _fieldManager.validators,
-      context: context,
-    );
-    final newIsValid = _stateComputer.validationService.computeOverallValidity(
-      values: state.values,
-      validators: _fieldManager.validators,
-      touchedFields: _fieldManager.touchedFields,
+    final newState = _validationService.updateFieldValidators<T>(
+      fieldName: name,
+      validators: validators,
+      currentValues: state.values,
+      currentErrors: state.errors,
       context: context,
     );
 
     // Emit the new state with updated errors and validity
-    _emitIfChanged(state.copyWith(errors: newErrors, isValid: newIsValid));
+    _emitIfChanged(state.copyWith(
+      errors: newState.errors,
+      isValid: newState.isValid,
+    ));
   }
 
   /// Emits new state only if it's different from the current state
@@ -237,26 +177,55 @@ class TypedFormController extends Cubit<TypedFormState> {
     required VoidCallback onValidationPass,
     VoidCallback? onValidationFail,
   }) {
-    if (state.validationStrategy == ValidationStrategy.onSubmitThenRealTime ||
-        state.validationStrategy == ValidationStrategy.onSubmitOnly) {
-      final newErrors = _stateComputer.validationService.validateFields(
+    // Use orchestrator to determine validation behavior
+    final orchestrationResult =
+        _validationOrchestrator.coordinateFormSubmission(
+      strategy: state.validationStrategy,
+      currentValues: state.values,
+      currentErrors: state.errors,
+      context: context,
+      onValidationPass: onValidationPass,
+      onValidationFail: onValidationFail,
+    );
+
+    if (orchestrationResult.shouldValidate) {
+      final newErrors = _stateComputer.validateFields(
         values: state.values,
-        validators: _fieldManager.validators,
+        validators: _fieldService.validators,
+        context: context,
+      );
+      final isValid = _stateComputer.computeOverallValidity(
+        values: state.values,
+        validators: _fieldService.validators,
+        touchedFields: _fieldService.touchedFields,
         context: context,
       );
       _emitIfChanged(
-        state.copyWith(errors: newErrors, isValid: newErrors.isEmpty),
+        state.copyWith(errors: newErrors, isValid: isValid),
       );
-    }
 
-    if (state.isValid) {
-      onValidationPass();
-    } else {
-      onValidationFail?.call();
-      // Only switch to real-time validation for onSubmitThenRealTime
-      if (state.validationStrategy == ValidationStrategy.onSubmitThenRealTime) {
-        setValidationStrategy(ValidationStrategy.realTimeOnly);
+      // Use submission service to handle form submission workflow
+      _submissionService.submitForm(
+        currentValues: state.values,
+        currentErrors: newErrors,
+        context: context,
+        onValidationPass: onValidationPass,
+        onValidationFail: onValidationFail,
+      );
+
+      // Handle strategy switching based on orchestrator result
+      if (orchestrationResult.shouldSwitchStrategy &&
+          orchestrationResult.newStrategy != null) {
+        setValidationStrategy(orchestrationResult.newStrategy!);
       }
+    } else {
+      // If validation is disabled, use submission service with validation disabled
+      _submissionService.submitFormWithValidationDisabled(
+        currentValues: state.values,
+        context: context,
+        onValidationPass: onValidationPass,
+        onValidationFail: onValidationFail,
+      );
     }
   }
 
@@ -267,51 +236,26 @@ class TypedFormController extends Cubit<TypedFormState> {
     required String fieldName,
     required BuildContext context,
   }) {
-    if (!_fieldManager.fieldExists(fieldName)) {
-      throw FormFieldError.fieldNotFound(
-        fieldName: fieldName,
-        availableFields: _fieldManager.fieldNames,
-        fieldTypes: _fieldManager.fieldTypes,
-        currentValues: state.values,
-      );
-    }
+    final newState = _validationService.validateFieldImmediately(
+      fieldName: fieldName,
+      currentValues: state.values,
+      currentErrors: state.errors,
+      context: context,
+    );
 
-    final value = state.values[fieldName];
-    final validator = _fieldManager.validators[fieldName];
-
-    if (validator != null) {
-      final error = _stateComputer.validationService.validateField(
-        validator: validator,
-        value: value,
-        context: context,
-      );
-
-      final newErrors = Map<String, String>.from(state.errors);
-      if (error != null) {
-        newErrors[fieldName] = error;
-      } else {
-        newErrors.remove(fieldName);
-      }
-
-      final overallValid =
-          _stateComputer.validationService.computeOverallValidity(
-        values: state.values,
-        validators: _fieldManager.validators,
-        touchedFields: _fieldManager.touchedFields,
-        context: context,
-      );
-
-      _emitIfChanged(state.copyWith(errors: newErrors, isValid: overallValid));
-    }
+    _emitIfChanged(state.copyWith(
+      errors: newState.errors,
+      isValid: newState.isValid,
+    ));
   }
 
   /// Resets the form to its initial state
   void resetForm() {
     // Reset all fields to their initial values
-    _fieldManager.resetTouchedFields();
+    _fieldService.touchedFieldsService.resetTouchedFields();
 
     // Reset to initial values
-    final resetValues = _fieldManager.getInitialValues();
+    final resetValues = _fieldService.getInitialValues();
 
     _emitIfChanged(
       state.copyWith(values: resetValues, errors: {}, isValid: false),
@@ -320,28 +264,17 @@ class TypedFormController extends Cubit<TypedFormState> {
 
   /// Marks all fields as touched and validates them
   void touchAllFields(BuildContext context) {
-    // Mark all fields as touched
-    _fieldManager.markAllFieldsAsTouched();
-
-    // Validate all fields
-    final newErrors = _stateComputer.validationService.validateFields(
-      values: state.values,
-      validators: _fieldManager.validators,
+    final newState = _validationService.touchAllFields(
+      currentValues: state.values,
+      currentErrors: state.errors,
+      validationStrategy: state.validationStrategy,
       context: context,
     );
 
-    // Update state
-    _emitIfChanged(
-      state.copyWith(
-        errors: newErrors,
-        isValid: _stateComputer.validationService.computeOverallValidity(
-          values: state.values,
-          validators: _fieldManager.validators,
-          touchedFields: _fieldManager.touchedFields,
-          context: context,
-        ),
-      ),
-    );
+    _emitIfChanged(state.copyWith(
+      errors: newState.errors,
+      isValid: newState.isValid,
+    ));
   }
 
   /// Manually set an error for a specific field
@@ -357,38 +290,18 @@ class TypedFormController extends Cubit<TypedFormState> {
     String? errorMessage,
     required BuildContext context,
   }) {
-    // Ensure the field exists
-    if (!_fieldManager.fieldExists(fieldName)) {
-      throw FormFieldError.fieldNotFound(
-        fieldName: fieldName,
-        availableFields: _fieldManager.fieldNames,
-        fieldTypes: _fieldManager.fieldTypes,
-        currentValues: state.values,
-      );
-    }
-
-    final newErrors = Map<String, String>.from(state.errors);
-
-    if (errorMessage != null) {
-      newErrors[fieldName] = errorMessage;
-    } else {
-      newErrors.remove(fieldName);
-    }
-
-    // Mark field as touched since we're manually validating it
-    _fieldManager.markFieldAsTouched(fieldName);
-
-    // Compute overall validity based on current values and new errors
-    final overallValid =
-        _stateComputer.validationService.computeOverallValidityWithErrors(
-      values: state.values,
-      errors: newErrors,
-      touchedFields: _fieldManager.touchedFields,
-      validators: _fieldManager.validators,
+    final newState = _errorService.updateError(
+      fieldName: fieldName,
+      errorMessage: errorMessage,
+      currentValues: state.values,
+      currentErrors: state.errors,
       context: context,
     );
 
-    _emitIfChanged(state.copyWith(errors: newErrors, isValid: overallValid));
+    _emitIfChanged(state.copyWith(
+      errors: newState.errors,
+      isValid: newState.isValid,
+    ));
   }
 
   /// Manually set multiple errors at once
@@ -402,43 +315,17 @@ class TypedFormController extends Cubit<TypedFormState> {
     required Map<String, String?> errors,
     required BuildContext context,
   }) {
-    final newErrors = Map<String, String>.from(state.errors);
-
-    // Process each error
-    for (final entry in errors.entries) {
-      final fieldName = entry.key;
-      final errorMessage = entry.value;
-
-      // Ensure the field exists
-      if (!_fieldManager.fieldExists(fieldName)) {
-        throw FormFieldError.fieldNotFound(
-          fieldName: fieldName,
-          availableFields: _fieldManager.fieldNames,
-          fieldTypes: _fieldManager.fieldTypes,
-          currentValues: state.values,
-        );
-      }
-
-      // Mark field as touched since we're manually validating it
-      _fieldManager.markFieldAsTouched(fieldName);
-
-      if (errorMessage != null) {
-        newErrors[fieldName] = errorMessage;
-      } else {
-        newErrors.remove(fieldName);
-      }
-    }
-
-    // Compute overall validity based on current values and new errors
-    final overallValid =
-        _stateComputer.validationService.computeOverallValidityWithErrors(
-      values: state.values,
-      errors: newErrors,
-      touchedFields: _fieldManager.touchedFields,
-      validators: _fieldManager.validators,
+    final newState = _errorService.updateErrors(
+      errors: errors,
+      currentValues: state.values,
+      currentErrors: state.errors,
       context: context,
     );
-    _emitIfChanged(state.copyWith(errors: newErrors, isValid: overallValid));
+
+    _emitIfChanged(state.copyWith(
+      errors: newState.errors,
+      isValid: newState.isValid,
+    ));
   }
 
   /// Add a single field to the form dynamically
@@ -446,40 +333,20 @@ class TypedFormController extends Cubit<TypedFormState> {
     required FormFieldDefinition<T> field,
     required BuildContext context,
   }) {
-    // Check if field already exists
-    if (_fieldManager.fieldExists(field.name)) {
-      throw FormFieldError.fieldAlreadyExists(fieldName: field.name);
-    }
-
-    // Add field to field manager
-    _fieldManager.addField(field);
-
-    // Update form state with new field
-    final newValues = Map<String, Object?>.from(state.values);
-    newValues[field.name] = field.initialValue;
-
-    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
-    newFieldTypes[field.name] = T;
-
-    // Validate all fields to update form validity
-    final newErrors = _stateComputer.validationService.validateFields(
-      values: newValues,
-      validators: _fieldManager.validators,
-      context: context,
-    );
-
-    final newIsValid = _stateComputer.validationService.computeOverallValidity(
-      values: newValues,
-      validators: _fieldManager.validators,
-      touchedFields: _fieldManager.touchedFields,
+    // Use field management service to handle field addition
+    final result = _fieldManagementService.addField<T>(
+      field: field,
+      currentValues: state.values,
+      currentFieldTypes: state.fieldTypes,
+      currentErrors: state.errors,
       context: context,
     );
 
     _emitIfChanged(state.copyWith(
-      values: newValues,
-      fieldTypes: newFieldTypes,
-      errors: newErrors,
-      isValid: newIsValid,
+      values: result.newValues,
+      fieldTypes: result.newFieldTypes,
+      errors: result.newErrors,
+      isValid: result.newIsValid,
     ));
   }
 
@@ -488,153 +355,66 @@ class TypedFormController extends Cubit<TypedFormState> {
     required List<FormFieldDefinition> fields,
     required BuildContext context,
   }) {
-    // Check for existing fields
-    for (final field in fields) {
-      if (_fieldManager.fieldExists(field.name)) {
-        throw FormFieldError.fieldAlreadyExists(fieldName: field.name);
-      }
-    }
-
-    // Add all fields to field manager
-    for (final field in fields) {
-      _fieldManager.addField(field);
-    }
-
-    // Update form state with new fields
-    final newValues = Map<String, Object?>.from(state.values);
-    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
-
-    for (final field in fields) {
-      newValues[field.name] = field.initialValue;
-      // Extract type from TypedFormField<T> - simplified approach
-      newFieldTypes[field.name] = field.valueType;
-    }
-
-    // Validate all fields to update form validity
-    final newErrors = _stateComputer.validationService.validateFields(
-      values: newValues,
-      validators: _fieldManager.validators,
-      context: context,
-    );
-
-    final newIsValid = _stateComputer.validationService.computeOverallValidity(
-      values: newValues,
-      validators: _fieldManager.validators,
-      touchedFields: _fieldManager.touchedFields,
+    // Use field management service to handle multiple field addition
+    final result = _fieldManagementService.addFields(
+      fields: fields,
+      currentValues: state.values,
+      currentFieldTypes: state.fieldTypes,
+      currentErrors: state.errors,
       context: context,
     );
 
     _emitIfChanged(state.copyWith(
-      values: newValues,
-      fieldTypes: newFieldTypes,
-      errors: newErrors,
-      isValid: newIsValid,
+      values: result.newValues,
+      fieldTypes: result.newFieldTypes,
+      errors: result.newErrors,
+      isValid: result.newIsValid,
     ));
   }
 
   /// Remove a field from the form dynamically
   void removeField(String fieldName, {required BuildContext context}) {
-    // Check if field exists
-    if (!_fieldManager.fieldExists(fieldName)) {
-      throw FormFieldError.fieldNotFound(
-        fieldName: fieldName,
-        availableFields: _fieldManager.validators.keys.toList(),
-        fieldTypes: _fieldManager.getFieldTypes(),
-        currentValues: state.values,
-      );
-    }
-
-    // Remove field from field manager
-    _fieldManager.removeField(fieldName);
-
-    // Update form state by removing field
-    final newValues = Map<String, Object?>.from(state.values);
-    newValues.remove(fieldName);
-
-    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
-    newFieldTypes.remove(fieldName);
-
-    final newErrors = Map<String, String>.from(state.errors);
-    newErrors.remove(fieldName);
-
-    // Validate remaining fields to update form validity
-    final validatedErrors = _stateComputer.validationService.validateFields(
-      values: newValues,
-      validators: _fieldManager.validators,
-      context: context,
-    );
-
-    final newIsValid = _stateComputer.validationService.computeOverallValidity(
-      values: newValues,
-      validators: _fieldManager.validators,
-      touchedFields: _fieldManager.touchedFields,
+    // Use field management service to handle field removal
+    final result = _fieldManagementService.removeField(
+      fieldName: fieldName,
+      currentValues: state.values,
+      currentFieldTypes: state.fieldTypes,
+      currentErrors: state.errors,
       context: context,
     );
 
     _emitIfChanged(state.copyWith(
-      values: newValues,
-      fieldTypes: newFieldTypes,
-      errors: validatedErrors,
-      isValid: newIsValid,
+      values: result.newValues,
+      fieldTypes: result.newFieldTypes,
+      errors: result.newErrors,
+      isValid: result.newIsValid,
     ));
   }
 
   /// Remove multiple fields from the form dynamically
   void removeFields(List<String> fieldNames, {required BuildContext context}) {
-    // Check if all fields exist
-    for (final fieldName in fieldNames) {
-      if (!_fieldManager.fieldExists(fieldName)) {
-        throw FormFieldError.fieldNotFound(
-          fieldName: fieldName,
-          availableFields: _fieldManager.validators.keys.toList(),
-          fieldTypes: _fieldManager.getFieldTypes(),
-          currentValues: state.values,
-        );
-      }
-    }
-
-    // Remove all fields from field manager
-    for (final fieldName in fieldNames) {
-      _fieldManager.removeField(fieldName);
-    }
-
-    // Update form state by removing fields
-    final newValues = Map<String, Object?>.from(state.values);
-    final newFieldTypes = Map<String, Type>.from(state.fieldTypes);
-    final newErrors = Map<String, String>.from(state.errors);
-
-    for (final fieldName in fieldNames) {
-      newValues.remove(fieldName);
-      newFieldTypes.remove(fieldName);
-      newErrors.remove(fieldName);
-    }
-
-    // Validate remaining fields to update form validity
-    final validatedErrors = _stateComputer.validationService.validateFields(
-      values: newValues,
-      validators: _fieldManager.validators,
-      context: context,
-    );
-
-    final newIsValid = _stateComputer.validationService.computeOverallValidity(
-      values: newValues,
-      validators: _fieldManager.validators,
-      touchedFields: _fieldManager.touchedFields,
+    // Use field management service to handle multiple field removal
+    final result = _fieldManagementService.removeFields(
+      fieldNames: fieldNames,
+      currentValues: state.values,
+      currentFieldTypes: state.fieldTypes,
+      currentErrors: state.errors,
       context: context,
     );
 
     _emitIfChanged(state.copyWith(
-      values: newValues,
-      fieldTypes: newFieldTypes,
-      errors: validatedErrors,
-      isValid: newIsValid,
+      values: result.newValues,
+      fieldTypes: result.newFieldTypes,
+      errors: result.newErrors,
+      isValid: result.newIsValid,
     ));
   }
 
   /// Disposes of all resources
   @override
   Future<void> close() {
-    _stateComputer.debouncedValidationService.dispose();
+    _stateComputer.validationDebounce.dispose();
+    // Service container removed - no disposal needed
     return super.close();
   }
 }

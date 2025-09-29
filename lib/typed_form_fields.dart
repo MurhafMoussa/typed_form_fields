@@ -10,11 +10,13 @@ export 'src/core/form_errors.dart';
 export 'src/core/typed_form_controller.dart';
 // Models exports
 export 'src/models/form_field_definition.dart';
-export 'src/services/form_debounced_validation_service.dart';
-export 'src/services/form_field_manager.dart';
-export 'src/services/form_state_computer.dart';
+export 'src/services/field_registry.dart';
 // Services exports
-export 'src/services/form_validation_service.dart';
+export 'src/services/field_tracking.dart';
+export 'src/services/state_calculation.dart';
+export 'src/services/submission_handling.dart';
+export 'src/services/validation_coordination.dart';
+export 'src/services/validation_debounce.dart';
 export 'src/validators/composite_validator.dart';
 // Validators exports
 export 'src/validators/validators.dart';
