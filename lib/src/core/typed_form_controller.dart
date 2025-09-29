@@ -8,24 +8,24 @@ import 'package:typed_form_fields/src/validators/validator.dart';
 
 import 'form_errors.dart';
 
-part 'core_form_cubit.freezed.dart';
-part 'core_form_state.dart';
+part 'typed_form_controller.freezed.dart';
+part 'typed_form_state.dart';
 
 /// Form cubit with type-safe state access
-class CoreFormCubit extends Cubit<CoreFormState> {
-  CoreFormCubit({
-    List<TypedFormField> fields = const [],
+class TypedFormController extends Cubit<TypedFormState> {
+  TypedFormController({
+    List<FormFieldDefinition> fields = const [],
     ValidationType validationType = ValidationType.allFields,
-  }) : super(CoreFormState.initial()) {
+  }) : super(TypedFormState.initial()) {
     _fieldManager = FormFieldManager(fields: fields);
     _stateComputer = FormStateComputer();
 
     // Single emit call with all initial values
     emit(
-      CoreFormState(
+      TypedFormState(
         values: _fieldManager.getInitialValues(),
         errors: {},
-        isValid: false,
+        isValid: false, // Will be computed properly when context is available
         validationType: validationType,
         fieldTypes: _fieldManager.getFieldTypes(),
       ),
@@ -219,7 +219,7 @@ class CoreFormCubit extends Cubit<CoreFormState> {
   }
 
   /// Emits new state only if it's different from the current state
-  void _emitIfChanged(CoreFormState newState) {
+  void _emitIfChanged(TypedFormState newState) {
     if (newState != state) {
       emit(newState);
     }
@@ -305,11 +305,8 @@ class CoreFormCubit extends Cubit<CoreFormState> {
     // Reset all fields to their initial values
     _fieldManager.resetTouchedFields();
 
-    // Reset to null values (as expected by tests)
-    final resetValues = <String, Object?>{};
-    for (final fieldName in _fieldManager.validators.keys) {
-      resetValues[fieldName] = null;
-    }
+    // Reset to initial values
+    final resetValues = _fieldManager.getInitialValues();
 
     _emitIfChanged(
       state.copyWith(values: resetValues, errors: {}, isValid: false),
@@ -441,7 +438,7 @@ class CoreFormCubit extends Cubit<CoreFormState> {
 
   /// Add a single field to the form dynamically
   void addField<T>({
-    required TypedFormField<T> field,
+    required FormFieldDefinition<T> field,
     required BuildContext context,
   }) {
     // Check if field already exists
@@ -483,7 +480,7 @@ class CoreFormCubit extends Cubit<CoreFormState> {
 
   /// Add multiple fields to the form dynamically
   void addFields({
-    required List<TypedFormField> fields,
+    required List<FormFieldDefinition> fields,
     required BuildContext context,
   }) {
     // Check for existing fields

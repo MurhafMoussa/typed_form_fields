@@ -1,16 +1,16 @@
-part of 'core_form_cubit.dart';
+part of 'typed_form_controller.dart';
 
 @freezed
-abstract class CoreFormState with _$CoreFormState {
-  const factory CoreFormState({
+abstract class TypedFormState with _$TypedFormState {
+  const factory TypedFormState({
     required Map<String, Object?> values,
     required Map<String, String> errors,
     required bool isValid,
     @Default(ValidationType.fieldsBeingEdited) ValidationType validationType,
     required Map<String, Type> fieldTypes,
-  }) = _CoreFormState;
-  const CoreFormState._();
-  factory CoreFormState.initial() => const CoreFormState(
+  }) = _TypedFormState;
+  const TypedFormState._();
+  factory TypedFormState.initial() => const TypedFormState(
         values: {},
         errors: {},
         isValid: false,

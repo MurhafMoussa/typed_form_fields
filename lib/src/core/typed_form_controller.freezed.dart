@@ -3,7 +3,7 @@
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
-part of 'core_form_cubit.dart';
+part of 'typed_form_controller.dart';
 
 // **************************************************************************
 // FreezedGenerator
@@ -13,26 +13,26 @@ part of 'core_form_cubit.dart';
 T _$identity<T>(T value) => value;
 
 /// @nodoc
-mixin _$CoreFormState {
+mixin _$TypedFormState {
   Map<String, Object?> get values;
   Map<String, String> get errors;
   bool get isValid;
   ValidationType get validationType;
   Map<String, Type> get fieldTypes;
 
-  /// Create a copy of CoreFormState
+  /// Create a copy of TypedFormState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  $CoreFormStateCopyWith<CoreFormState> get copyWith =>
-      _$CoreFormStateCopyWithImpl<CoreFormState>(
-          this as CoreFormState, _$identity);
+  $TypedFormStateCopyWith<TypedFormState> get copyWith =>
+      _$TypedFormStateCopyWithImpl<TypedFormState>(
+          this as TypedFormState, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is CoreFormState &&
+            other is TypedFormState &&
             const DeepCollectionEquality().equals(other.values, values) &&
             const DeepCollectionEquality().equals(other.errors, errors) &&
             (identical(other.isValid, isValid) || other.isValid == isValid) &&
@@ -53,15 +53,15 @@ mixin _$CoreFormState {
 
   @override
   String toString() {
-    return 'CoreFormState(values: $values, errors: $errors, isValid: $isValid, validationType: $validationType, fieldTypes: $fieldTypes)';
+    return 'TypedFormState(values: $values, errors: $errors, isValid: $isValid, validationType: $validationType, fieldTypes: $fieldTypes)';
   }
 }
 
 /// @nodoc
-abstract mixin class $CoreFormStateCopyWith<$Res> {
-  factory $CoreFormStateCopyWith(
-          CoreFormState value, $Res Function(CoreFormState) _then) =
-      _$CoreFormStateCopyWithImpl;
+abstract mixin class $TypedFormStateCopyWith<$Res> {
+  factory $TypedFormStateCopyWith(
+          TypedFormState value, $Res Function(TypedFormState) _then) =
+      _$TypedFormStateCopyWithImpl;
   @useResult
   $Res call(
       {Map<String, Object?> values,
@@ -72,14 +72,14 @@ abstract mixin class $CoreFormStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$CoreFormStateCopyWithImpl<$Res>
-    implements $CoreFormStateCopyWith<$Res> {
-  _$CoreFormStateCopyWithImpl(this._self, this._then);
+class _$TypedFormStateCopyWithImpl<$Res>
+    implements $TypedFormStateCopyWith<$Res> {
+  _$TypedFormStateCopyWithImpl(this._self, this._then);
 
-  final CoreFormState _self;
-  final $Res Function(CoreFormState) _then;
+  final TypedFormState _self;
+  final $Res Function(TypedFormState) _then;
 
-  /// Create a copy of CoreFormState
+  /// Create a copy of TypedFormState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -115,8 +115,8 @@ class _$CoreFormStateCopyWithImpl<$Res>
   }
 }
 
-/// Adds pattern-matching-related methods to [CoreFormState].
-extension CoreFormStatePatterns on CoreFormState {
+/// Adds pattern-matching-related methods to [TypedFormState].
+extension TypedFormStatePatterns on TypedFormState {
   /// A variant of `map` that fallback to returning `orElse`.
   ///
   /// It is equivalent to doing:
@@ -131,12 +131,12 @@ extension CoreFormStatePatterns on CoreFormState {
 
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>(
-    TResult Function(_CoreFormState value)? $default, {
+    TResult Function(_TypedFormState value)? $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
-      case _CoreFormState() when $default != null:
+      case _TypedFormState() when $default != null:
         return $default(_that);
       case _:
         return orElse();
@@ -158,11 +158,11 @@ extension CoreFormStatePatterns on CoreFormState {
 
   @optionalTypeArgs
   TResult map<TResult extends Object?>(
-    TResult Function(_CoreFormState value) $default,
+    TResult Function(_TypedFormState value) $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CoreFormState():
+      case _TypedFormState():
         return $default(_that);
       case _:
         throw StateError('Unexpected subclass');
@@ -183,11 +183,11 @@ extension CoreFormStatePatterns on CoreFormState {
 
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>(
-    TResult? Function(_CoreFormState value)? $default,
+    TResult? Function(_TypedFormState value)? $default,
   ) {
     final _that = this;
     switch (_that) {
-      case _CoreFormState() when $default != null:
+      case _TypedFormState() when $default != null:
         return $default(_that);
       case _:
         return null;
@@ -219,7 +219,7 @@ extension CoreFormStatePatterns on CoreFormState {
   }) {
     final _that = this;
     switch (_that) {
-      case _CoreFormState() when $default != null:
+      case _TypedFormState() when $default != null:
         return $default(_that.values, _that.errors, _that.isValid,
             _that.validationType, _that.fieldTypes);
       case _:
@@ -252,7 +252,7 @@ extension CoreFormStatePatterns on CoreFormState {
   ) {
     final _that = this;
     switch (_that) {
-      case _CoreFormState():
+      case _TypedFormState():
         return $default(_that.values, _that.errors, _that.isValid,
             _that.validationType, _that.fieldTypes);
       case _:
@@ -284,7 +284,7 @@ extension CoreFormStatePatterns on CoreFormState {
   ) {
     final _that = this;
     switch (_that) {
-      case _CoreFormState() when $default != null:
+      case _TypedFormState() when $default != null:
         return $default(_that.values, _that.errors, _that.isValid,
             _that.validationType, _that.fieldTypes);
       case _:
@@ -295,8 +295,8 @@ extension CoreFormStatePatterns on CoreFormState {
 
 /// @nodoc
 
-class _CoreFormState extends CoreFormState {
-  const _CoreFormState(
+class _TypedFormState extends TypedFormState {
+  const _TypedFormState(
       {required final Map<String, Object?> values,
       required final Map<String, String> errors,
       required this.isValid,
@@ -336,19 +336,19 @@ class _CoreFormState extends CoreFormState {
     return EqualUnmodifiableMapView(_fieldTypes);
   }
 
-  /// Create a copy of CoreFormState
+  /// Create a copy of TypedFormState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   @pragma('vm:prefer-inline')
-  _$CoreFormStateCopyWith<_CoreFormState> get copyWith =>
-      __$CoreFormStateCopyWithImpl<_CoreFormState>(this, _$identity);
+  _$TypedFormStateCopyWith<_TypedFormState> get copyWith =>
+      __$TypedFormStateCopyWithImpl<_TypedFormState>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _CoreFormState &&
+            other is _TypedFormState &&
             const DeepCollectionEquality().equals(other._values, _values) &&
             const DeepCollectionEquality().equals(other._errors, _errors) &&
             (identical(other.isValid, isValid) || other.isValid == isValid) &&
@@ -369,16 +369,16 @@ class _CoreFormState extends CoreFormState {
 
   @override
   String toString() {
-    return 'CoreFormState(values: $values, errors: $errors, isValid: $isValid, validationType: $validationType, fieldTypes: $fieldTypes)';
+    return 'TypedFormState(values: $values, errors: $errors, isValid: $isValid, validationType: $validationType, fieldTypes: $fieldTypes)';
   }
 }
 
 /// @nodoc
-abstract mixin class _$CoreFormStateCopyWith<$Res>
-    implements $CoreFormStateCopyWith<$Res> {
-  factory _$CoreFormStateCopyWith(
-          _CoreFormState value, $Res Function(_CoreFormState) _then) =
-      __$CoreFormStateCopyWithImpl;
+abstract mixin class _$TypedFormStateCopyWith<$Res>
+    implements $TypedFormStateCopyWith<$Res> {
+  factory _$TypedFormStateCopyWith(
+          _TypedFormState value, $Res Function(_TypedFormState) _then) =
+      __$TypedFormStateCopyWithImpl;
   @override
   @useResult
   $Res call(
@@ -390,14 +390,14 @@ abstract mixin class _$CoreFormStateCopyWith<$Res>
 }
 
 /// @nodoc
-class __$CoreFormStateCopyWithImpl<$Res>
-    implements _$CoreFormStateCopyWith<$Res> {
-  __$CoreFormStateCopyWithImpl(this._self, this._then);
+class __$TypedFormStateCopyWithImpl<$Res>
+    implements _$TypedFormStateCopyWith<$Res> {
+  __$TypedFormStateCopyWithImpl(this._self, this._then);
 
-  final _CoreFormState _self;
-  final $Res Function(_CoreFormState) _then;
+  final _TypedFormState _self;
+  final $Res Function(_TypedFormState) _then;
 
-  /// Create a copy of CoreFormState
+  /// Create a copy of TypedFormState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -408,7 +408,7 @@ class __$CoreFormStateCopyWithImpl<$Res>
     Object? validationType = null,
     Object? fieldTypes = null,
   }) {
-    return _then(_CoreFormState(
+    return _then(_TypedFormState(
       values: null == values
           ? _self._values
           : values // ignore: cast_nullable_to_non_nullable
