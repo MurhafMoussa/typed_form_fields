@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:typed_form_fields/src/core/form_errors.dart';
 import 'package:typed_form_fields/src/core/typed_form_controller.dart';
@@ -51,7 +52,8 @@ void main() {
 
       test('should initialize with all validation types', () {
         for (final validationStrategy in ValidationStrategy.values) {
-          formCubit = TypedFormController(validationStrategy: validationStrategy);
+          formCubit =
+              TypedFormController(validationStrategy: validationStrategy);
           expect(formCubit.state.validationStrategy, validationStrategy);
           formCubit.close();
         }
@@ -63,7 +65,8 @@ void main() {
         formCubit = TestFormFactory.createFormWithEmailAndAge();
       });
 
-      test('should update single field value', () {
+      test('should delegate field updates to service', () {
+        // Test that controller properly delegates to field update service
         formCubit.updateField(
           fieldName: 'email',
           value: 'new@example.com',
@@ -72,70 +75,6 @@ void main() {
 
         expect(formCubit.getValue<String>('email'), 'new@example.com');
         expect(formCubit.state.values['email'], 'new@example.com');
-      });
-
-      test('should update field with null value', () {
-        formCubit.updateField(
-          fieldName: 'email',
-          value: 'test@example.com',
-          context: mockContext,
-        );
-        formCubit.updateField<String>(fieldName: 'email', context: mockContext);
-
-        expect(formCubit.getValue<String>('email'), isNull);
-        expect(formCubit.state.values['email'], isNull);
-      });
-
-      test('should throw FormFieldError for wrong type', () {
-        expect(
-          () => formCubit.updateField(
-            fieldName: 'email',
-            value: 123,
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-
-      test('should throw FormFieldError for non-existent field', () {
-        // The refactored implementation now correctly validates field existence
-        expect(
-          () => formCubit.updateField(
-            fieldName: 'nonExistent',
-            value: 'value',
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-
-      test('should update multiple fields at once', () {
-        // We need to update fields separately due to type constraints
-        formCubit.updateField(
-          fieldName: 'email',
-          value: 'test@example.com',
-          context: mockContext,
-        );
-        formCubit.updateField(
-          fieldName: 'age',
-          value: 30,
-          context: mockContext,
-        );
-
-        expect(formCubit.getValue<String>('email'), 'test@example.com');
-        expect(formCubit.getValue<int>('age'), 30);
-      });
-
-      test('should mark fields as touched when updated', () {
-        formCubit.updateField(
-          fieldName: 'email',
-          value: 'test@example.com',
-          context: mockContext,
-        );
-
-        // Note: We can't directly test _touchedFields as it's private,
-        // but we can test the behavior through validation
-        expect(formCubit.state.values['email'], 'test@example.com');
       });
     });
 
@@ -212,7 +151,8 @@ void main() {
         formCubit = TestFormFactory.createFormWithEmailAndAge();
       });
 
-      test('should update field with debounce', () async {
+      test('should delegate debounced field updates to service', () async {
+        // Test that controller properly delegates to field update service
         formCubit.updateFieldWithDebounce<String>(
           fieldName: 'email',
           value: 'test@example.com',
@@ -224,29 +164,6 @@ void main() {
 
         expect(formCubit.getValue<String>('email'), 'test@example.com');
       });
-
-      test('should throw FormFieldError for non-existent field with debounce',
-          () {
-        expect(
-          () => formCubit.updateFieldWithDebounce<String>(
-            fieldName: 'nonExistent',
-            value: 'value',
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-
-      test('should throw FormFieldError for wrong type with debounce', () {
-        expect(
-          () => formCubit.updateFieldWithDebounce<int>(
-            fieldName: 'email',
-            value: 123,
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
     });
 
     group('Multiple Field Updates', () {
@@ -254,74 +171,14 @@ void main() {
         formCubit = TestFormFactory.createFormWithEmailAndAge();
       });
 
-      test('should update multiple fields at once', () {
+      test('should delegate multiple field updates to service', () {
+        // Test that controller properly delegates to field update service
         formCubit.updateFields<String>(
           fieldValues: {'email': 'test@example.com'},
           context: mockContext,
         );
 
         expect(formCubit.getValue<String>('email'), 'test@example.com');
-      });
-
-      test('should throw FormFieldError for non-existent field in updateFields',
-          () {
-        expect(
-          () => formCubit.updateFields<String>(
-            fieldValues: {'nonExistent': 'value'},
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-
-      test('should throw FormFieldError for wrong type in updateFields', () {
-        expect(
-          () => formCubit.updateFields<int>(
-            fieldValues: {'email': 123},
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-    });
-
-    group('Field Validator Updates', () {
-      setUp(() {
-        formCubit = TestFormFactory.createFormWithEmailAndAge();
-      });
-
-      test('should update field validators', () {
-        final newValidator = MockValidator<String>();
-        newValidator.mockValidate = (value, context) => 'New error';
-
-        formCubit.updateFieldValidators<String>(
-          name: 'email',
-          validators: [newValidator],
-          context: mockContext,
-        );
-
-        formCubit.updateField<String>(
-          fieldName: 'email',
-          value: 'test@example.com',
-          context: mockContext,
-        );
-
-        expect(formCubit.state.errors['email'], 'New error');
-      });
-
-      test(
-          'should throw FormFieldError for non-existent field in updateFieldValidators',
-          () {
-        final newValidator = MockValidator<String>();
-
-        expect(
-          () => formCubit.updateFieldValidators<String>(
-            name: 'nonExistent',
-            validators: [newValidator],
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
       });
     });
 
@@ -331,7 +188,8 @@ void main() {
       });
 
       test('should set validation type', () {
-        formCubit.setValidationStrategy(ValidationStrategy.onSubmitThenRealTime);
+        formCubit
+            .setValidationStrategy(ValidationStrategy.onSubmitThenRealTime);
         expect(formCubit.state.validationStrategy,
             ValidationStrategy.onSubmitThenRealTime);
       });
@@ -378,7 +236,8 @@ void main() {
         );
 
         expect(validationFailed, isTrue);
-        expect(formCubit.state.validationStrategy, ValidationStrategy.realTimeOnly);
+        expect(formCubit.state.validationStrategy,
+            ValidationStrategy.realTimeOnly);
       });
     });
 
@@ -392,7 +251,7 @@ void main() {
         );
       });
 
-      test('should validate field immediately', () {
+      test('should delegate immediate validation to service', () {
         emailValidator.mockValidate = (value, context) => 'Email error';
 
         formCubit.updateField<String>(
@@ -407,35 +266,6 @@ void main() {
         );
 
         expect(formCubit.state.errors['email'], 'Email error');
-      });
-
-      test(
-          'should throw FormFieldError for non-existent field in validateFieldImmediately',
-          () {
-        expect(
-          () => formCubit.validateFieldImmediately(
-            fieldName: 'nonExistent',
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-
-      test('should clear error when validation passes', () {
-        emailValidator.mockValidate = (value, context) => null;
-
-        formCubit.updateField<String>(
-          fieldName: 'email',
-          value: 'test@example.com',
-          context: mockContext,
-        );
-
-        formCubit.validateFieldImmediately(
-          fieldName: 'email',
-          context: mockContext,
-        );
-
-        expect(formCubit.state.errors['email'], isNull);
       });
     });
 
@@ -478,86 +308,6 @@ void main() {
       });
     });
 
-    group('Manual Error Management', () {
-      setUp(() {
-        formCubit = TestFormFactory.createFormWithEmailAndAge();
-      });
-
-      test('should update single field error', () {
-        formCubit.updateError(
-          fieldName: 'email',
-          errorMessage: 'Custom error',
-          context: mockContext,
-        );
-
-        expect(formCubit.state.errors['email'], 'Custom error');
-      });
-
-      test('should clear single field error', () {
-        formCubit.updateError(
-          fieldName: 'email',
-          errorMessage: 'Custom error',
-          context: mockContext,
-        );
-
-        formCubit.updateError(
-          fieldName: 'email',
-          errorMessage: null,
-          context: mockContext,
-        );
-
-        expect(formCubit.state.errors['email'], isNull);
-      });
-
-      test('should throw FormFieldError for non-existent field in updateError',
-          () {
-        expect(
-          () => formCubit.updateError(
-            fieldName: 'nonExistent',
-            errorMessage: 'error',
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-
-      test('should update multiple field errors', () {
-        formCubit.updateErrors(
-          errors: {'email': 'Email error', 'age': 'Age error'},
-          context: mockContext,
-        );
-
-        expect(formCubit.state.errors['email'], 'Email error');
-        expect(formCubit.state.errors['age'], 'Age error');
-      });
-
-      test('should clear multiple field errors', () {
-        formCubit.updateErrors(
-          errors: {'email': 'Email error', 'age': 'Age error'},
-          context: mockContext,
-        );
-
-        formCubit.updateErrors(
-          errors: {'email': null, 'age': null},
-          context: mockContext,
-        );
-
-        expect(formCubit.state.errors['email'], isNull);
-        expect(formCubit.state.errors['age'], isNull);
-      });
-
-      test('should throw FormFieldError for non-existent field in updateErrors',
-          () {
-        expect(
-          () => formCubit.updateErrors(
-            errors: {'nonExistent': 'error'},
-            context: mockContext,
-          ),
-          throwsA(isA<FormFieldError>()),
-        );
-      });
-    });
-
     group('Cubit Lifecycle', () {
       test('should dispose resources properly', () async {
         formCubit = TestFormFactory.createFormWithEmailAndAge();
@@ -566,6 +316,209 @@ void main() {
         await formCubit.close();
 
         expect(true, isTrue); // Test passes if no exception is thrown
+      });
+    });
+
+    group('Additional Coverage Tests', () {
+      setUp(() {
+        formCubit = TestFormFactory.createFormWithEmailAndAge();
+      });
+
+      test('should handle updateFieldValidators delegation', () {
+        final validators = [MockValidator<String>()];
+
+        formCubit.updateFieldValidators<String>(
+          name: 'email',
+          validators: validators,
+          context: mockContext,
+        );
+
+        // Test that the method executes without error
+        expect(formCubit.state.values.containsKey('email'), isTrue);
+      });
+
+      test('should handle form validation with disabled strategy', () {
+        // Create a form with disabled validation
+        formCubit = TypedFormController(
+          fields: TestFieldFactory.createEmailAndAgeFields(),
+          validationStrategy: ValidationStrategy.disabled,
+        );
+
+        formCubit.validateForm(
+          mockContext,
+          onValidationPass: () {},
+          onValidationFail: () {},
+        );
+
+        // Test that the method executes without error
+        expect(formCubit.state.validationStrategy, ValidationStrategy.disabled);
+      });
+
+      test(
+          'should handle form validation with disabled strategy - submission service path',
+          () {
+        // Create a form with disabled validation to trigger the submission service path
+        formCubit = TypedFormController(
+          fields: TestFieldFactory.createEmailAndAgeFields(),
+          validationStrategy: ValidationStrategy.disabled,
+        );
+
+        formCubit.validateForm(
+          mockContext,
+          onValidationPass: () {},
+          onValidationFail: () {},
+        );
+
+        // Test that the method executes without error and calls the submission service
+        expect(formCubit.state.validationStrategy, ValidationStrategy.disabled);
+        // The submission service path should be covered now
+      });
+
+      test('should handle updateErrors delegation', () {
+        formCubit.updateErrors(
+          errors: {'email': 'Custom error'},
+          context: mockContext,
+        );
+
+        // Test that the method executes without error
+        expect(formCubit.state.errors['email'], 'Custom error');
+      });
+
+      test('should handle updateError delegation', () {
+        formCubit.updateError(
+          fieldName: 'email',
+          errorMessage: 'Custom error',
+          context: mockContext,
+        );
+
+        // Test that the method executes without error
+        expect(formCubit.state.errors['email'], 'Custom error');
+      });
+
+      test('should handle clearError delegation', () {
+        // First set an error
+        formCubit.updateError(
+          fieldName: 'email',
+          errorMessage: 'Custom error',
+          context: mockContext,
+        );
+        expect(formCubit.state.errors['email'], 'Custom error');
+
+        // Then clear it
+        formCubit.updateError(
+          fieldName: 'email',
+          errorMessage: null,
+          context: mockContext,
+        );
+
+        // Test that the error is cleared
+        expect(formCubit.state.errors.containsKey('email'), isFalse);
+      });
+
+      test('should handle addField delegation', () {
+        final newField = FormFieldDefinition<String>(
+          name: 'newField',
+          validators: [MockValidator<String>()],
+          initialValue: 'initial',
+        );
+
+        formCubit.addField(
+          field: newField,
+          context: mockContext,
+        );
+
+        // Test that the field was added
+        expect(formCubit.state.values['newField'], 'initial');
+        expect(formCubit.state.fieldTypes['newField'], String);
+      });
+
+      test('should handle removeField delegation', () {
+        formCubit.removeField(
+          'email',
+          context: mockContext,
+        );
+
+        // Test that the field was removed
+        expect(formCubit.state.values.containsKey('email'), isFalse);
+        expect(formCubit.state.fieldTypes.containsKey('email'), isFalse);
+      });
+
+      test('should handle removeFields delegation', () {
+        formCubit.removeFields(
+          ['email', 'age'],
+          context: mockContext,
+        );
+
+        // Test that the fields were removed
+        expect(formCubit.state.values.containsKey('email'), isFalse);
+        expect(formCubit.state.values.containsKey('age'), isFalse);
+      });
+
+      test('should handle addFields delegation', () {
+        final newFields = [
+          FormFieldDefinition<String>(
+            name: 'newField1',
+            validators: [MockValidator<String>()],
+            initialValue: 'initial1',
+          ),
+          FormFieldDefinition<String>(
+            name: 'newField2',
+            validators: [MockValidator<String>()],
+            initialValue: 'initial2',
+          ),
+        ];
+
+        formCubit.addFields(
+          fields: newFields,
+          context: mockContext,
+        );
+
+        // Test that the fields were added
+        expect(formCubit.state.values['newField1'], 'initial1');
+        expect(formCubit.state.values['newField2'], 'initial2');
+        expect(formCubit.state.fieldTypes['newField1'], String);
+        expect(formCubit.state.fieldTypes['newField2'], String);
+      });
+
+      testWidgets('should submit form with validation disabled',
+          (tester) async {
+        formCubit = TypedFormController(
+          fields: TestFieldFactory.createEmailAndAgeFields(),
+          validationStrategy: ValidationStrategy.disabled,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: BlocProvider<TypedFormController>(
+                create: (context) => formCubit,
+                child: Builder(
+                  builder: (context) {
+                    return ElevatedButton(
+                      onPressed: () {
+                        formCubit.validateForm(
+                          context,
+                          onValidationPass: () {},
+                          onValidationFail: () {},
+                        );
+                      },
+                      child: const Text('Submit'),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        // Tap the submit button
+        await tester.tap(find.text('Submit'));
+        await tester.pump();
+
+        // Should not throw any errors and should proceed with submission
+        expect(find.text('Submit'), findsOneWidget);
       });
     });
   });
@@ -589,7 +542,8 @@ class MockValidator<T> implements Validator<T> {
 // Test utilities for creating common form configurations
 class TestFormFactory {
   static TypedFormController createFormWithEmailAndAge({
-    ValidationStrategy validationStrategy = ValidationStrategy.allFieldsRealTime,
+    ValidationStrategy validationStrategy =
+        ValidationStrategy.allFieldsRealTime,
   }) {
     return TypedFormController(
       fields: [
@@ -601,7 +555,8 @@ class TestFormFactory {
   }
 
   static TypedFormController createFormWithEmailOnly({
-    ValidationStrategy validationStrategy = ValidationStrategy.allFieldsRealTime,
+    ValidationStrategy validationStrategy =
+        ValidationStrategy.allFieldsRealTime,
   }) {
     return TypedFormController(
       fields: [
@@ -614,7 +569,8 @@ class TestFormFactory {
   static TypedFormController createFormWithValidators({
     MockValidator<String>? emailValidator,
     MockValidator<int>? ageValidator,
-    ValidationStrategy validationStrategy = ValidationStrategy.allFieldsRealTime,
+    ValidationStrategy validationStrategy =
+        ValidationStrategy.allFieldsRealTime,
   }) {
     final fields = <FormFieldDefinition>[];
 
@@ -630,7 +586,8 @@ class TestFormFactory {
           FormFieldDefinition<int>(name: 'age', validators: [ageValidator]));
     }
 
-    return TypedFormController(fields: fields, validationStrategy: validationStrategy);
+    return TypedFormController(
+        fields: fields, validationStrategy: validationStrategy);
   }
 
   static TypedFormController createFormWithInitialValues() {

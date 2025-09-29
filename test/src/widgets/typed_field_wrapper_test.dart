@@ -588,6 +588,52 @@ void main() {
         // Should not crash or cause issues
         expect(find.byType(Container), findsOneWidget);
       });
+
+      testWidgets('should use currentValue when formValue is null in listener',
+          (tester) async {
+        String? capturedValue;
+        String? capturedError;
+        bool? capturedHasError;
+
+        await tester.pumpWidget(
+          createTestWidget(
+            TypedFieldWrapper<String>(
+              fieldName: 'email',
+              initialValue: 'initial@test.com',
+              onFieldStateChanged: (value, error, hasError) {
+                capturedValue = value;
+                capturedError = error;
+                capturedHasError = hasError;
+              },
+              builder: (context, value, error, hasError, updateValue) {
+                return TextFormField(
+                  key: const Key('email_field'),
+                  initialValue: value,
+                  onChanged: updateValue,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    errorText: hasError ? error : null,
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+
+        await tester.pump();
+
+        // Clear the form value to simulate formValue being null
+        formCubit.updateField(
+            fieldName: 'email',
+            value: null,
+            context: tester.element(find.byType(MaterialApp)));
+        await tester.pump();
+
+        // The listener should have been called with the currentValue (initial value)
+        expect(capturedValue, equals('initial@test.com'));
+        expect(capturedError, isNull);
+        expect(capturedHasError, isFalse);
+      });
     });
   });
 }

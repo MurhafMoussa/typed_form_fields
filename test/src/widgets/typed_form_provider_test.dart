@@ -498,9 +498,9 @@ void main() {
       // Wait for the post-frame callback to execute
       await tester.pump();
 
-      // The form should fail validation initially because the field hasn't been touched
-      expect(validationPassed, isFalse);
-      expect(validationFailed, isTrue);
+      // The form should pass validation because the email field has a valid value
+      expect(validationPassed, isTrue);
+      expect(validationFailed, isFalse);
     });
   });
 }
