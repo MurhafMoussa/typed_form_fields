@@ -75,7 +75,7 @@ class RegistrationFormScreen extends StatelessWidget {
             ),
             FormFieldDefinition<String>(
               name: 'confirmPassword',
-              validators: [TypedCommonValidators.required<String>()],
+              validators: [TypedCrossFieldValidators.matches('password')],
               initialValue: '',
             ),
             FormFieldDefinition<bool>(

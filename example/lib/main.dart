@@ -149,20 +149,7 @@ class ExampleHomeScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _buildExampleCard(
-                    context,
-                    title: 'Multi-Step Form',
-                    description:
-                        'Complex multi-step form with progress tracking and validation',
-                    icon: Icons.linear_scale,
-                    route: '/multi-step',
-                    features: [
-                      'Step validation',
-                      'Progress tracking',
-                      'Dynamic navigation',
-                    ],
-                  ),
-                  const SizedBox(height: 12),
+
                   _buildExampleCard(
                     context,
                     title: 'Widget Showcase',
