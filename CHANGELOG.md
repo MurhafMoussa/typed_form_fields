@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.3.1 - Visual Assets & Documentation Enhancement
+
+### 🎨 **Visual Assets**
+- **Validation Strategy Visuals**: Added comprehensive visual representations for all 5 validation strategies
+- **External Asset Links**: Integrated GitHub-hosted visual assets for better pub.dev compatibility
+- **Visual Strategy Comparison**: Enhanced README.md with visual comparison table showing all validation strategies
+- **Improved Package Appeal**: Visual assets make the package more engaging and easier to understand on pub.dev
+
+### 📚 **Documentation**
+- **Enhanced README**: Added visual strategy comparison table with external asset links
+- **Better User Experience**: Visual representations help users quickly understand each validation strategy
+- **Professional Presentation**: Improved package presentation on pub.dev with visual content
+
 ## 1.3.0 - Major Refactoring: Service Architecture & 100% Test Coverage
 
 ### 🏗️ **Major Refactoring**

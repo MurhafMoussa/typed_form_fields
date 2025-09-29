@@ -414,11 +414,11 @@ The package supports **5 different validation strategies** to control when and h
 
 | Strategy                 | Visual                                                    | Description                            |
 | ------------------------ | --------------------------------------------------------- | -------------------------------------- |
-| **onSubmitOnly**         | ![onSubmitOnly](assets/onSubmitOnly.webp)                 | Validation only on form submission     |
-| **onSubmitThenRealTime** | ![onSubmitThenRealTime](assets/onSubmitThenRealTime.webp) | Validation on submit, then real-time   |
-| **realTimeOnly**         | ![realTimeOnly](assets/realTimeOnly.webp)                 | Real-time validation for edited fields |
-| **allFieldsRealTime**    | ![allFieldsRealTime](assets/allFieldsRealTime.webp)       | Real-time validation for all fields    |
-| **disabled**             | ![disabled](assets/disabled.webp)                         | No validation occurs                   |
+| **onSubmitOnly**         | ![onSubmitOnly](https://github.com/user-attachments/assets/64e3e251-1e5c-471a-9ff5-d876d8211131)                 | Validation only on form submission     |
+| **onSubmitThenRealTime** | ![onSubmitThenRealTime](https://github.com/user-attachments/assets/f2c2dcf1-afc7-4723-8892-140f598ad841) | Validation on submit, then real-time   |
+| **realTimeOnly**         | ![realTimeOnly](https://github.com/user-attachments/assets/c574636e-1194-4c99-9c8a-0f9a07fa18cb)                 | Real-time validation for edited fields |
+| **allFieldsRealTime**    | ![allFieldsRealTime](https://github.com/user-attachments/assets/addca2a5-fc46-40bd-a864-adf3e2e4d8a4)       | Real-time validation for all fields    |
+| **disabled**             | ![disabled](https://github.com/user-attachments/assets/72e4fa9c-9e1f-4102-a322-9bdd54e28170)                         | No validation occurs                   |
 
 ### **ValidationStrategy.onSubmitOnly**
 

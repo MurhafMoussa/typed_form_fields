@@ -3,7 +3,7 @@ name: typed_form_fields
 description: >-
   Type-safe, universal form field wrapper for Flutter with zero dependencies, high performance, and validation optimizations.
 
-version: 1.3.0
+version: 1.3.1
 
 homepage: https://github.com/MurhafMoussa/typed_form_fields
 repository: https://github.com/MurhafMoussa/typed_form_fields
@@ -41,17 +41,4 @@ topics:
   - state-management
   - zero-dependencies
 
-screenshots:
-  - description: "onSubmitOnly - Validation only on form submission"
-    path: assets/onSubmitOnly.webp
-  - description: "onSubmitThenRealTime - Validation on submit, then real-time"
-    path: assets/onSubmitThenRealTime.webp
-  - description: "realTimeOnly - Real-time validation for edited fields"
-    path: assets/realTimeOnly.webp
-  - description: "allFieldsRealTime - Real-time validation for all fields"
-    path: assets/allFieldsRealTime.webp
-  - description: "disabled - No validation occurs"
-    path: assets/disabled.webp
 
-funding:
-  - https://github.com/sponsors/yourusername
