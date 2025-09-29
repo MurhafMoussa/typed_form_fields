@@ -406,18 +406,24 @@ final validator = ConditionalValidators.whenNotEmpty(
 
 See also: `SwitchValidator`, `ChainValidator`, and more for advanced conditional flows.
 
-## ⚙️ **Validation Types**
+## ⚙️ **Validation Strategies**
 
-The package supports **4 different validation strategies** to control when and how validation occurs:
+The package supports **5 different validation strategies** to control when and how validation occurs:
 
-### **ValidationType.onSubmit**
+### **ValidationStrategy.onSubmitOnly**
 
 Validation only occurs when the form is submitted. Perfect for forms where you want to avoid showing errors until the user attempts to submit.
+
+**Important:** When using `ValidationStrategy.onSubmitOnly`, the validation strategy does NOT automatically switch to real-time validation after a failed submit. This provides a consistent "submit-only" experience.
+
+### **ValidationStrategy.onSubmitThenRealTime**
+
+Validation only occurs when the form is submitted initially, but if validation fails during form submission, the validation strategy automatically switches to `ValidationStrategy.realTimeOnly` to provide immediate feedback as the user corrects the errors.
 
 ```dart
 TypedFormController(
   fields: fields,
-  validationType: ValidationType.onSubmit,
+  validationStrategy: ValidationStrategy.onSubmitThenRealTime,
 )
 
 // Trigger validation on form submission
@@ -429,6 +435,7 @@ TypedFormProvider.of(context).validateForm(
   },
   onValidationFail: () {
     // Form has errors, show feedback to user
+    // Validation strategy automatically changes to realTimeOnly
     print('Please fix the errors before submitting');
   },
 );
@@ -448,6 +455,8 @@ ElevatedButton(
       },
       onValidationFail: () {
         // Show error message to user
+        // Note: Validation strategy automatically switches to realTimeOnly
+        // so users will see real-time validation as they fix errors
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please fix the errors before submitting')),
         );
@@ -458,53 +467,60 @@ ElevatedButton(
 )
 ```
 
-### **ValidationType.fieldsBeingEdited** (Default)
+### **ValidationStrategy.realTimeOnly** (Default)
 
 Only validates fields that are currently being edited. This provides a balanced approach between user experience and performance.
 
 ```dart
 TypedFormController(
   fields: fields,
-  validationType: ValidationType.fieldsBeingEdited,
+  validationStrategy: ValidationStrategy.realTimeOnly,
 )
 ```
 
-### **ValidationType.allFields**
+### **ValidationStrategy.allFieldsRealTime**
 
 Validates all fields whenever any field is updated. Provides immediate feedback but may impact performance with large forms.
 
 ```dart
 TypedFormController(
   fields: fields,
-  validationType: ValidationType.allFields,
+  validationStrategy: ValidationStrategy.allFieldsRealTime,
 )
 ```
 
-### **ValidationType.disabled**
+### **ValidationStrategy.disabled**
 
-Disables automatic validation. Useful when you want to handle validation manually or in specific scenarios.
+Disables automatic validation. When disabled, the form is always considered valid. Useful when you want to handle validation manually or in specific scenarios.
 
 ```dart
 TypedFormController(
   fields: fields,
-  validationType: ValidationType.disabled,
+  validationStrategy: ValidationStrategy.disabled,
 )
 ```
 
-### **Dynamic Validation Type Changes**
+### **Dynamic Validation Strategy Changes**
 
-You can change the validation type at runtime:
+You can change the validation strategy at runtime:
 
 ```dart
 // Change validation behavior dynamically
-TypedFormProvider.of(context).setValidationType(ValidationType.onSubmit);
+TypedFormProvider.of(context).setValidationStrategy(ValidationStrategy.onSubmitOnly);
 
-// Available validation types:
-// - ValidationType.allFields: Validate all fields on every change
-// - ValidationType.fieldsBeingEdited: Only validate fields being edited
-// - ValidationType.onSubmit: Only validate on form submission
-// - ValidationType.disabled: Disable automatic validation
+// Available validation strategies:
+// - ValidationStrategy.allFieldsRealTime: Validate all fields on every change
+// - ValidationStrategy.realTimeOnly: Only validate fields being edited
+// - ValidationStrategy.onSubmitOnly: Only validate on form submission (no auto-switch)
+// - ValidationStrategy.onSubmitThenRealTime: Validate on submit, then switch to real-time
+// - ValidationStrategy.disabled: Disable automatic validation (always valid)
 ```
+
+**Automatic Validation Strategy Switching:**
+When using `ValidationStrategy.onSubmitThenRealTime`, the form automatically switches to `ValidationStrategy.realTimeOnly` if validation fails during submission. This provides a better user experience by showing real-time validation feedback as users correct their errors.
+
+**No Auto-Switch for onSubmitOnly:**
+When using `ValidationStrategy.onSubmitOnly`, the form maintains the submit-only behavior even after validation failures, providing a consistent experience.
 
 ## 🔄 **Dynamic Form Updates**
 
@@ -578,7 +594,7 @@ TypedFormProvider.of(context).updateFields<String>(
 
 ```dart
 // Change validation behavior for the entire form
-TypedFormProvider.of(context).setValidationType(ValidationType.onSubmit);
+TypedFormProvider.of(context).setvalidationStrategy(validationStrategy.onSubmit);
 
 // See the "Validation Types" section above for detailed explanations
 // of all available validation strategies
